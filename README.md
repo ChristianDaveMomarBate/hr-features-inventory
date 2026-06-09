@@ -18,7 +18,7 @@
 Setting up your development environment on your local machine:
 ```
 git clone https://github.com/ChristianDaveMomarBate/Quarantech.git
-cd Quarantech
+cd pgsdnHR
 composer install
 npm install
 cp .env.example .env
@@ -35,7 +35,7 @@ Create Database and Set-up db credential on .env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=Quarantech
+DB_DATABASE=pgsdnHR
 DB_USERNAME={USERNAME}
 DB_PASSWORD={PASSWORD}
 ```
