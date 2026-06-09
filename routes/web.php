@@ -12,6 +12,4 @@ Route::get('/', function () {
 });
 
 // Dashboard (accessible after login)
-Route::get('/dashboard', [HomeController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
+Route::get('/dashboard', [HomeController::class, 'index'])->middleware('auth')->name('dashboard');
