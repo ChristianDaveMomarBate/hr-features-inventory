@@ -12,7 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @include('style.style')
 </head>
-<body>
+<body
+    data-dashboard-url="{{ route('dashboard') }}"
+    data-dashboard-base-url="{{ url('/dashboard') }}"
+>
     <div class="dashboard-container">
         @include('InventoryDashboard.sidebar')
 
@@ -57,9 +60,9 @@
                                             @csrf
                                             @method('PUT')
                                             <select name="role" class="form-select" style="min-width: 140px;">
-                                                <option value="admin" @selected($user->role === 'admin')>Admin</option>
-                                                <option value="staff" @selected($user->role === 'staff')>Staff</option>
-                                                <option value="viewer" @selected($user->role === 'viewer')>Viewer</option>
+                                                <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                                                <option value="staff" {{ $user->role === 'staff' ? 'selected' : '' }}>Staff</option>
+                                                <option value="viewer" {{ $user->role === 'viewer' ? 'selected' : '' }}>Viewer</option>
                                             </select>
                                             <input type="hidden" name="is_active" value="{{ $user->is_active ? 1 : 0 }}">
                                         </form>
@@ -99,50 +102,18 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <script>
-        function showPage(pageId) {
-            window.location = pageId === 'dashboard' ? '{{ route('dashboard') }}' : '{{ url('/dashboard') }}/' + pageId;
-        }
-
-        function confirmLogout() {
-            new bootstrap.Modal(document.getElementById('logoutModal')).show();
-        }
-    </script>
 
     <!-- Toast Notification -->
     <div id="toastContainer" style="position:fixed;top:24px;right:24px;z-index:9999;min-width:320px;"></div>
 
     @if(session('success'))
-    <script>
-      document.addEventListener('DOMContentLoaded', function() { showToast('success', @json(session('success'))); });
-    </script>
+    <div id="flashSuccess" data-message="{{ session('success') }}" hidden></div>
     @endif
     @if(session('error'))
-    <script>
-      document.addEventListener('DOMContentLoaded', function() { showToast('error', @json(session('error'))); });
-    </script>
+    <div id="flashError" data-message="{{ session('error') }}" hidden></div>
     @endif
 
-    <script>
-    function showToast(type, message) {
-      const container = document.getElementById('toastContainer');
-      const id = 'toast-' + Date.now();
-      const isSuccess = type === 'success';
-      const toast = document.createElement('div');
-      toast.id = id;
-      toast.style.cssText = `display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.13);padding:16px 20px;margin-bottom:12px;border-left:4px solid ${isSuccess?'#10b981':'#ef4444'};opacity:0;transform:translateX(30px);transition:opacity 0.35s ease,transform 0.35s ease;`;
-      toast.innerHTML = `<span style="font-size:20px;line-height:1;margin-top:2px;">${isSuccess?'✅':'❌'}</span><div style="flex:1;"><div style="font-weight:600;font-size:14px;color:#111827;margin-bottom:2px;">${isSuccess?'Success':'Error'}</div><div style="font-size:13px;color:#6b7280;">${message}</div></div><button onclick="removeToast('${id}')" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;line-height:1;padding:0;">×</button>`;
-      container.appendChild(toast);
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{ toast.style.opacity='1'; toast.style.transform='translateX(0)'; }));
-      setTimeout(()=>removeToast(id), 3000);
-    }
-    function removeToast(id) {
-      const t = document.getElementById(id);
-      if(!t) return;
-      t.style.opacity='0'; t.style.transform='translateX(30px)';
-      setTimeout(()=>t.remove(), 350);
-    }
-    </script>
+    @vite('resources/js/inventory/script.js')
 
 </body>
 </html>

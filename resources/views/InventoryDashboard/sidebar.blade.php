@@ -11,34 +11,34 @@
     </div>
 
   <ul>
-    <li class="active" onclick="showPage('dashboard', this)">
+    <li class="active" data-page-target="dashboard">
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </li>
-    <li onclick="showPage('inventory-registry', this)">
+    <li data-page-target="inventory-registry">
         <i class="bi bi-clipboard-data-fill"></i>
         <span>Inventory Registry</span>
     </li>
     @if(!auth()->user()->isViewer())
-    <li onclick="showPage('stock-management', this)">
+    <li data-page-target="stock-management">
         <i class="bi bi-arrow-left-right"></i>
         <span>Stock Management</span>
     </li>
     @endif
     @if(!auth()->user()->isStaff())
-    <li onclick="showPage('analytics', this)">
+    <li data-page-target="analytics">
         <i class="bi bi-bar-chart-fill"></i>
         <span>Analytics</span>
     </li>
     @endif
     @if(!auth()->user()->isViewer())
-    <li onclick="showPage('audit-trails', this)">
+    <li data-page-target="audit-trails">
         <i class="bi bi-clock-history"></i>
         <span>Audit Trails</span>
     </li>
     @endif
     @if(auth()->user()->isAdmin())
-    <li onclick="window.location='{{ route('users.index') }}'">
+    <li data-navigate-url="{{ route('users.index') }}">
         <i class="bi bi-people-fill"></i>
         <span>Users</span>
     </li>
@@ -65,7 +65,7 @@
     </div>
     <form method="POST" action="{{ route('logout') }}" id="logoutForm">
         @csrf
-        <button type="button" class="sidebar-logout-btn" onclick="confirmLogout()">
+        <button type="button" class="sidebar-logout-btn" data-action="confirm-logout">
             <i class="bi bi-box-arrow-right"></i>
             <span>Logout</span>
         </button>
@@ -85,37 +85,9 @@
                 <p class="text-muted mb-4" style="font-size:14px;">Are you sure you want to log out of the system?</p>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger flex-grow-1" onclick="document.getElementById('logoutForm').submit()">Yes, Logout</button>
+                    <button type="button" class="btn btn-danger flex-grow-1" data-action="submit-logout">Yes, Logout</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-function confirmLogout() {
-    new bootstrap.Modal(document.getElementById('logoutModal')).show();
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    const toggleBtn = document.getElementById('sidebarToggleBtn');
-    const collapsedClass = 'sidebar-collapsed';
-    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-
-    function setSidebarState(collapsed) {
-        document.body.classList.toggle(collapsedClass, collapsed);
-        localStorage.setItem('sidebarCollapsed', collapsed ? 'true' : 'false');
-        toggleBtn.setAttribute('aria-label', collapsed ? 'Show sidebar' : 'Hide sidebar');
-        toggleBtn.setAttribute('title', collapsed ? 'Show sidebar' : 'Hide sidebar');
-        toggleBtn.innerHTML = collapsed
-            ? '<i class="bi bi-layout-sidebar-inset-reverse"></i>'
-            : '<i class="bi bi-layout-sidebar-inset"></i>';
-    }
-
-    setSidebarState(isCollapsed);
-
-    toggleBtn.addEventListener('click', function () {
-        setSidebarState(!document.body.classList.contains(collapsedClass));
-    });
-});
-</script>

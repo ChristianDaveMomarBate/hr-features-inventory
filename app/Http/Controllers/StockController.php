@@ -36,7 +36,7 @@ class StockController extends Controller
 
         $errors = [];
 
-        DB::transaction(function () use ($items, $reference, $remarks, &$errors) {
+        DB::transaction(function () use ($items, &$errors) {
             foreach ($items as $index => $row) {
                 $item = InventoryItem::findOrFail($row['inventory_item_id']);
                 $type = strtolower($row['type']);
@@ -97,5 +97,42 @@ class StockController extends Controller
 
         return redirect()->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Stock transaction(s) recorded successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $tx = StockTransaction::with('inventoryItem')->findOrFail($id);
+        $item = $tx->inventoryItem;
+
+        // Reverse the stock effect
+        if ($item) {
+            $oldStock = $item->stock;
+
+            if ($tx->type === 'in') {
+                $item->stock -= $tx->quantity;
+            } elseif ($tx->type === 'out') {
+                $item->stock += $tx->quantity;
+            } elseif ($tx->type === 'adjustment') {
+                // Cannot reliably reverse adjustments, just log it
+            }
+
+            $item->stock = max(0, $item->stock);
+            $item->save();
+
+            AuditTrail::create([
+                'user_id'        => Auth::id(),
+                'action'         => 'Deleted Transaction',
+                'module'         => 'Stock Management',
+                'item_reference' => $item->code,
+                'old_value'      => "Stock: {$oldStock} | Tx Type: {$tx->type}, Qty: {$tx->quantity}",
+                'new_value'      => "Stock: {$item->stock} (transaction deleted)",
+                'remarks'        => 'Transaction deleted by admin.',
+            ]);
+        }
+
+        $tx->delete();
+
+        return redirect()->route('dashboard', ['page' => 'stock-management'])
+            ->with('success', 'Transaction deleted and stock reversed successfully.');
     }
 }

@@ -1,8 +1,8 @@
 <div id="stock-management" class="page" data-is-admin="{{ auth()->user()->isAdmin() ? 'true' : 'false' }}">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 stock-header">
         <div>
-            <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Stock Management</h1>
-            <p class="text-muted mb-0">Record stock ins, outs, and adjustments. Add multiple items at once.</p>
+            <h1 class="mb-1 fw-bold page-title">Stock Management</h1>
+            <p class="text-muted mb-0 page-subtitle">Record stock ins, outs, and adjustments. Add multiple items at once.</p>
         </div>
     </div>
 
@@ -10,28 +10,30 @@
     <div class="row g-4">
         <!-- Batch Transaction Form -->
         <div class="col-12">
-            <div class="chart-card p-0 d-flex flex-column overflow-hidden">
-                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-0">New Transaction</h5>
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Multi-Item</span>
+            <div class="chart-card p-0 d-flex flex-column overflow-hidden stock-action-card">
+                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center card-header-premium">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded p-2"><i class="bi bi-box-seam"></i></div> New Transaction
+                    </h5>
+                    <span class="badge badge-premium badge-multi-item">Multi-Item Mode</span>
                 </div>
                 <div class="p-4 bg-white">
                     <form method="POST" action="{{ route('stock.store') }}" id="batchStockForm">
                         @csrf
 
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-semibold mb-0">Items</label>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow()">
-                                <i class="bi bi-plus-lg me-1"></i>Add Item
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light">
+                            <label class="form-label fw-bold text-secondary mb-0 text-uppercase tracking-wide" style="font-size: 0.8rem; letter-spacing: 0.5px;">Items to Process</label>
+                            <button type="button" class="btn btn-sm btn-premium-outline" data-action="add-stock-row">
+                                <i class="bi bi-plus-circle-fill me-1"></i> Add Row
                             </button>
                         </div>
 
                         <!-- Batch Item Rows -->
-                        <div id="batchItemsContainer" class="stock-items-grid"></div>
+                        <div id="batchItemsContainer" class="stock-items-grid mb-3"></div>
 
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-check-circle me-2"></i>Save Transaction(s)
+                        <div class="mt-4 pt-3 border-top border-light d-flex justify-content-end">
+                            <button type="submit" class="btn btn-premium-primary px-4 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-2" style="font-size: 0.9rem;">
+                                <i class="bi bi-check2-all fs-6"></i> Confirm & Save Transaction(s)
                             </button>
                         </div>
                     </form>
@@ -41,12 +43,14 @@
 
         <!-- Recent Transactions Table -->
         <div class="col-12">
-            <div class="chart-card p-0 h-100 d-flex flex-column overflow-hidden">
-                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-0">Recent Transactions</h5>
+            <div class="chart-card p-0 h-100 d-flex flex-column overflow-hidden stock-table-card">
+                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center card-header-premium">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                        <div class="icon-box bg-secondary bg-opacity-10 text-secondary rounded p-2"><i class="bi bi-clock-history"></i></div> Recent Transactions
+                    </h5>
                 </div>
-                <div class="table-responsive flex-grow-1 bg-white">
-                    <table class="table table-hover table-modern align-middle mb-0 border-0">
+                <div class="table-responsive flex-grow-1 bg-white p-3 pt-0">
+                    <table class="table table-hover table-modern align-middle mb-0 border-0 stock-table">
                         <thead>
                             <tr>
                                 <th class="ps-4 py-3 border-0">Date</th>
@@ -55,111 +59,84 @@
                                 <th>Qty</th>
                                 <th>Reference</th>
                                 <th>Remarks</th>
+                                @if(auth()->user()->isAdmin())
+                                    <th class="text-end pe-4">Action</th>
+                                @endif
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($stockTransactions as $tx)
-                                <tr>
-                                    <td class="ps-4 text-nowrap py-3 fw-medium text-secondary" style="font-size:13px;">{{ $tx->created_at->format('M d, Y h:i A') }}</td>
+                        <tbody id="txTableBody">
+                            @forelse($stockTransactions as $i => $tx)
+                                <tr class="stock-table-row" data-row-index="{{ $i }}">
+                                    <td class="ps-4 text-nowrap py-3 fw-medium text-secondary" style="font-size:13px;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="calendar-icon text-muted"><i class="bi bi-calendar2-event"></i></div>
+                                            {{ $tx->created_at->format('M d, Y h:i A') }}
+                                        </div>
+                                    </td>
                                     <td class="py-3">
                                         @if($tx->type == 'in')
-                                            <span class="badge bg-emerald-50 text-emerald-500 border border-success border-opacity-25 px-2 py-1">IN</span>
+                                            <span class="badge badge-tx-in px-3 py-2 rounded-pill"><i class="bi bi-arrow-down-left-circle me-1"></i> IN</span>
                                         @elseif($tx->type == 'out')
-                                            <span class="badge bg-amber-50 text-amber-500 border border-warning border-opacity-25 px-2 py-1">OUT</span>
+                                            <span class="badge badge-tx-out px-3 py-2 rounded-pill"><i class="bi bi-arrow-up-right-circle me-1"></i> OUT</span>
                                         @else
-                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">ADJ</span>
+                                            <span class="badge badge-tx-adj px-3 py-2 rounded-pill"><i class="bi bi-sliders me-1"></i> ADJ</span>
                                         @endif
                                     </td>
                                     <td class="py-3">
                                         @if($tx->inventoryItem)
-                                            <span class="fw-semibold text-dark">{{ $tx->inventoryItem->code }}</span> - <span class="text-secondary">{{ $tx->inventoryItem->name }}</span>
+                                            <div class="fw-bold text-dark">{{ $tx->inventoryItem->code }}</div>
+                                            <div class="text-secondary small">{{ $tx->inventoryItem->name }}</div>
                                         @else
-                                            <span class="text-muted">Deleted Item</span>
+                                            <span class="text-muted fst-italic">Deleted Item</span>
                                         @endif
                                     </td>
-                                    <td class="py-3 fw-bold text-dark">{{ $tx->quantity }}</td>
-                                    <td class="py-3 text-secondary">{{ $tx->reference }}</td>
-                                    <td class="py-3"><small class="text-muted">{{ $tx->remarks }}</small></td>
+                                    <td class="py-3">
+                                        <span class="qty-badge {{ $tx->type == 'out' ? 'qty-out' : 'qty-in' }}">
+                                            {{ $tx->type == 'out' ? '-' : '+' }}{{ $tx->quantity }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-secondary fw-medium">{{ $tx->reference ?: '—' }}</td>
+                                    <td class="py-3"><span class="text-muted small">{{ $tx->remarks ?: '—' }}</span></td>
+                                    @if(auth()->user()->isAdmin())
+                                        <td class="py-3 text-end pe-4">
+                                            <form action="{{ route('stock.destroy', $tx->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this transaction? The stock will be reversed.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete transaction">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted">No recent transactions.</td>
+                                    <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-icon text-muted mb-3"><i class="bi bi-inboxes" style="font-size: 2.5rem;"></i></div>
+                                            <h6 class="text-dark fw-bold">No Transactions Yet</h6>
+                                            <p class="text-muted small">Your recent stock movements will appear here.</p>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+            <div id="txPaginationFooter" class="card-footer bg-white border-top border-light py-3 px-4" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="button" id="txPrevBtn" class="btn btn-sm btn-outline-secondary" onclick="changeTxPage(-1)">
+                        <i class="bi bi-chevron-left"></i> Previous
+                    </button>
+                    <span id="txPageInfo" class="text-muted small fw-medium"></span>
+                    <button type="button" id="txNextBtn" class="btn btn-sm btn-outline-secondary" onclick="changeTxPage(1)">
+                        Next <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
             </div>
         </div>
     </div>
 </div>
 
 <script type="application/json" id="stock-management-items-data">@json($inventoryItems)</script>
-
-<script>
-// Pass items data to JS for the batch dropdowns
-const stockManagementPage = document.getElementById('stock-management');
-const stockManagementItemsData = document.getElementById('stock-management-items-data');
-const allInventoryItems = JSON.parse(stockManagementItemsData?.textContent || '[]');
-const isAdmin = stockManagementPage?.dataset.isAdmin === 'true';
-let rowCount = 0;
-
-function addItemRow() {
-    rowCount++;
-    const idx = rowCount;
-    const container = document.getElementById('batchItemsContainer');
-
-    const typeOptions = isAdmin
-        ? `<option value="in">Stock In</option><option value="out">Stock Out</option><option value="adjustment">Adjustment</option>`
-        : `<option value="in">Stock In</option><option value="out">Stock Out</option>`;
-
-    const itemOptions = allInventoryItems.map(item =>
-        `<option value="${item.id}">${item.code} - ${item.name} (${item.stock} ${item.unit})</option>`
-    ).join('');
-
-    const row = document.createElement('div');
-    row.className = 'stock-item-card border rounded p-3 bg-light position-relative';
-    row.id = `item-row-${idx}`;
-    row.innerHTML = `
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" onclick="removeRow(${idx})" title="Remove"></button>
-        <div class="row g-2">
-            <div class="col-12">
-                <label class="form-label small fw-semibold mb-1">Item</label>
-                <select name="items[${idx}][inventory_item_id]" class="form-select form-select-sm" required>
-                    <option value="">Select item...</option>
-                    ${itemOptions}
-                </select>
-            </div>
-            <div class="col-6">
-                <label class="form-label small fw-semibold mb-1">Type</label>
-                <select name="items[${idx}][type]" class="form-select form-select-sm" required>
-                    ${typeOptions}
-                </select>
-            </div>
-            <div class="col-6">
-                <label class="form-label small fw-semibold mb-1">Quantity</label>
-                <input type="number" name="items[${idx}][quantity]" min="1" class="form-control form-control-sm" placeholder="0" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label small fw-semibold mb-1">Reference No. <span class="text-muted fw-normal">(PO, DR, RIS...)</span></label>
-                <input type="text" name="items[${idx}][reference]" class="form-control form-control-sm" placeholder="e.g. PO-2026-001">
-            </div>
-            <div class="col-12">
-                <label class="form-label small fw-semibold mb-1">Remarks</label>
-                <input type="text" name="items[${idx}][remarks]" class="form-control form-control-sm" placeholder="Optional note...">
-            </div>
-        </div>
-    `;
-    container.appendChild(row);
-}
-
-function removeRow(idx) {
-    const row = document.getElementById(`item-row-${idx}`);
-    if (row) row.remove();
-}
-
-// Auto add the first row on load
-document.addEventListener('DOMContentLoaded', function() {
-    addItemRow();
-});
-</script>

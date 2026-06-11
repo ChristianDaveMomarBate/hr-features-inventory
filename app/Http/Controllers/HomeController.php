@@ -88,6 +88,8 @@ class HomeController extends Controller
             ->groupBy('inventory_item_id')
             ->pluck('total_in', 'inventory_item_id');
 
+        $paginatedTransactions = null; // kept for view compatibility, pagination is JS-driven
+
         return view('InventoryDashboard.index', compact(
             'inventoryItems',
             'stockTransactions',
@@ -95,7 +97,8 @@ class HomeController extends Controller
             'stockInTotals',
             'lowStockAlertItems',
             'lowStockNotifications',
-            'unreadLowStockCount'
+            'unreadLowStockCount',
+            'paginatedTransactions'
         ));
     }
 

@@ -22,6 +22,7 @@ Route::get('/inventory/export/excel', [ExportController::class, 'exportExcel'])-
 
 // Stock Management
 Route::post('/stock/store', [\App\Http\Controllers\StockController::class, 'store'])->middleware(['auth', 'role:admin,staff'])->name('stock.store');
+Route::delete('/stock/{id}', [\App\Http\Controllers\StockController::class, 'destroy'])->middleware(['auth', 'role:admin'])->name('stock.destroy');
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware('auth')->name('notifications.read');
 Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
 Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');

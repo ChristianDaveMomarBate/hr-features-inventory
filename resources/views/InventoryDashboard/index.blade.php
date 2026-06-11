@@ -225,7 +225,7 @@
                       <h5 class="fw-bold text-dark mb-1">Recent Audit Actions</h5>
                       <p class="text-muted small mb-0">Live operational ledger logs</p>
                   </div>
-                  <a href="#" class="fw-semibold text-decoration-none small text-teal-600" onclick="showPage('audit-trails'); return false;">View All</a>
+                  <a href="#" class="fw-semibold text-decoration-none small text-teal-600" data-page-link="audit-trails">View All</a>
               </div>
               <div class="table-responsive">
                   <table class="table table-hover table-modern mb-0 border-0">
@@ -298,255 +298,21 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script>
-    function showPage(pageId, clickedItem) {
-      document.querySelectorAll('.page').forEach(function (page) {
-        page.classList.remove('active-page');
-      });
-
-      document.querySelectorAll('.sidebar li').forEach(function (item) {
-        item.classList.remove('active');
-      });
-
-      document.getElementById(pageId).classList.add('active-page');
-      if (clickedItem) {
-          clickedItem.classList.add('active');
-      }
-      
-      // Update URL
-      if (pageId === 'dashboard') {
-          history.pushState(null, '', '/dashboard');
-      } else {
-          history.pushState(null, '', '/dashboard/' + pageId);
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        // Load the correct tab based on the URL
-        const pathSegments = window.location.pathname.split('/');
-        const pageId = pathSegments[pathSegments.length - 1];
-        const validPages = @json($validDashboardPages);
-        
-        if (validPages.includes(pageId)) {
-            const sidebarItem = document.querySelector(`.sidebar li[onclick*="${pageId}"]`);
-            if (sidebarItem) {
-                showPage(pageId, sidebarItem);
-            }
-        }
-    });
-
-    // Set dynamic current date
-    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', dateOptions);
-
-    // Make charts globally accessible so inventoryRegistry.blade.php can update them
-    let trendChartInstance = null;
-    let distChartInstance = null;
-
-    function initOrUpdateCharts(stockIn, stockOut, currentStock) {
-        // Chart.js Configuration Defaults
-        Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.color = '#64748b'; // slate-500
-        Chart.defaults.scale.grid.color = '#f1f5f9'; // slate-100
-
-        // 1. Line Chart (Stock In vs Stock Out)
-        const ctxTrend = document.getElementById('trendChart').getContext('2d');
-        
-        if (!trendChartInstance) {
-            const gradientIn = ctxTrend.createLinearGradient(0, 0, 0, 300);
-            gradientIn.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
-            gradientIn.addColorStop(1, 'rgba(16, 185, 129, 0)');
-
-            const gradientOut = ctxTrend.createLinearGradient(0, 0, 0, 300);
-            gradientOut.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
-            gradientOut.addColorStop(1, 'rgba(245, 158, 11, 0)');
-
-            trendChartInstance = new Chart(ctxTrend, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                        {
-                            label: 'Stock In',
-                            data: [0, 0, 0, 0, 0, stockIn || 0],
-                            borderColor: '#10b981',
-                            backgroundColor: gradientIn,
-                            borderWidth: 2,
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderColor: '#10b981',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            fill: true,
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Stock Out',
-                            data: [0, 0, 0, 0, 0, stockOut || 0],
-                            borderColor: '#f59e0b',
-                            backgroundColor: gradientOut,
-                            borderWidth: 2,
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderColor: '#f59e0b',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            fill: true,
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, family: "'Inter', sans-serif" },
-                            bodyFont: { size: 13, family: "'Inter', sans-serif" },
-                            padding: 10,
-                            cornerRadius: 8,
-                            boxPadding: 4
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false, drawBorder: false } },
-                        y: { beginAtZero: true, border: { display: false }, grid: { color: '#f1f5f9' } }
-                    },
-                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
-                }
-            });
-        } else {
-            trendChartInstance.data.datasets[0].data[5] = stockIn;
-            trendChartInstance.data.datasets[1].data[5] = stockOut;
-            trendChartInstance.update();
-        }
-
-        // 2. Doughnut Chart (Inventory Distribution)
-        const ctxDist = document.getElementById('distributionChart').getContext('2d');
-        if (!distChartInstance) {
-            distChartInstance = new Chart(ctxDist, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Current Stock', 'Stock Out'],
-                    datasets: [{
-                        data: [currentStock || 0, stockOut || 0],
-                        backgroundColor: ['#14b8a6', '#fbbf24'],
-                        hoverBackgroundColor: ['#0d9488', '#f59e0b'],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '75%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            padding: 10,
-                            cornerRadius: 8,
-                            boxPadding: 4,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed !== null) label += context.parsed + ' units';
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            distChartInstance.data.datasets[0].data = [currentStock, stockOut];
-            distChartInstance.update();
-        }
-
-        document.getElementById('donutTotal').textContent = currentStock + stockOut;
-        document.getElementById('donutCurrent').textContent = currentStock;
-        document.getElementById('donutOut').textContent = stockOut;
-    }
-  </script>
+  <script id="valid-dashboard-pages-data" type="application/json">@json($validDashboardPages)</script>
 
   <!-- Global Toast Notification -->
   <div id="toastContainer" style="position:fixed;top:24px;right:24px;z-index:9999;min-width:320px;"></div>
 
   @if(session('success'))
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      showToast('success', @json(session('success')));
-    });
-  </script>
+  <div id="flashSuccess" data-message="{{ session('success') }}" hidden></div>
   @endif
 
   @if(session('error'))
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      showToast('error', @json(session('error')));
-    });
-  </script>
+  <div id="flashError" data-message="{{ session('error') }}" hidden></div>
   @endif
 
-  <script>
-  function showToast(type, message) {
-    const container = document.getElementById('toastContainer');
-    const id = 'toast-' + Date.now();
-    const isSuccess = type === 'success';
-
-    const toast = document.createElement('div');
-    toast.id = id;
-    toast.style.cssText = `
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.13);
-      padding: 16px 20px;
-      margin-bottom: 12px;
-      border-left: 4px solid ${isSuccess ? '#10b981' : '#ef4444'};
-      opacity: 0;
-      transform: translateX(30px);
-      transition: opacity 0.35s ease, transform 0.35s ease;
-    `;
-
-    toast.innerHTML = `
-      <span style="font-size:20px;line-height:1;margin-top:2px;">${isSuccess ? '✅' : '❌'}</span>
-      <div style="flex:1;">
-        <div style="font-weight:600;font-size:14px;color:#111827;margin-bottom:2px;">${isSuccess ? 'Success' : 'Error'}</div>
-        <div style="font-size:13px;color:#6b7280;">${message}</div>
-      </div>
-      <button onclick="removeToast('${id}')" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;line-height:1;padding:0;margin-top:1px;">×</button>
-    `;
-
-    container.appendChild(toast);
-
-    // Animate in
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateX(0)';
-      });
-    });
-
-    // Auto remove after 3s
-    setTimeout(() => removeToast(id), 3000);
-  }
-
-  function removeToast(id) {
-    const toast = document.getElementById(id);
-    if (!toast) return;
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(30px)';
-    setTimeout(() => toast.remove(), 350);
-  }
-  </script>
+  @vite('resources/js/inventory/script.js')
 
 </body>
 </html>
+

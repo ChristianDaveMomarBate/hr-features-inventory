@@ -187,7 +187,6 @@
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
-    <script src="js/script.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -327,6 +326,7 @@
         </div>
     </section>
 
+    @vite('resources/js/inventory/script.js')
 </body>
 
 </html>
