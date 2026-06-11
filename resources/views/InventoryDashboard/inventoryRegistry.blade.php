@@ -114,6 +114,7 @@
                                 <td>{{ $item->category }}</td>
                                 <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ $item->type ?? 'Consumable' }}</span></td>
                                 <td>{{ $item->unit }}</td>
+                                <td><span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ $item->location ?? '—' }}</span></td>
                                 <td>
                                     <span class="badge {{ $item->stock <= $item->minimum ? 'bg-danger' : 'badge-soft' }}">
                                         {{ $item->stock }}
@@ -123,7 +124,6 @@
                                     <span class="badge bg-success bg-opacity-75">{{ $itemStockIn }}</span>
                                 </td>
                                 <td>{{ $item->minimum }}</td>
-                                <td><span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ $item->location ?? '—' }}</span></td>
                                 <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
                                 <td class="text-end">
                                     @if(auth()->user()->isAdmin())

@@ -63,13 +63,14 @@
             </div>
         </div>
     </div>
-    <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+    <form method="POST" action="{{ route('logout') }}" id="logoutForm" style="display: none;">
         @csrf
-        <button type="button" class="sidebar-logout-btn" data-action="confirm-logout">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Logout</span>
-        </button>
+        @method('POST')
     </form>
+    <button type="button" class="sidebar-logout-btn" data-action="confirm-logout">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+    </button>
   </div>
 </div>
 

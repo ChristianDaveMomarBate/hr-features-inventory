@@ -117,7 +117,11 @@ function initSidebar() {
 
   document.querySelectorAll('[data-action="submit-logout"]').forEach(function(button) {
     button.addEventListener('click', function() {
-      document.getElementById('logoutForm').submit();
+      const form = document.getElementById('logoutForm');
+      if (form) {
+        // Ensure the form is actually submitted
+        form.submit();
+      }
     });
   });
 }
