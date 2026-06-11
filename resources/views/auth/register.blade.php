@@ -32,19 +32,17 @@
             transition: background 0.3s ease;
         }
 
-        /* Glassmorphic Navbar */
+        /* Navbar */
         .navbar-custom {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            background: #000000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease;
         }
 
         .navbar-custom .navbar-brand {
             font-family: 'Outfit', sans-serif;
             font-weight: 700;
-            color: #111111 !important;
+            color: #ffffff !important;
             letter-spacing: -0.5px;
             transition: opacity 0.2s ease;
         }
@@ -52,24 +50,25 @@
         .navbar-custom .navbar-brand:hover { opacity: 0.85; }
 
         .navbar-custom .nav-link {
-            color: #555555 !important;
+            color: #000000 !important;
             font-weight: 600;
             font-size: 0.95rem;
             padding: 0.5rem 1.2rem !important;
             margin: 0 0.15rem;
             border-radius: 20px;
+            background: #ffffff;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .navbar-custom .nav-link:hover {
             color: #000000 !important;
-            background: rgba(0, 0, 0, 0.05);
+            background: #e5e5e5;
         }
 
         .navbar-custom .nav-link.active {
-            color: #ffffff !important;
-            background: #000000;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            color: #000000 !important;
+            background: #ffffff;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
         }
 
         /* Glassmorphic Card */
@@ -197,7 +196,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('login') }}">
                 <img src="images/logo2.webp" alt="PHRMDO Logo" height="35" class="d-inline-block align-top" style="margin-right: 8px;">
-                <span>PHRMDO Inventory</span>
+                <span>PHRMDO Inventory System</span>
             </a>
             <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarRegister" aria-controls="navbarRegister" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -328,11 +327,6 @@
         </div>
     </section>
 
-    <!-- Bottom Floating Link -->
-    <a href="{{ route('login') }}" class="btn btn-dark rounded-pill shadow"
-        style="font-size: 12px; z-index: 1000; position: fixed; bottom: 15px; right: 15px; font-weight: 600; padding: 0.5rem 1rem;">
-        <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Back to Login
-    </a>
 </body>
 
 </html>
