@@ -14,6 +14,7 @@ class InventoryItem extends Model
         'stock',
         'minimum',
         'description',
+        'location',
         'date_registered'
     ];
 

@@ -91,6 +91,7 @@
                             <th>Category</th>
                             <th>Type</th>
                             <th>Unit</th>
+                            <th>Location</th>
                             <th>Current Stock</th>
                             <th>Total Stock In</th>
                             <th>Minimum</th>
@@ -116,6 +117,7 @@
                                     <span class="badge bg-success bg-opacity-75">{{ $itemStockIn }}</span>
                                 </td>
                                 <td>{{ $item->minimum }}</td>
+                                <td><span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ $item->location ?? '—' }}</span></td>
                                 <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
                                 <td class="text-end">
                                     @if(auth()->user()->isAdmin())
@@ -133,7 +135,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-4">
+                                <td colspan="11" class="text-center text-muted py-4">
                                     No inventory items found.
                                 </td>
                             </tr>
@@ -210,9 +212,14 @@
                                 <input type="number" min="0" name="minimum" class="form-control" required>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-geo-alt me-1 text-primary"></i>Storage Location</label>
+                                <input type="text" name="location" class="form-control" placeholder="e.g. Cabinet A, Shelf 2">
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label">Description</label>
-                                <textarea name="description" rows="4" class="form-control"></textarea>
+                                <textarea name="description" rows="2" class="form-control"></textarea>
                             </div>
                         </div>
                     </div>
@@ -274,6 +281,7 @@
         form.elements['stock'].value = item.stock;
         form.elements['minimum'].value = item.minimum;
         form.elements['description'].value = item.description || '';
+        form.elements['location'].value = item.location || '';
         form.elements['date_registered'].value = item.date_registered ? item.date_registered.split('T')[0] : '';
 
         new bootstrap.Modal(document.getElementById("itemModal")).show();
@@ -319,6 +327,7 @@
                     <td>${item.category}</td>
                     <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">${item.type || 'Consumable'}</span></td>
                     <td>${item.unit}</td>
+                    <td><span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>${item.location || '—'}</span></td>
                     <td>
                         <span class="badge ${isLow ? 'bg-danger' : 'badge-soft'}">
                             ${item.stock}
@@ -351,7 +360,8 @@
                 item.category,
                 item.type,
                 item.unit,
-                item.description
+                item.description,
+                item.location
             ].join(' ').toLowerCase();
 
             const matchesSearch = search === "" || searchableText.includes(search);

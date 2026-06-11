@@ -1,5 +1,35 @@
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #monthly-report-section, #monthly-report-section * {
+        visibility: visible;
+    }
+    #monthly-report-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .chart-card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .page.active-page {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+</style>
+
 <div id="analytics" class="page">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
             <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Analytics</h1>
             <p class="text-muted mb-0">Insights and reports on your inventory data.</p>
@@ -8,7 +38,7 @@
 
     <div class="row g-4">
         <!-- Stock by Category -->
-        <div class="col-lg-6">
+        <div class="col-lg-6 no-print">
             <div class="chart-card h-100 p-0 overflow-hidden d-flex flex-column">
                 <div class="p-4 border-bottom border-light bg-white">
                     <h5 class="fw-bold text-dark mb-0">Stock by Category</h5>
@@ -20,7 +50,7 @@
         </div>
 
         <!-- Monthly Transactions -->
-        <div class="col-lg-6">
+        <div class="col-lg-6 no-print">
             <div class="chart-card h-100 p-0 overflow-hidden d-flex flex-column">
                 <div class="p-4 border-bottom border-light bg-white">
                     <h5 class="fw-bold text-dark mb-0">Monthly Stock In vs Out</h5>
@@ -32,7 +62,7 @@
         </div>
 
         <!-- Low Stock Alerts -->
-        <div class="col-12">
+        <div class="col-12 no-print">
             <div class="chart-card p-0 overflow-hidden">
                 <div class="p-4 border-bottom border-light bg-white">
                     <h5 class="fw-bold text-danger mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Critical Low Stock Items</h5>
@@ -67,6 +97,37 @@
                                     <td colspan="5" class="text-center py-5 text-muted">No items are low on stock.</td>
                                 </tr>
                             @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Item Activity Report -->
+        <div class="col-12" id="monthly-report-section">
+            <div class="chart-card p-0 overflow-hidden">
+                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-dark mb-0">Monthly Item Activity Report</h5>
+                    <div class="d-flex gap-3 align-items-center no-print">
+                        <input type="month" id="reportMonthFilter" class="form-control form-control-sm" style="width: auto;">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive bg-white">
+                    <table class="table table-hover table-modern mb-0 border-0" id="reportTable">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 py-3 border-0">Code</th>
+                                <th class="py-3 border-0">Item Name</th>
+                                <th class="py-3 border-0">Category</th>
+                                <th class="py-3 border-0 text-center">Stock Added (IN)</th>
+                                <th class="py-3 border-0 text-center">Stock Used (OUT)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            <!-- Populated by JS -->
                         </tbody>
                     </table>
                 </div>
@@ -116,7 +177,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Monthly Data Processing
-    // We will inject stock transactions here to calculate monthly data
     const rawTx = JSON.parse(document.getElementById('transactions-data').textContent || '[]');
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     let monthlyIn = Array(12).fill(0);
@@ -186,5 +246,75 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+
+    // Setup Monthly Report Filter and Table
+    const reportMonthFilter = document.getElementById('reportMonthFilter');
+    const reportTableBody = document.getElementById('reportTableBody');
+    
+    // Default to current month
+    const today = new Date();
+    const currentMonthStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+    reportMonthFilter.value = currentMonthStr;
+
+    function renderMonthlyReport() {
+        const selectedDate = new Date(reportMonthFilter.value + '-01');
+        const year = selectedDate.getFullYear();
+        const month = selectedDate.getMonth();
+
+        // Group transactions by item for the selected month
+        const itemStats = {};
+        
+        items.forEach(item => {
+            itemStats[item.id] = {
+                code: item.code,
+                name: item.name,
+                category: item.category,
+                added: 0,
+                used: 0
+            };
+        });
+
+        rawTx.forEach(tx => {
+            const txDate = new Date(tx.created_at);
+            if(txDate.getFullYear() === year && txDate.getMonth() === month && tx.inventory_item_id) {
+                const type = String(tx.type || '').toLowerCase();
+                const qty = Number(tx.quantity);
+                if(itemStats[tx.inventory_item_id]) {
+                    if(type === 'in') {
+                        itemStats[tx.inventory_item_id].added += qty;
+                    } else if(type === 'out') {
+                        itemStats[tx.inventory_item_id].used += qty;
+                    }
+                }
+            }
+        });
+
+        let html = '';
+        let hasData = false;
+        
+        Object.values(itemStats).forEach(stat => {
+            if(stat.added > 0 || stat.used > 0) {
+                hasData = true;
+                html += `
+                    <tr>
+                        <td class="ps-4 py-3 fw-semibold text-dark">${stat.code}</td>
+                        <td class="py-3 fw-bold text-dark">${stat.name}</td>
+                        <td class="py-3"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">${stat.category}</span></td>
+                        <td class="py-3 text-center text-success fw-bold">+${stat.added}</td>
+                        <td class="py-3 text-center text-warning fw-bold">-${stat.used}</td>
+                    </tr>
+                `;
+            }
+        });
+
+        if(!hasData) {
+            html = `<tr><td colspan="5" class="text-center py-5 text-muted">No activity found for the selected month.</td></tr>`;
+        }
+        
+        reportTableBody.innerHTML = html;
+    }
+
+    reportMonthFilter.addEventListener('change', renderMonthlyReport);
+    renderMonthlyReport(); // initial render
 });
 </script>

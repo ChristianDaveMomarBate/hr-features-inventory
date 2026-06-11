@@ -78,10 +78,8 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
         $lowStockNotifications = Auth::user()
-            ->unreadNotifications()
-            ->where('type', LowStockAlert::class)
-            ->latest()
-            ->get();
+            ->unreadNotifications
+            ->where('type', LowStockAlert::class);
         $unreadLowStockCount = $lowStockNotifications->count();
 
         // Per-item stock-in totals (sum of all 'in' type transactions per item)
@@ -113,7 +111,8 @@ class HomeController extends Controller
             'stock' => 'required|integer|min:0',
             'minimum' => 'required|integer|min:0',
             'date_registered' => 'required|date',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255'
         ]);
 
         $validatedData['stock'] = (int) $validatedData['stock'];
@@ -148,7 +147,8 @@ class HomeController extends Controller
             'stock' => 'required|integer|min:0',
             'minimum' => 'required|integer|min:0',
             'date_registered' => 'required|date',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255'
         ]);
 
         $validatedData['stock'] = (int) $validatedData['stock'];

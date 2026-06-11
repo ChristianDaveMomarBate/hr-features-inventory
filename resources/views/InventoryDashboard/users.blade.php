@@ -24,9 +24,6 @@
                 </div>
             </div>
 
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
 
             <div class="chart-card p-0 overflow-hidden">
                 <div class="p-4 border-bottom border-light bg-white">
@@ -111,5 +108,41 @@
             new bootstrap.Modal(document.getElementById('logoutModal')).show();
         }
     </script>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" style="position:fixed;top:24px;right:24px;z-index:9999;min-width:320px;"></div>
+
+    @if(session('success'))
+    <script>
+      document.addEventListener('DOMContentLoaded', function() { showToast('success', @json(session('success'))); });
+    </script>
+    @endif
+    @if(session('error'))
+    <script>
+      document.addEventListener('DOMContentLoaded', function() { showToast('error', @json(session('error'))); });
+    </script>
+    @endif
+
+    <script>
+    function showToast(type, message) {
+      const container = document.getElementById('toastContainer');
+      const id = 'toast-' + Date.now();
+      const isSuccess = type === 'success';
+      const toast = document.createElement('div');
+      toast.id = id;
+      toast.style.cssText = `display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.13);padding:16px 20px;margin-bottom:12px;border-left:4px solid ${isSuccess?'#10b981':'#ef4444'};opacity:0;transform:translateX(30px);transition:opacity 0.35s ease,transform 0.35s ease;`;
+      toast.innerHTML = `<span style="font-size:20px;line-height:1;margin-top:2px;">${isSuccess?'✅':'❌'}</span><div style="flex:1;"><div style="font-weight:600;font-size:14px;color:#111827;margin-bottom:2px;">${isSuccess?'Success':'Error'}</div><div style="font-size:13px;color:#6b7280;">${message}</div></div><button onclick="removeToast('${id}')" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;line-height:1;padding:0;">×</button>`;
+      container.appendChild(toast);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{ toast.style.opacity='1'; toast.style.transform='translateX(0)'; }));
+      setTimeout(()=>removeToast(id), 3000);
+    }
+    function removeToast(id) {
+      const t = document.getElementById(id);
+      if(!t) return;
+      t.style.opacity='0'; t.style.transform='translateX(30px)';
+      setTimeout(()=>t.remove(), 350);
+    }
+    </script>
+
 </body>
 </html>

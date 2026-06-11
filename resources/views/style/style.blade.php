@@ -25,7 +25,53 @@ body{
   color: white;
   padding: 26px 22px 130px;
   position: relative;
+  overflow: hidden;
   box-shadow: 10px 0 30px rgba(15, 23, 42, 0.12);
+  transition: flex-basis 0.25s ease, padding 0.25s ease;
+  user-select: none;
+}
+
+.sidebar-toggle-btn{
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d7dee8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover{
+  background: #f8fafc;
+  color: #2563eb;
+}
+
+.sidebar-toggle-btn i{
+  font-size: 20px;
+  line-height: 1;
+}
+
+body.sidebar-collapsed .sidebar{
+  flex-basis: 68px;
+  padding: 18px 14px;
+}
+
+body.sidebar-collapsed .sidebar-toggle-btn{
+  right: 14px;
+}
+
+body.sidebar-collapsed .sidebar > :not(.sidebar-toggle-btn){
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .sidebar-brand{
@@ -414,6 +460,46 @@ body{
   font-size: 17px;
 }
 
+#batchItemsContainer.stock-items-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.stock-item-card {
+  min-width: 0;
+}
+
+.stock-item-card .form-label,
+.stock-item-card .form-control,
+.stock-item-card .form-select {
+  font-size: 13px;
+}
+
+@media (max-width: 1599.98px) {
+  #batchItemsContainer.stock-items-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1199.98px) {
+  #batchItemsContainer.stock-items-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991.98px) {
+  #batchItemsContainer.stock-items-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  #batchItemsContainer.stock-items-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px){
   .dashboard-container{
     flex-direction: column;
@@ -423,6 +509,16 @@ body{
     position: relative;
     flex: none;
     min-height: auto;
+  }
+
+  .sidebar-toggle-btn{
+    top: 14px;
+    right: 14px;
+  }
+
+  body.sidebar-collapsed .sidebar{
+    flex: 0 0 68px;
+    min-height: 68px;
   }
 
   .main-content{

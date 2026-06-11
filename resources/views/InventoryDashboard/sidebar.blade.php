@@ -1,4 +1,8 @@
 <div class="sidebar">
+    <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Hide sidebar" title="Hide sidebar">
+        <i class="bi bi-layout-sidebar-inset"></i>
+    </button>
+
     <div class="sidebar-brand">
         <div class="sidebar-logo">
             <img src="{{ asset('images/logo-hri.png') }}" alt="PHRMDO Logo">
@@ -92,4 +96,26 @@
 function confirmLogout() {
     new bootstrap.Modal(document.getElementById('logoutModal')).show();
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    const collapsedClass = 'sidebar-collapsed';
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+    function setSidebarState(collapsed) {
+        document.body.classList.toggle(collapsedClass, collapsed);
+        localStorage.setItem('sidebarCollapsed', collapsed ? 'true' : 'false');
+        toggleBtn.setAttribute('aria-label', collapsed ? 'Show sidebar' : 'Hide sidebar');
+        toggleBtn.setAttribute('title', collapsed ? 'Show sidebar' : 'Hide sidebar');
+        toggleBtn.innerHTML = collapsed
+            ? '<i class="bi bi-layout-sidebar-inset-reverse"></i>'
+            : '<i class="bi bi-layout-sidebar-inset"></i>';
+    }
+
+    setSidebarState(isCollapsed);
+
+    toggleBtn.addEventListener('click', function () {
+        setSidebarState(!document.body.classList.contains(collapsedClass));
+    });
+});
 </script>

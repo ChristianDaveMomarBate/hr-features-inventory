@@ -9,6 +9,7 @@ use App\Models\AuditTrail;
 use App\Models\User;
 use App\Notifications\LowStockAlert;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class StockController extends Controller
 {
@@ -19,62 +20,82 @@ class StockController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'inventory_item_id' => 'required|exists:inventory_items,id',
-            'type' => Auth::user()->isAdmin() ? 'required|in:in,out,adjustment' : 'required|in:in,out',
-            'quantity' => 'required|integer|min:1',
-            'reference' => 'nullable|string|max:255',
-            'remarks' => 'nullable|string'
+        $validTypes = Auth::user()->isAdmin() ? 'in,out,adjustment' : 'in,out';
+
+        // Validate the batch items array
+        $request->validate([
+            'items'                      => 'required|array|min:1',
+            'items.*.inventory_item_id'  => 'required|exists:inventory_items,id',
+            'items.*.type'               => 'required|in:' . $validTypes,
+            'items.*.quantity'           => 'required|integer|min:1',
+            'items.*.reference'          => 'nullable|string|max:255',
+            'items.*.remarks'            => 'nullable|string',
         ]);
 
-        $item = InventoryItem::findOrFail($validatedData['inventory_item_id']);
+        $items = $request->input('items');
 
-        // Check if there is enough stock for 'out' transactions
-        if ($validatedData['type'] === 'out' && $item->stock < $validatedData['quantity']) {
+        $errors = [];
+
+        DB::transaction(function () use ($items, $reference, $remarks, &$errors) {
+            foreach ($items as $index => $row) {
+                $item = InventoryItem::findOrFail($row['inventory_item_id']);
+                $type = strtolower($row['type']);
+                $qty  = (int) $row['quantity'];
+
+                // Check stock for 'out' transactions
+                if ($type === 'out' && $item->stock < $qty) {
+                    $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->stock}, Requested: {$qty}.";
+                    continue;
+                }
+
+                $oldStock = $item->stock;
+
+                $reference = $row['reference'] ?? null;
+                $remarks   = $row['remarks']   ?? null;
+
+                // Save transaction
+                StockTransaction::create([
+                    'inventory_item_id' => $item->id,
+                    'type'              => $type,
+                    'quantity'          => $qty,
+                    'reference'         => $reference,
+                    'remarks'           => $remarks,
+                ]);
+
+                // Update stock
+                if ($type === 'in') {
+                    $item->stock += $qty;
+                } elseif ($type === 'out') {
+                    $item->stock -= $qty;
+                } elseif ($type === 'adjustment') {
+                    $item->stock = $qty;
+                }
+                $item->save();
+
+                // Low stock alert
+                if (in_array($type, ['out', 'adjustment'], true) && $item->stock <= $item->minimum) {
+                    User::where('role', 'admin')->get()->each->notify(new LowStockAlert($item));
+                }
+
+                // Audit trail
+                AuditTrail::create([
+                    'user_id'        => Auth::id(),
+                    'action'         => 'Stock ' . ucfirst($type),
+                    'module'         => 'Stock Management',
+                    'item_reference' => $item->code,
+                    'old_value'      => "Stock: {$oldStock}",
+                    'new_value'      => "Stock: {$item->stock} (Qty: {$qty})",
+                    'remarks'        => $remarks,
+                ]);
+            }
+        });
+
+        if (!empty($errors)) {
             return redirect()->route('dashboard', ['page' => 'stock-management'])
-                             ->with('error', 'Insufficient stock for this item.');
+                ->with('error', implode('<br>', $errors));
         }
-
-        // Save transaction
-        $transaction = StockTransaction::create($validatedData);
-
-        $oldStock = $item->stock;
-
-        // Update item stock
-        if ($validatedData['type'] === 'in') {
-            $item->stock += $validatedData['quantity'];
-        } elseif ($validatedData['type'] === 'out') {
-            $item->stock -= $validatedData['quantity'];
-        } elseif ($validatedData['type'] === 'adjustment') {
-            // For adjustment, let's assume the quantity is the absolute adjustment amount, 
-            // but normally it could be setting a specific number. 
-            // Let's implement adjustment as setting to the exact quantity provided.
-            $item->stock = $validatedData['quantity'];
-        }
-        $item->save();
-
-        if (
-            in_array($validatedData['type'], ['out', 'adjustment'], true) &&
-            $item->stock <= $item->minimum
-        ) {
-            User::where('role', 'admin')
-                ->get()
-                ->each
-                ->notify(new LowStockAlert($item));
-        }
-
-        // Create Audit Trail
-        AuditTrail::create([
-            'user_id' => Auth::id(),
-            'action' => 'Stock ' . ucfirst($validatedData['type']),
-            'module' => 'Stock Management',
-            'item_reference' => $item->code,
-            'old_value' => "Stock: " . $oldStock,
-            'new_value' => "Stock: " . $item->stock . " (Qty: " . $validatedData['quantity'] . ")",
-            'remarks' => $validatedData['remarks']
-        ]);
 
         return redirect()->route('dashboard', ['page' => 'stock-management'])
-                         ->with('success', 'Stock transaction recorded successfully.');
+            ->with('success', 'Stock transaction(s) recorded successfully.');
     }
 }
