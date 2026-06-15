@@ -63,8 +63,6 @@
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Handled By</th>
-                                <th>Reference</th>
-                                <th>Remarks</th>
                                 @if($currentUser->isAdmin())
                                     <th class="text-end pe-4">Action</th>
                                 @endif
@@ -102,10 +100,15 @@
                                         </span>
                                     </td>
                                     <td class="py-3 fw-medium text-dark">{{ $tx->handled_by ?: '—' }}</td>
-                                    <td class="py-3 text-secondary fw-medium">{{ $tx->reference ?: '—' }}</td>
-                                    <td class="py-3"><span class="text-muted small">{{ $tx->remarks ?: '—' }}</span></td>
                                     @if($currentUser->isAdmin())
                                         <td class="py-3 text-end pe-4">
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-tx-btn" title="Edit transaction"
+                                                data-tx-id="{{ $tx->id }}"
+                                                data-tx-quantity="{{ $tx->quantity }}"
+                                                data-tx-handled-by="{{ json_encode($tx->handled_by) }}"
+                                                data-tx-item-name="{{ json_encode($tx->inventoryItem ? $tx->inventoryItem->name : 'Deleted Item') }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
                                             <form action="{{ route('stock.destroy', $tx->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this transaction? The stock will be reversed.')">
                                                 @csrf
                                                 @method('DELETE')
@@ -118,7 +121,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ $currentUser->isAdmin() ? 8 : 7 }}" class="text-center py-5">
+                                    <td colspan="{{ $currentUser->isAdmin() ? 6 : 5 }}" class="text-center py-5">
                                         <div class="empty-state">
                                             <div class="empty-icon text-muted mb-3"><i class="bi bi-inboxes" style="font-size: 2.5rem;"></i></div>
                                             <h6 class="text-dark fw-bold">No Transactions Yet</h6>
@@ -147,3 +150,60 @@
 </div>
 
 <script type="application/json" id="stock-management-items-data">@json($allInventoryItems)</script>
+
+@if($currentUser->isAdmin())
+<div class="modal fade" id="editTxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editTxForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Transaction</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Item</label>
+                        <input type="text" id="editTxItemName" class="form-control bg-light" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Quantity</label>
+                        <input type="number" name="quantity" id="editTxQuantity" class="form-control" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Handled By</label>
+                        <input type="text" name="handled_by" id="editTxHandledBy" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function openEditTx(button) {
+        const id = button.dataset.txId;
+        const qty = button.dataset.txQuantity;
+        const handledBy = JSON.parse(button.dataset.txHandledBy);
+        const itemName = JSON.parse(button.dataset.txItemName);
+        
+        document.getElementById('editTxForm').action = '/stock/' + id;
+        document.getElementById('editTxQuantity').value = qty;
+        document.getElementById('editTxHandledBy').value = handledBy;
+        document.getElementById('editTxItemName').value = itemName;
+        var modal = new bootstrap.Modal(document.getElementById('editTxModal'));
+        modal.show();
+    }
+    
+    // Initialize click handlers for edit buttons
+    document.querySelectorAll('.edit-tx-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            openEditTx(this);
+        });
+    });
+</script>
+@endif

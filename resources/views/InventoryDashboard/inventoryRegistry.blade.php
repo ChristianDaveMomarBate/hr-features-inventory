@@ -52,7 +52,7 @@
             <form id="inventoryFilterForm" method="GET" action="{{ route('dashboard', 'inventory-registry') }}" class="row g-3 align-items-end mb-4">
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">Search</label>
-                    <input name="search" type="search" class="form-control" placeholder="Code, item, category, type, or unit" value="{{ request('search') }}">
+                    <input id="inventorySearchInput" name="search" type="search" class="form-control" placeholder="" value="{{ request('search') }}">
                 </div>
 
                 <div class="col-lg-3 col-md-6">
@@ -225,14 +225,9 @@
                                 <input type="number" min="0" name="minimum" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label"><i class="bi bi-geo-alt me-1 text-primary"></i>Storage Location</label>
                                 <input type="text" name="location" class="form-control" placeholder="e.g. Cabinet A, Shelf 2">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" rows="2" class="form-control"></textarea>
                             </div>
                         </div>
                     </div>
@@ -258,5 +253,58 @@
 </script>
 <script id="stock-in-totals" type="application/json">
     {!! json_encode($stockInTotals ?? []) !!}
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("inventorySearchInput");
+        if (!searchInput) return;
+
+        const phrases = [
+            "Search by Item Code...",
+            "Search by Item Name...",
+            "Search by Category...",
+            "Search by Item Type...",
+            "Search by Unit..."
+        ];
+        
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeEffect() {
+            // Stop if user is focused on the input so it doesn't distract them while typing
+            if (document.activeElement === searchInput && searchInput.value.length > 0) {
+                setTimeout(typeEffect, 1000);
+                return;
+            }
+
+            const currentPhrase = phrases[phraseIndex];
+
+            if (isDeleting) {
+                searchInput.setAttribute("placeholder", currentPhrase.substring(0, charIndex - 1));
+                charIndex--;
+                if (charIndex === 0) {
+                    isDeleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    setTimeout(typeEffect, 500); // Pause before typing new word
+                } else {
+                    setTimeout(typeEffect, 40); // Deleting speed
+                }
+            } else {
+                searchInput.setAttribute("placeholder", currentPhrase.substring(0, charIndex + 1));
+                charIndex++;
+                if (charIndex === currentPhrase.length) {
+                    isDeleting = true;
+                    setTimeout(typeEffect, 2000); // Pause when word is fully typed
+                } else {
+                    setTimeout(typeEffect, 80); // Typing speed
+                }
+            }
+        }
+
+        // Start typing effect slightly after load
+        setTimeout(typeEffect, 500);
+    });
 </script>
 

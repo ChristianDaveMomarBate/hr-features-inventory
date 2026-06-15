@@ -371,7 +371,6 @@ function openEditItem(id) {
   form.elements.unit.value = item.unit;
   form.elements.stock.value = item.stock;
   form.elements.minimum.value = item.minimum;
-  form.elements.description.value = item.description || '';
   form.elements.location.value = item.location || '';
   form.elements.date_registered.value = item.date_registered ? item.date_registered.split('T')[0] : '';
 
@@ -507,14 +506,6 @@ function addItemRow() {
       <div class="col-12">
         <label class="form-label small fw-semibold mb-1">Handled By</label>
         <input type="text" name="items[${idx}][handled_by]" class="form-control form-control-sm" placeholder="Name of person who stocked in/out" required>
-      </div>
-      <div class="col-12">
-        <label class="form-label small fw-semibold mb-1">Reference No. <span class="text-muted fw-normal">(PO, DR, RIS...)</span></label>
-        <input type="text" name="items[${idx}][reference]" class="form-control form-control-sm" placeholder="e.g. PO-2026-001">
-      </div>
-      <div class="col-12">
-        <label class="form-label small fw-semibold mb-1">Remarks</label>
-        <input type="text" name="items[${idx}][remarks]" class="form-control form-control-sm" placeholder="Optional note...">
       </div>
     </div>
   `;

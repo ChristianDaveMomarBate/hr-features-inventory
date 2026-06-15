@@ -140,4 +140,68 @@ class StockController extends Controller
         return redirect()->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Transaction deleted and stock reversed successfully.');
     }
+
+    public function update(Request $request, $id)
+    {
+        $tx = StockTransaction::with('inventoryItem')->findOrFail($id);
+        $item = $tx->inventoryItem;
+        
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'handled_by' => 'required|string|max:255',
+            'reference' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string',
+        ]);
+
+        $newQty = (int) $request->input('quantity');
+        $oldQty = $tx->quantity;
+
+        DB::transaction(function () use ($tx, $item, $newQty, $oldQty, $request) {
+            $oldStock = $item ? $item->stock : 0;
+
+            if ($item) {
+                // Reverse old transaction
+                if ($tx->type === 'in') {
+                    $item->stock -= $oldQty;
+                } elseif ($tx->type === 'out') {
+                    $item->stock += $oldQty;
+                }
+
+                // Apply new transaction
+                if ($tx->type === 'in') {
+                    $item->stock += $newQty;
+                } elseif ($tx->type === 'out') {
+                    $item->stock -= $newQty;
+                }
+                
+                $item->stock = max(0, $item->stock);
+                $item->save();
+
+                // Low stock alert
+                if ($tx->type === 'out' && $item->stock <= $item->minimum) {
+                    User::where('role', 'admin')->get()->each->notify(new LowStockAlert($item));
+                }
+
+                AuditTrail::create([
+                    'user_id'        => Auth::id(),
+                    'action'         => 'Updated Transaction',
+                    'module'         => 'Stock Management',
+                    'item_reference' => $item->code,
+                    'old_value'      => "Stock: {$oldStock} | Qty: {$oldQty}",
+                    'new_value'      => "Stock: {$item->stock} | Qty: {$newQty}",
+                    'remarks'        => 'Transaction updated by admin.',
+                ]);
+            }
+
+            $tx->update([
+                'quantity' => $newQty,
+                'handled_by' => $request->input('handled_by'),
+                'reference' => $request->input('reference'),
+                'remarks' => $request->input('remarks'),
+            ]);
+        });
+
+        return redirect()->route('dashboard', ['page' => 'stock-management'])
+            ->with('success', 'Transaction updated successfully.');
+    }
 }
