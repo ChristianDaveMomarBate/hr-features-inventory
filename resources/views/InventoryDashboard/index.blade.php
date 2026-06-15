@@ -47,41 +47,26 @@
                               <small class="text-muted">{{ ($unreadLowStockCount ?? 0) }} unread notification(s)</small>
                           </div>
 
-                          @forelse(($lowStockAlertItems ?? collect()) as $alertItem)
+                          @forelse(($lowStockNotifications ?? collect()) as $notification)
                               @php
-                                  $matchingNotification = ($lowStockNotifications ?? collect())->first(function ($notification) use ($alertItem) {
-                                      return ($notification->data['inventory_item_id'] ?? null) == $alertItem->id;
-                                  });
+                                  $data = $notification->data;
                               @endphp
-
-                              @if($matchingNotification)
-                                  <form method="POST" action="{{ route('notifications.read', $matchingNotification->id) }}">
-                                      @csrf
-                                      <input type="hidden" name="page" value="dashboard">
-                                      <button type="submit" class="dropdown-item text-wrap py-3 border-bottom">
-                                          <div class="d-flex justify-content-between gap-3">
-                                              <div>
-                                                  <div class="fw-semibold text-dark">{{ $alertItem->name }}</div>
-                                                  <small class="text-muted">{{ $alertItem->code }}</small>
-                                              </div>
-                                              <span class="badge bg-danger align-self-start">{{ $alertItem->stock }} / {{ $alertItem->minimum }}</span>
-                                          </div>
-                                      </button>
-                                  </form>
-                              @else
-                                  <div class="px-3 py-3 border-bottom">
+                              <form method="POST" action="{{ route('notifications.read', $notification->id) }}" id="notif-form-{{ $notification->id }}">
+                                  @csrf
+                                  <input type="hidden" name="page" id="notif-page-{{ $notification->id }}" value="">
+                                  <button type="submit" class="dropdown-item text-wrap py-3 border-bottom" onclick="document.getElementById('notif-page-{{ $notification->id }}').value = window.location.pathname.split('/').pop() || 'dashboard'">
                                       <div class="d-flex justify-content-between gap-3">
                                           <div>
-                                              <div class="fw-semibold text-dark">{{ $alertItem->name }}</div>
-                                              <small class="text-muted">{{ $alertItem->code }}</small>
+                                              <div class="fw-semibold text-dark">{{ $data['name'] ?? 'Unknown Item' }}</div>
+                                              <small class="text-muted">{{ $data['code'] ?? '' }}</small>
                                           </div>
-                                          <span class="badge bg-secondary align-self-start">{{ $alertItem->stock }} / {{ $alertItem->minimum }}</span>
+                                          <span class="badge bg-danger align-self-start">{{ $data['current_stock'] ?? 0 }} / {{ $data['minimum_stock'] ?? 0 }}</span>
                                       </div>
-                                  </div>
-                              @endif
+                                  </button>
+                              </form>
                           @empty
                               <div class="px-3 py-4 text-center text-muted">
-                                  No low stock items.
+                                  No unread notifications.
                               </div>
                           @endforelse
                       </div>
