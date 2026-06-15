@@ -14,8 +14,9 @@ class NotificationController extends Controller
 
     public function markAsRead(Request $request, string $id)
     {
-        $notification = Auth::user()
-            ->notifications()
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $notification = $user->notifications()
             ->where('id', $id)
             ->firstOrFail();
 
