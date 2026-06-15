@@ -20,7 +20,9 @@ class StockController extends Controller
 
     public function store(Request $request)
     {
-        $validTypes = Auth::user()->isAdmin() ? 'in,out,adjustment' : 'in,out';
+        /** @var User $user */
+        $user = $request->user();
+        $validTypes = 'in,out,adjustment';
 
         // Validate the batch items array
         $request->validate([
@@ -28,6 +30,7 @@ class StockController extends Controller
             'items.*.inventory_item_id'  => 'required|exists:inventory_items,id',
             'items.*.type'               => 'required|in:' . $validTypes,
             'items.*.quantity'           => 'required|integer|min:1',
+            'items.*.handled_by'         => 'required|string|max:255',
             'items.*.reference'          => 'nullable|string|max:255',
             'items.*.remarks'            => 'nullable|string',
         ]);
@@ -50,6 +53,7 @@ class StockController extends Controller
 
                 $oldStock = $item->stock;
 
+                $handledBy = $row['handled_by'];
                 $reference = $row['reference'] ?? null;
                 $remarks   = $row['remarks']   ?? null;
 
@@ -58,6 +62,7 @@ class StockController extends Controller
                     'inventory_item_id' => $item->id,
                     'type'              => $type,
                     'quantity'          => $qty,
+                    'handled_by'        => $handledBy,
                     'reference'         => $reference,
                     'remarks'           => $remarks,
                 ]);
@@ -85,7 +90,7 @@ class StockController extends Controller
                     'item_reference' => $item->code,
                     'old_value'      => "Stock: {$oldStock}",
                     'new_value'      => "Stock: {$item->stock} (Qty: {$qty})",
-                    'remarks'        => $remarks,
+                    'remarks'        => trim("Handled by: {$handledBy}" . ($remarks ? " | {$remarks}" : '')),
                 ]);
             }
         });

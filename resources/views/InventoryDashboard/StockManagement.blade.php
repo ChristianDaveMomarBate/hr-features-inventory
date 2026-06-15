@@ -1,4 +1,9 @@
-<div id="stock-management" class="page" data-is-admin="{{ auth()->user()->isAdmin() ? 'true' : 'false' }}">
+@php
+    /** @var \App\Models\User $currentUser */
+    $currentUser ??= auth()->user();
+@endphp
+
+<div id="stock-management" class="page" data-is-admin="{{ $currentUser->isAdmin() ? 'true' : 'false' }}">
     <div class="d-flex justify-content-between align-items-center mb-4 stock-header">
         <div>
             <h1 class="mb-1 fw-bold page-title">Stock Management</h1>
@@ -57,9 +62,10 @@
                                 <th>Type</th>
                                 <th>Item</th>
                                 <th>Qty</th>
+                                <th>Handled By</th>
                                 <th>Reference</th>
                                 <th>Remarks</th>
-                                @if(auth()->user()->isAdmin())
+                                @if($currentUser->isAdmin())
                                     <th class="text-end pe-4">Action</th>
                                 @endif
                             </tr>
@@ -95,9 +101,10 @@
                                             {{ $tx->type == 'out' ? '-' : '+' }}{{ $tx->quantity }}
                                         </span>
                                     </td>
+                                    <td class="py-3 fw-medium text-dark">{{ $tx->handled_by ?: '—' }}</td>
                                     <td class="py-3 text-secondary fw-medium">{{ $tx->reference ?: '—' }}</td>
                                     <td class="py-3"><span class="text-muted small">{{ $tx->remarks ?: '—' }}</span></td>
-                                    @if(auth()->user()->isAdmin())
+                                    @if($currentUser->isAdmin())
                                         <td class="py-3 text-end pe-4">
                                             <form action="{{ route('stock.destroy', $tx->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this transaction? The stock will be reversed.')">
                                                 @csrf
@@ -111,7 +118,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" class="text-center py-5">
+                                    <td colspan="{{ $currentUser->isAdmin() ? 8 : 7 }}" class="text-center py-5">
                                         <div class="empty-state">
                                             <div class="empty-icon text-muted mb-3"><i class="bi bi-inboxes" style="font-size: 2.5rem;"></i></div>
                                             <h6 class="text-dark fw-bold">No Transactions Yet</h6>

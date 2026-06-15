@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
@@ -23,9 +22,10 @@ class UserManagementController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'role' => ['required', Rule::in(['admin', 'staff', 'viewer'])],
             'is_active' => ['required', 'boolean'],
         ]);
+
+        $validated['role'] = 'admin';
 
         $user->update($validated);
 

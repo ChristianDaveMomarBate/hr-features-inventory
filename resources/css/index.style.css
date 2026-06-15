@@ -438,8 +438,6 @@ body.sidebar-collapsed .sidebar > :not(.sidebar-toggle-btn) {
 }
 
 .role-badge-admin { color: #166534; background: #dcfce7; }
-.role-badge-staff { color: #1d4ed8; background: #dbeafe; }
-.role-badge-viewer { color: #475569; background: #e2e8f0; }
 
 .sidebar-logout-btn {
   display: flex;

@@ -591,6 +591,10 @@ function addItemRow() {
         <input type="number" name="items[${idx}][quantity]" min="1" class="form-control form-control-sm" placeholder="0" required>
       </div>
       <div class="col-12">
+        <label class="form-label small fw-semibold mb-1">Handled By</label>
+        <input type="text" name="items[${idx}][handled_by]" class="form-control form-control-sm" placeholder="Name of person who stocked in/out" required>
+      </div>
+      <div class="col-12">
         <label class="form-label small fw-semibold mb-1">Reference No. <span class="text-muted fw-normal">(PO, DR, RIS...)</span></label>
         <input type="text" name="items[${idx}][reference]" class="form-control form-control-sm" placeholder="e.g. PO-2026-001">
       </div>

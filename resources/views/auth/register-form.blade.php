@@ -29,26 +29,6 @@
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <select id="role" name="role" class="form-control @error('role') is-invalid @enderror" required style="background: #111111; color: #ffffff; border-color: #222222; height: 48px;">
-                        <option value="" disabled selected>Select System Role...</option>
-                        <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin (Super User)</option>
-                        <option value="Staff" {{ old('role') == 'Staff' ? 'selected' : '' }}>Staff (Inventory Operator)</option>
-                        <option value="Viewer" {{ old('role') == 'Viewer' ? 'selected' : '' }}>Viewer (Read-only Dashboard & Analytics)</option>
-                    </select>
-                    @error('role')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                    <div class="mt-2 p-2 rounded" style="background: rgba(255, 255, 255, 0.05); font-size: 0.8rem; color: #bbbbbb; line-height: 1.4;">
-                        <strong>Role Descriptions:</strong><br>
-                        • <strong>Admin:</strong> Super user who can Edit, Operate, and access all.<br>
-                        • <strong>Staff:</strong> Can Operate in the inventory management.<br>
-                        • <strong>Viewer:</strong> Can only view the Dashboard and Analytics.
-                    </div>
-                </div>
-
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"

@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('users', 'role')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('Viewer')->after('email');
+            $table->string('role')->default('admin')->after('email');
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
+        // The earlier role migration owns this column.
     }
 };
