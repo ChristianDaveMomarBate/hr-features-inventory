@@ -1,9 +1,6 @@
 <!-- Home Section -->
 <div id="home-section" class="tab-section container animate-fade-in" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <img src="images/logo1.webp" alt="Webpage Logo" class="hero-logo img-fluid">
-        </div>
         <h1 class="hero-title mb-4">
             Welcome to the Provincial Human Resources Management and Development Office Inventory System
         </h1>
