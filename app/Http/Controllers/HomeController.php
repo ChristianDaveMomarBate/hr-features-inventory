@@ -88,7 +88,7 @@ class HomeController extends Controller
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
         }
 
-        $inventoryItems = $query->paginate(25);
+        $inventoryItems = $query->paginate(25)->withPath(route('dashboard', ['page' => 'inventory-registry']));
         $allInventoryItems = InventoryItem::all(); // Needed for JS charts and edit modals
 
         $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->get();
