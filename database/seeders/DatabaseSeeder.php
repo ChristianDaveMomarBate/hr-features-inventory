@@ -22,16 +22,6 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@phrmdo.test',
                 'role' => 'admin',
             ],
-            [
-                'name' => 'Inventory Staff',
-                'email' => 'staff@phrmdo.test',
-                'role' => 'staff',
-            ],
-            [
-                'name' => 'Report Viewer',
-                'email' => 'viewer@phrmdo.test',
-                'role' => 'viewer',
-            ],
         ];
 
         foreach ($accounts as $account) {

@@ -23,7 +23,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">User Management</h1>
-                    <p class="text-muted mb-0">Manage registered user roles and account access.</p>
+                    <p class="text-muted mb-0">Manage registered admin account access.</p>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@
                             <tr>
                                 <th class="ps-4 py-3 border-0">User</th>
                                 <th class="py-3 border-0">Email</th>
-                                <th class="py-3 border-0">Role</th>
+                                <th class="py-3 border-0">Access</th>
                                 <th class="py-3 border-0">Status</th>
                                 <th class="text-end pe-4 py-3 border-0">Action</th>
                             </tr>
@@ -59,11 +59,7 @@
                                         <form id="userForm{{ $user->id }}" method="POST" action="{{ route('users.update', $user) }}" class="d-flex gap-2 align-items-center justify-content-end">
                                             @csrf
                                             @method('PUT')
-                                            <select name="role" class="form-select" style="min-width: 140px;">
-                                                <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
-                                                <option value="staff" {{ $user->role === 'staff' ? 'selected' : '' }}>Staff</option>
-                                                <option value="viewer" {{ $user->role === 'viewer' ? 'selected' : '' }}>Viewer</option>
-                                            </select>
+                                            <span class="badge role-badge role-badge-admin">Admin</span>
                                             <input type="hidden" name="is_active" value="{{ $user->is_active ? 1 : 0 }}">
                                         </form>
                                     </td>
@@ -80,7 +76,6 @@
                                             <form method="POST" action="{{ route('users.update', $user) }}">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="hidden" name="role" value="{{ $user->role }}">
                                                 <input type="hidden" name="is_active" value="{{ $user->is_active ? 0 : 1 }}">
                                                 <button type="submit" class="btn btn-sm {{ $user->is_active ? 'btn-outline-secondary' : 'btn-outline-success' }}">
                                                     {{ $user->is_active ? 'Deactivate' : 'Activate' }}

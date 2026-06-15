@@ -1,17 +1,12 @@
 @php
-    $validDashboardPages = ['inventory-registry'];
-
-    if (auth()->user()->isAdmin() || auth()->user()->isStaff()) {
-        $validDashboardPages[] = 'stock-management';
-    }
-
-    if (auth()->user()->isAdmin() || auth()->user()->isViewer()) {
-        $validDashboardPages[] = 'analytics';
-    }
-
-    if (auth()->user()->isAdmin() || auth()->user()->isStaff()) {
-        $validDashboardPages[] = 'audit-trails';
-    }
+    /** @var \App\Models\User $currentUser */
+    $currentUser = auth()->user();
+    $validDashboardPages = [
+        'inventory-registry',
+        'stock-management',
+        'analytics',
+        'audit-trails'
+    ];
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -104,7 +99,6 @@
 
           <!-- Top Row: Role-aware Cards -->
           <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-4 mb-4">
-              @if(auth()->user()->isAdmin() || auth()->user()->isViewer())
               <div class="col">
                   <div class="metric-card-modern">
                       <div class="d-flex justify-content-between align-items-start">
@@ -118,7 +112,6 @@
                       </div>
                   </div>
               </div>
-              @endif
               <div class="col">
                   <div class="metric-card-modern">
                       <div class="d-flex justify-content-between align-items-start">
@@ -132,7 +125,6 @@
                       </div>
                   </div>
               </div>
-              @if(auth()->user()->isAdmin() || auth()->user()->isStaff())
               <div class="col">
                   <div class="metric-card-modern">
                       <div class="d-flex justify-content-between align-items-start">
@@ -159,8 +151,6 @@
                       </div>
                   </div>
               </div>
-              @endif
-              @if(auth()->user()->isAdmin())
               <div class="col">
                   <div class="metric-card-modern">
                       <div class="d-flex justify-content-between align-items-start">
@@ -174,7 +164,6 @@
                       </div>
                   </div>
               </div>
-              @endif
           </div>
 
           <!-- Middle Row: Charts -->
@@ -217,7 +206,32 @@
               </div>
           </div>
 
-          @if(!auth()->user()->isViewer())
+          <div class="row g-4 mb-4">
+              <div class="col-lg-12">
+                  <div class="chart-card p-0 overflow-hidden h-100">
+                      <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center">
+                          <h5 class="fw-bold text-danger mb-0">Low Stock Alerts</h5>
+                          <span class="badge bg-danger">{{ $lowStockAlertItems->count() }}</span>
+                      </div>
+                      <div class="list-group list-group-flush">
+                          @forelse($lowStockAlertItems->take(5) as $item)
+                              <div class="list-group-item px-4 py-3">
+                                  <div class="d-flex justify-content-between gap-3">
+                                      <div>
+                                          <div class="fw-semibold text-dark">{{ $item->name }}</div>
+                                          <small class="text-muted">{{ $item->code }} / {{ $item->category }}</small>
+                                      </div>
+                                      <span class="badge bg-danger align-self-start">{{ $item->stock }} / {{ $item->minimum }}</span>
+                                  </div>
+                              </div>
+                          @empty
+                              <div class="p-4 text-center text-muted">No low stock items.</div>
+                          @endforelse
+                      </div>
+                  </div>
+              </div>
+          </div>
+
           <!-- Bottom Row: Recent Activity Log -->
           <div class="chart-card p-0 overflow-hidden mb-4">
               <div class="p-4 border-bottom d-flex justify-content-between align-items-end" style="border-color:#f1f5f9!important;">
@@ -278,21 +292,14 @@
                   </table>
               </div>
           </div>
-          @endif
       </div>
 
 
 
     @include('InventoryDashboard.inventoryRegistry')
-    @if(auth()->user()->isAdmin() || auth()->user()->isStaff())
-        @include('InventoryDashboard.stockManagement')
-    @endif
-    @if(auth()->user()->isAdmin() || auth()->user()->isViewer())
-        @include('InventoryDashboard.analytics')
-    @endif
-    @if(auth()->user()->isAdmin() || auth()->user()->isStaff())
-        @include('InventoryDashboard.auditTrails')
-    @endif
+    @include('InventoryDashboard.stockManagement')
+    @include('InventoryDashboard.analytics')
+    @include('InventoryDashboard.auditTrails')
     
     </div>
   </div>

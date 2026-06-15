@@ -1,4 +1,7 @@
 @php
+    /** @var \App\Models\User $currentUser */
+    $currentUser ??= auth()->user();
+
     $inventoryCategories = [
         'Office Supplies',
         'IT Equipment & Devices',
@@ -31,7 +34,7 @@
 <div
     id="inventory-registry"
     class="page"
-    data-can-manage="{{ auth()->user()->isAdmin() ? 'true' : 'false' }}"
+    data-can-manage="{{ $currentUser->isAdmin() ? 'true' : 'false' }}"
     data-store-url="{{ route('inventory.store') }}"
     data-update-base-url="{{ url('/inventory/update') }}"
 >
@@ -80,7 +83,7 @@
                     <a class="btn btn-outline-success flex-grow-1" href="{{ route('inventory.export.excel') }}">
                         <i class="bi bi-file-earmark-excel me-1"></i>Excel
                     </a>
-                    @if(auth()->user()->isAdmin())
+                    @if($currentUser->isAdmin())
                         <button class="btn btn-primary" type="button" data-action="open-add-item">
                             <i class="bi bi-plus-lg"></i>
                         </button>
@@ -126,7 +129,7 @@
                                 <td>{{ $item->minimum }}</td>
                                 <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
                                 <td class="text-end">
-                                    @if(auth()->user()->isAdmin())
+                                    @if($currentUser->isAdmin())
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-edit-item-id="{{ $item->id }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -152,7 +155,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->isAdmin())
+    @if($currentUser->isAdmin())
     <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -252,5 +255,4 @@
 <script id="stock-in-totals" type="application/json">
     {!! json_encode($stockInTotals ?? []) !!}
 </script>
-
 

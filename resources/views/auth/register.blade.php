@@ -264,30 +264,6 @@
                             @enderror
                         </div>
 
-                        <!-- Role Dropdown -->
-                        <div class="form-group">
-                            <label for="role">System Role</label>
-                            <select id="role" name="role"
-                                class="form-control @error('role') is-invalid @enderror"
-                                required>
-                                <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select a role...</option>
-                                <option value="Admin"   {{ old('role') == 'Admin'   ? 'selected' : '' }}>Admin</option>
-                                <option value="Staff"   {{ old('role') == 'Staff'   ? 'selected' : '' }}>Staff</option>
-                                <option value="Viewer"  {{ old('role') == 'Viewer'  ? 'selected' : '' }}>Viewer</option>
-                            </select>
-                            @error('role')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                            <div class="role-hint mt-2">
-                                <strong>Roles:</strong><br>
-                                • <strong>Admin</strong> — Super user who can Edit, Operate &amp; access all.<br>
-                                • <strong>Staff</strong> — Can Operate in the Inventory Management.<br>
-                                • <strong>Viewer</strong> — Can only view the Dashboard &amp; Analytics.
-                            </div>
-                        </div>
-
                         <!-- Password Row -->
                         <div class="form-row">
                             <div class="form-group col-md-6">

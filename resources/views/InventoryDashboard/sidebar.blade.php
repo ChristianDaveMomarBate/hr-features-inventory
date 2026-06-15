@@ -1,3 +1,8 @@
+@php
+    /** @var \App\Models\User $currentUser */
+    $currentUser ??= auth()->user();
+@endphp
+
 <div class="sidebar">
     <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Hide sidebar" title="Hide sidebar">
         <i class="bi bi-layout-sidebar-inset"></i>
@@ -19,30 +24,22 @@
         <i class="bi bi-clipboard-data-fill"></i>
         <span>Inventory Registry</span>
     </li>
-    @if(!auth()->user()->isViewer())
     <li data-page-target="stock-management">
         <i class="bi bi-arrow-left-right"></i>
         <span>Stock Management</span>
     </li>
-    @endif
-    @if(!auth()->user()->isStaff())
     <li data-page-target="analytics">
         <i class="bi bi-bar-chart-fill"></i>
         <span>Analytics</span>
     </li>
-    @endif
-    @if(!auth()->user()->isViewer())
     <li data-page-target="audit-trails">
         <i class="bi bi-clock-history"></i>
         <span>Audit Trails</span>
     </li>
-    @endif
-    @if(auth()->user()->isAdmin())
     <li data-navigate-url="{{ route('users.index') }}">
         <i class="bi bi-people-fill"></i>
         <span>Users</span>
     </li>
-    @endif
   </ul>
 
   <div class="sidebar-footer">
@@ -52,12 +49,8 @@
             <div class="sidebar-user-name">{{ Auth::user()->name }}</div>
             <div class="sidebar-user-role">
                 @php
-                    $role = Auth::user()->role;
-                    $roleClass = [
-                        'admin' => 'role-badge-admin',
-                        'staff' => 'role-badge-staff',
-                        'viewer' => 'role-badge-viewer',
-                    ][$role] ?? 'role-badge-viewer';
+                    $role = 'admin';
+                    $roleClass = 'role-badge-admin';
                 @endphp
                 <span class="role-badge {{ $roleClass }}">{{ ucfirst($role) }}</span>
             </div>

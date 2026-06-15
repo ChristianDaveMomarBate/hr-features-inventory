@@ -13,6 +13,7 @@ class StockTransaction extends Model
         'inventory_item_id',
         'type',
         'quantity',
+        'handled_by',
         'reference',
         'remarks',
     ];
