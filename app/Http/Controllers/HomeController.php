@@ -56,12 +56,43 @@ class HomeController extends Controller
             abort(403, 'Unauthorized dashboard page.');
         }
 
-        // Fetch all items from the database to pass to the view
-        $inventoryItems = InventoryItem::all();
+        // Fetch items with search, filter, and pagination
+        $query = InventoryItem::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%")
+                  ->orWhere('unit', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->filled('stock_status') && $request->stock_status === 'low') {
+            $query->whereColumn('stock', '<=', 'minimum');
+        }
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDir = $request->get('sort_dir', 'desc');
+        
+        $allowedSorts = ['code', 'name', 'category', 'type', 'unit', 'location', 'stock', 'minimum', 'date_registered', 'created_at'];
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
+        }
+
+        $inventoryItems = $query->paginate(25);
+        $allInventoryItems = InventoryItem::all(); // Needed for JS charts and edit modals
+
         $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->get();
         $auditTrailsQuery = AuditTrail::with('user')->orderBy('created_at', 'desc');
-
-
 
         $auditTrails = $auditTrailsQuery->get();
         $lowStockAlertItems = InventoryItem::whereColumn('stock', '<=', 'minimum')
@@ -82,6 +113,7 @@ class HomeController extends Controller
 
         return view('InventoryDashboard.index', compact(
             'inventoryItems',
+            'allInventoryItems',
             'stockTransactions',
             'auditTrails',
             'stockInTotals',
@@ -124,9 +156,8 @@ class HomeController extends Controller
             'remarks' => 'Item initialized.'
         ]);
 
-        // Redirect back to dashboard > inventory registry tab with success message
-        return redirect()->route('dashboard', ['page' => 'inventory-registry'])
-                         ->with('success', 'Inventory item added successfully.');
+        // Redirect back to preserve pagination and filter state with success message
+        return back()->with('success', 'Inventory item added successfully.');
     }
 
     public function update(Request $request, $id)
@@ -162,8 +193,7 @@ class HomeController extends Controller
             'remarks' => 'Item updated via Inventory Registry.'
         ]);
 
-        return redirect()->route('dashboard', ['page' => 'inventory-registry'])
-                         ->with('success', 'Inventory item updated successfully.');
+        return back()->with('success', 'Inventory item updated successfully.');
     }
 
     public function destroy($id)
@@ -183,7 +213,6 @@ class HomeController extends Controller
             'remarks' => 'Item deleted from Inventory Registry.'
         ]);
 
-        return redirect()->route('dashboard', ['page' => 'inventory-registry'])
-                         ->with('success', 'Inventory item deleted successfully.');
+        return back()->with('success', 'Inventory item deleted successfully.');
     }
 }

@@ -147,10 +147,11 @@ function showPage(pageId, clickedItem) {
   page.classList.add('active-page');
   if (clickedItem) clickedItem.classList.add('active');
 
+  const qs = window.location.search;
   if (pageId === 'dashboard') {
-    history.pushState(null, '', '/dashboard');
+    history.pushState(null, '', '/dashboard' + qs);
   } else {
-    history.pushState(null, '', '/dashboard/' + pageId);
+    history.pushState(null, '', '/dashboard/' + pageId + qs);
   }
 }
 
@@ -314,16 +315,6 @@ function initInventoryRegistry() {
   inventoryItems = readJsonScript('inventory-data', []);
   stockInTotalsMap = readJsonScript('stock-in-totals', {});
 
-  const filterForm = document.getElementById('inventoryFilterForm');
-  const searchInput = document.getElementById('searchInput');
-  const categoryFilter = document.getElementById('categoryFilter');
-  const stockFilter = document.getElementById('stockFilter');
-
-  if (filterForm) filterForm.addEventListener('submit', filterItems);
-  if (searchInput) searchInput.addEventListener('input', filterItems);
-  if (categoryFilter) categoryFilter.addEventListener('change', filterItems);
-  if (stockFilter) stockFilter.addEventListener('change', filterItems);
-
   document.querySelectorAll('[data-action="open-add-item"]').forEach(function(button) {
     button.addEventListener('click', openAddItem);
   });
@@ -385,83 +376,6 @@ function openEditItem(id) {
   form.elements.date_registered.value = item.date_registered ? item.date_registered.split('T')[0] : '';
 
   new window.bootstrap.Modal(document.getElementById('itemModal')).show();
-}
-
-function renderItems(items = inventoryItems) {
-  const table = document.getElementById('inventoryTable');
-  if (!table) return;
-
-  if (items.length === 0) {
-    table.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">No inventory items found.</td></tr>';
-    return;
-  }
-
-  table.innerHTML = items.map(function(item) {
-    const isLow = item.stock <= item.minimum;
-    const dateStr = item.date_registered
-      ? new Date(item.date_registered).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
-      : '';
-    const stockIn = stockInTotalsMap[item.id] || 0;
-    const actionButtons = canManageInventory() ? inventoryActionButtons(item.id) : '';
-
-    return `
-      <tr>
-        <td class="fw-semibold">${item.code}</td>
-        <td>${item.name}</td>
-        <td>${item.category}</td>
-        <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">${item.type || 'Consumable'}</span></td>
-        <td>${item.unit}</td>
-        <td><span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>${item.location || '&mdash;'}</span></td>
-        <td><span class="badge ${isLow ? 'bg-danger' : 'badge-soft'}">${item.stock}</span></td>
-        <td><span class="badge bg-success bg-opacity-75">${stockIn}</span></td>
-        <td>${item.minimum}</td>
-        <td>${dateStr}</td>
-        <td class="text-end">${actionButtons}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function inventoryActionButtons(id) {
-  const csrf = document.querySelector('input[name=_token]')?.value || '';
-  return `
-    <button type="button" class="btn btn-sm btn-outline-primary" data-edit-item-id="${id}">
-      <i class="bi bi-pencil"></i>
-    </button>
-    <form action="/inventory/delete/${id}" method="POST" class="d-inline" data-confirm="Are you sure you want to delete this item?">
-      <input type="hidden" name="_token" value="${csrf}">
-      <input type="hidden" name="_method" value="DELETE">
-      <button type="submit" class="btn btn-sm btn-outline-danger">
-        <i class="bi bi-trash"></i>
-      </button>
-    </form>
-  `;
-}
-
-function filterItems(event) {
-  if (event) event.preventDefault();
-
-  const search = document.getElementById('searchInput').value.trim().toLowerCase();
-  const category = document.getElementById('categoryFilter').value;
-  const stockStatus = document.getElementById('stockFilter').value;
-
-  const filtered = inventoryItems.filter(function(item) {
-    const searchableText = [
-      item.code,
-      item.name,
-      item.category,
-      item.type,
-      item.unit,
-      item.description,
-      item.location,
-    ].join(' ').toLowerCase();
-
-    return (search === '' || searchableText.includes(search))
-      && (category === '' || item.category === category)
-      && (stockStatus === '' || item.stock <= item.minimum);
-  });
-
-  renderItems(filtered);
 }
 
 function updateDashboardCards() {
@@ -609,6 +523,18 @@ function addItemRow() {
     removeRow(idx);
   });
   container.appendChild(row);
+  
+  const selectEl = row.querySelector(`select[name="items[${idx}][inventory_item_id]"]`);
+  if (window.TomSelect) {
+    new window.TomSelect(selectEl, {
+      create: false,
+      sortField: {
+        field: "text",
+        direction: "asc"
+      },
+      placeholder: "Search item..."
+    });
+  }
   
   const totalCards = container.querySelectorAll('.stock-item-card').length;
   window.currentBatchPage = Math.ceil(totalCards / 4);

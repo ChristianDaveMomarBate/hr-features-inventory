@@ -49,27 +49,27 @@
 
     <div class="card inventory-registry-card">
         <div class="card-body">
-            <form id="inventoryFilterForm" class="row g-3 align-items-end mb-4">
+            <form id="inventoryFilterForm" method="GET" action="{{ route('dashboard', 'inventory-registry') }}" class="row g-3 align-items-end mb-4">
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">Search</label>
-                    <input id="searchInput" type="search" class="form-control" placeholder="Code, item, category, type, or unit">
+                    <input name="search" type="search" class="form-control" placeholder="Code, item, category, type, or unit" value="{{ request('search') }}">
                 </div>
 
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">Category</label>
-                    <select id="categoryFilter" class="form-select">
+                    <select name="category" class="form-select">
                         <option value="">All categories</option>
                         @foreach($inventoryCategories as $category)
-                            <option value="{{ $category }}">{{ $category }}</option>
+                            <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>{{ $category }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="col-lg-2 col-md-6">
                     <label class="form-label">Stock Status</label>
-                    <select id="stockFilter" class="form-select">
+                    <select name="stock_status" class="form-select">
                         <option value="">All</option>
-                        <option value="low">Low stock</option>
+                        <option value="low" {{ request('stock_status') == 'low' ? 'selected' : '' }}>Low stock</option>
                     </select>
                 </div>
 
@@ -95,16 +95,16 @@
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Code</th>
-                            <th>Item</th>
-                            <th>Category</th>
-                            <th>Type</th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'code', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Code <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'name', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Item <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'category', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Category <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'type', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Type <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th>Unit</th>
-                            <th>Location</th>
-                            <th>Current Stock</th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'location', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Location <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'stock', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Current Stock <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th>Total Stock In</th>
-                            <th>Minimum</th>
-                            <th>Registered</th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'minimum', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Minimum <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
+                            <th><a href="{{ request()->fullUrlWithQuery(['sort_by' => 'date_registered', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="text-dark text-decoration-none">Registered <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -151,6 +151,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            
+            <div class="mt-4">
+                {{ $inventoryItems->appends(request()->query())->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>
@@ -247,7 +251,7 @@
 </div>
 
 <script id="inventory-data" type="application/json">
-    {!! json_encode($inventoryItems) !!}
+    {!! json_encode($allInventoryItems) !!}
 </script>
 <script id="transactions-data" type="application/json">
     {!! json_encode($stockTransactions ?? []) !!}

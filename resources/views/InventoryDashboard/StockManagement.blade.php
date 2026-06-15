@@ -146,4 +146,4 @@
     </div>
 </div>
 
-<script type="application/json" id="stock-management-items-data">@json($inventoryItems)</script>
+<script type="application/json" id="stock-management-items-data">@json($allInventoryItems)</script>
