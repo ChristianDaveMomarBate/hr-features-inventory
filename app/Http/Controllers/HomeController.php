@@ -50,13 +50,7 @@ class HomeController extends Controller
         $user = $request->user();
         $allowedPages = ['dashboard', 'inventory-registry'];
 
-        if ($user->isAdmin()) {
-            $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'analytics', 'audit-trails'];
-        } elseif ($user->isStaff()) {
-            $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'audit-trails'];
-        } elseif ($user->isViewer()) {
-            $allowedPages = ['dashboard', 'inventory-registry', 'analytics'];
-        }
+        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'analytics', 'audit-trails'];
 
         if ($page && ! in_array($page, $allowedPages, true)) {
             abort(403, 'Unauthorized dashboard page.');
@@ -67,11 +61,7 @@ class HomeController extends Controller
         $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->get();
         $auditTrailsQuery = AuditTrail::with('user')->orderBy('created_at', 'desc');
 
-        if ($user->isStaff()) {
-            $auditTrailsQuery->where('user_id', $user->id);
-        } elseif ($user->isViewer()) {
-            $auditTrailsQuery->whereRaw('1 = 0');
-        }
+
 
         $auditTrails = $auditTrailsQuery->get();
         $lowStockAlertItems = InventoryItem::whereColumn('stock', '<=', 'minimum')
