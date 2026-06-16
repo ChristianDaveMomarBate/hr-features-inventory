@@ -36,7 +36,7 @@
         <i class="bi bi-clock-history"></i>
         <span>Audit Trails</span>
     </li>
-    <li data-navigate-url="{{ route('users.index') }}">
+    <li class="{{ (isset($activePageId) && $activePageId === 'users') ? 'active' : '' }}" data-navigate-url="{{ route('users.index') }}">
         <i class="bi bi-people-fill"></i>
         <span>Users</span>
     </li>

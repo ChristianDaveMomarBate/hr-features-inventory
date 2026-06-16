@@ -1,3 +1,6 @@
+@php
+    $activePageId = 'users';
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
