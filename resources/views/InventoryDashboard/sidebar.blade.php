@@ -16,23 +16,23 @@
     </div>
 
   <ul>
-    <li class="active" data-page-target="dashboard">
+    <li class="{{ (!isset($activePageId) || $activePageId === 'dashboard') ? 'active' : '' }}" data-page-target="dashboard">
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </li>
-    <li data-page-target="inventory-registry">
+    <li class="{{ (isset($activePageId) && $activePageId === 'inventory-registry') ? 'active' : '' }}" data-page-target="inventory-registry">
         <i class="bi bi-clipboard-data-fill"></i>
         <span>Inventory Registry</span>
     </li>
-    <li data-page-target="stock-management">
+    <li class="{{ (isset($activePageId) && $activePageId === 'stock-management') ? 'active' : '' }}" data-page-target="stock-management">
         <i class="bi bi-arrow-left-right"></i>
         <span>Stock Management</span>
     </li>
-    <li data-page-target="analytics">
+    <li class="{{ (isset($activePageId) && $activePageId === 'analytics') ? 'active' : '' }}" data-page-target="analytics">
         <i class="bi bi-bar-chart-fill"></i>
         <span>Analytics</span>
     </li>
-    <li data-page-target="audit-trails">
+    <li class="{{ (isset($activePageId) && $activePageId === 'audit-trails') ? 'active' : '' }}" data-page-target="audit-trails">
         <i class="bi bi-clock-history"></i>
         <span>Audit Trails</span>
     </li>

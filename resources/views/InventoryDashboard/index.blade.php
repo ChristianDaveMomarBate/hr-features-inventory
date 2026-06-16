@@ -7,6 +7,8 @@
         'analytics',
         'audit-trails'
     ];
+    $lastSegment = request()->segment(count(request()->segments()));
+    $activePageId = in_array($lastSegment, $validDashboardPages) ? $lastSegment : 'dashboard';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +30,7 @@
   <div class="dashboard-container">
     @include('InventoryDashboard.sidebar')
     <div class="main-content">
-      <div id="dashboard" class="page active-page">
+      <div id="dashboard" class="page {{ $activePageId === 'dashboard' ? 'active-page' : '' }}">
           <div class="d-flex justify-content-between align-items-center mb-4">
               <h1 class="mb-0 fw-bold" style="font-size: 32px; color: #111827;">Dashboard</h1>
               <div class="d-flex align-items-center gap-3">

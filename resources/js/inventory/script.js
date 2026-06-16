@@ -101,13 +101,17 @@ function initSidebar() {
 
   document.querySelectorAll('[data-page-target]').forEach(function(item) {
     item.addEventListener('click', function() {
-      showPage(item.dataset.pageTarget, item);
+      const target = item.dataset.pageTarget;
+      if (!target) return;
+      showPage(target, item);
     });
   });
 
   document.querySelectorAll('[data-navigate-url]').forEach(function(item) {
     item.addEventListener('click', function() {
-      window.location = item.dataset.navigateUrl;
+      const url = item.dataset.navigateUrl;
+      if (!url) return;
+      window.location = url;
     });
   });
 
@@ -127,6 +131,7 @@ function initSidebar() {
 }
 
 function showPage(pageId, clickedItem) {
+  if (!pageId) return;
   const page = document.getElementById(pageId);
 
   if (!page || !page.classList.contains('page')) {
@@ -180,8 +185,10 @@ function initDashboardPage() {
 
   document.querySelectorAll('[data-page-link]').forEach(function(link) {
     link.addEventListener('click', function(event) {
+      const page = link.dataset.pageLink;
+      if (!page) return;
       event.preventDefault();
-      showPage(link.dataset.pageLink);
+      showPage(page);
     });
   });
 }
@@ -816,7 +823,6 @@ window.showPage = showPage;
 window.confirmLogout = confirmLogout;
 window.openAddItem = openAddItem;
 window.openEditItem = openEditItem;
-window.filterItems = filterItems;
 window.addItemRow = addItemRow;
 window.removeRow = removeRow;
 window.initOrUpdateCharts = initOrUpdateCharts;

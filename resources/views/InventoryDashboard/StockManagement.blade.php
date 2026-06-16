@@ -3,7 +3,7 @@
     $currentUser ??= auth()->user();
 @endphp
 
-<div id="stock-management" class="page" data-is-admin="{{ $currentUser->isAdmin() ? 'true' : 'false' }}">
+<div id="stock-management" class="page {{ (isset($activePageId) && $activePageId === 'stock-management') ? 'active-page' : '' }}" data-is-admin="{{ $currentUser->isAdmin() ? 'true' : 'false' }}">
     <div class="d-flex justify-content-between align-items-center mb-4 stock-header">
         <div>
             <h1 class="mb-1 fw-bold page-title">Stock Management</h1>

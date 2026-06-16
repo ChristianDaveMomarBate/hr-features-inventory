@@ -1,4 +1,4 @@
-<div id="audit-trails" class="page">
+<div id="audit-trails" class="page {{ (isset($activePageId) && $activePageId === 'audit-trails') ? 'active-page' : '' }}">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Audit Trails</h1>

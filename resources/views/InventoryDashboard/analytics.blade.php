@@ -1,4 +1,4 @@
-<div id="analytics" class="page">
+<div id="analytics" class="page {{ (isset($activePageId) && $activePageId === 'analytics') ? 'active-page' : '' }}">
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
             <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Analytics</h1>
