@@ -5,6 +5,7 @@
  */
 
 import './bootstrap';
+import '@fontsource/nunito';
 import { createApp } from 'vue';
 
 /**

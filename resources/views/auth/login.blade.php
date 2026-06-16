@@ -17,9 +17,8 @@
     <link href="css/responsive.css" rel="stylesheet" type="text/css" />
     
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/@fontsource/outfit/index.css') }}" rel="stylesheet">
     @include('style.style')
 </head>
 
