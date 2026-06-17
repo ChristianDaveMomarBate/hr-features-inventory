@@ -96,7 +96,8 @@ class HomeController extends Controller
         $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->get();
         $auditTrailsQuery = AuditTrail::with('user')->orderBy('created_at', 'desc');
 
-        $auditTrails = $auditTrailsQuery->get();
+        $auditTrails = $auditTrailsQuery->paginate(15, ['*'], 'audit_page');
+        $auditTrails->withPath(route('dashboard', ['page' => 'audit-trails']));
         $lowStockAlertItems = InventoryItem::whereColumn('stock', '<=', 'minimum')
             ->orderBy('name')
             ->get();
