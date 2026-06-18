@@ -59,8 +59,8 @@
                                     <td class="ps-4 py-3 fw-semibold text-dark">{{ $item->code }}</td>
                                     <td class="py-3 fw-bold text-dark">{{ $item->name }}</td>
                                     <td class="py-3"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">{{ $item->category }}</span></td>
-                                    <td class="py-3 text-danger fw-bold">{{ $item->stock }}</td>
-                                    <td class="py-3 text-secondary">{{ $item->minimum }}</td>
+                                    <td class="py-3 text-danger fw-bold">{{ $item->display_stock }}</td>
+                                    <td class="py-3 text-secondary">{{ number_format($item->minimum) }} {{ $item->display_unit }}</td>
                                 </tr>
                             @empty
                                 <tr>

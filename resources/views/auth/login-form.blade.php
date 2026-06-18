@@ -49,5 +49,5 @@
             </form>
         </div>
     </div>
-    <p class="text-center mt-4">Don't have an account? <a href="{{ route('register') }}">Sign up</a></p>
+    <p class="text-center mt-4">Don't have an account? <a href="#register" class="nav-tab-btn" data-target="register">Sign up</a></p>
 </div>

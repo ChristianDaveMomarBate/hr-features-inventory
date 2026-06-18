@@ -17,6 +17,12 @@
     data-dashboard-url="{{ route('dashboard') }}"
     data-dashboard-base-url="{{ url('/dashboard') }}"
 >
+    <div class="dashboard-mobile-bar">
+        <button type="button" class="dashboard-menu-btn" data-action="toggle-sidebar" aria-label="Open navigation">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="dashboard-mobile-title">PHRMDO Inventory</div>
+    </div>
     <div class="dashboard-container">
         @include('InventoryDashboard.sidebar')
 

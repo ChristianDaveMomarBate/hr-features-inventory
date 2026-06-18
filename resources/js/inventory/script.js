@@ -64,9 +64,22 @@ function initAuthTabs() {
 
   const initialHash = window.location.hash.substring(1);
   const hasErrors = document.body.dataset.authHasErrors === 'true';
-  const validTabs = ['home', 'about', 'login', 'register'];
+  const validTabs = ['home', 'about', 'login', 'register', 'kiosk'];
+  const shouldReturnToKiosk = sessionStorage.getItem('kioskReturnTab') === 'true'
+    || document.getElementById('kioskReceiptModal')
+    || document.querySelector('.kiosk-alert-danger');
+  const shouldRestoreKioskFullscreen = sessionStorage.getItem('kioskReturnFullscreen') === 'true';
 
-  if (validTabs.includes(initialHash)) {
+  sessionStorage.removeItem('kioskReturnTab');
+  sessionStorage.removeItem('kioskReturnFullscreen');
+
+  if (shouldReturnToKiosk) {
+    showTab('kiosk');
+    if (shouldRestoreKioskFullscreen) {
+      document.body.classList.add('kiosk-is-fullscreen');
+      window.dispatchEvent(new Event('kiosk:layout-change'));
+    }
+  } else if (validTabs.includes(initialHash)) {
     showTab(initialHash);
   } else if (hasErrors) {
     showTab('login');
@@ -77,12 +90,28 @@ function initAuthTabs() {
 
 function initSidebar() {
   const toggleBtn = document.getElementById('sidebarToggleBtn');
+  const mobileToggleButtons = document.querySelectorAll('[data-action="toggle-sidebar"]');
+  const closeButtons = document.querySelectorAll('[data-action="close-sidebar"]');
   const collapsedClass = 'sidebar-collapsed';
+  const mobileOpenClass = 'sidebar-mobile-open';
+  const mobileQuery = window.matchMedia('(max-width: 1023.98px)');
+
+  function setMobileSidebar(open) {
+    document.body.classList.toggle(mobileOpenClass, open);
+    mobileToggleButtons.forEach(function(button) {
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   if (toggleBtn) {
     const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
     function setSidebarState(collapsed) {
+      if (mobileQuery.matches) {
+        setMobileSidebar(!document.body.classList.contains(mobileOpenClass));
+        return;
+      }
+
       document.body.classList.toggle(collapsedClass, collapsed);
       localStorage.setItem('sidebarCollapsed', collapsed ? 'true' : 'false');
       toggleBtn.setAttribute('aria-label', collapsed ? 'Show sidebar' : 'Hide sidebar');
@@ -92,18 +121,39 @@ function initSidebar() {
         : '<i class="bi bi-layout-sidebar-inset"></i>';
     }
 
-    setSidebarState(isCollapsed);
+    if (mobileQuery.matches) {
+      setMobileSidebar(false);
+    } else {
+      setSidebarState(isCollapsed);
+    }
 
     toggleBtn.addEventListener('click', function() {
       setSidebarState(!document.body.classList.contains(collapsedClass));
     });
   }
 
+  mobileToggleButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      setMobileSidebar(!document.body.classList.contains(mobileOpenClass));
+    });
+  });
+
+  closeButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      setMobileSidebar(false);
+    });
+  });
+
+  window.addEventListener('resize', function() {
+    if (!mobileQuery.matches) setMobileSidebar(false);
+  });
+
   document.querySelectorAll('[data-page-target]').forEach(function(item) {
     item.addEventListener('click', function() {
       const target = item.dataset.pageTarget;
       if (!target) return;
       showPage(target, item);
+      setMobileSidebar(false);
     });
   });
 
@@ -354,7 +404,9 @@ function openAddItem() {
   document.getElementById('methodOverride').value = 'POST';
   document.getElementById('modalTitle').textContent = 'Add Inventory Item';
   form.elements.type.value = 'Consumable';
-  form.elements.unit.value = 'pcs';
+  form.elements.stock_unit.value = 'pcs';
+  form.elements.issue_unit.value = 'pcs';
+  form.elements.units_per_stock_unit.value = 1;
   new window.bootstrap.Modal(document.getElementById('itemModal')).show();
 }
 
@@ -370,13 +422,19 @@ function openEditItem(id) {
   form.action = document.getElementById('inventory-registry').dataset.updateBaseUrl + '/' + id;
   document.getElementById('methodOverride').value = 'PUT';
   document.getElementById('modalTitle').textContent = 'Edit Inventory Item';
+  const unitsPerStockUnit = Number(item.units_per_stock_unit || 1);
+  const stockInStockUnits = unitsPerStockUnit > 0 ? Number(item.stock || 0) / unitsPerStockUnit : Number(item.stock || 0);
 
   form.elements.code.value = item.code;
   form.elements.name.value = item.name;
   form.elements.category.value = item.category;
   form.elements.type.value = item.type || 'Consumable';
-  form.elements.unit.value = item.unit;
-  form.elements.stock.value = item.stock;
+  form.elements.stock_unit.value = item.stock_unit || item.unit || 'pcs';
+  form.elements.issue_unit.value = item.issue_unit || item.unit || 'pcs';
+  form.elements.units_per_stock_unit.value = unitsPerStockUnit;
+  form.elements.stock.value = Number.isInteger(stockInStockUnits)
+    ? stockInStockUnits
+    : stockInStockUnits.toFixed(2).replace(/\.?0+$/, '');
   form.elements.minimum.value = item.minimum;
   form.elements.location.value = item.location || '';
   form.elements.date_registered.value = item.date_registered ? item.date_registered.split('T')[0] : '';
@@ -486,7 +544,10 @@ function addItemRow() {
     ? '<option value="in">Stock In</option><option value="out">Stock Out</option><option value="adjustment">Adjustment</option>'
     : '<option value="in">Stock In</option><option value="out">Stock Out</option>';
   const itemOptions = allInventoryItems.map(function(item) {
-    return `<option value="${item.id}">${item.code} - ${item.name} (${item.stock} ${item.unit})</option>`;
+    const displayUnit = item.issue_unit || item.unit || 'pcs';
+    const displayStock = item.display_stock || `${item.stock} ${displayUnit}`;
+    const bulkText = item.bulk_equivalent ? `, ${item.bulk_equivalent}` : '';
+    return `<option value="${item.id}">${item.code} - ${item.name} (${displayStock}${bulkText})</option>`;
   }).join('');
 
   const row = document.createElement('div');
@@ -507,7 +568,7 @@ function addItemRow() {
         <select name="items[${idx}][type]" class="form-select form-select-sm" required>${typeOptions}</select>
       </div>
       <div class="col-6">
-        <label class="form-label small fw-semibold mb-1">Quantity</label>
+        <label class="form-label small fw-semibold mb-1">Quantity <span class="text-muted">(issue units)</span></label>
         <input type="number" name="items[${idx}][quantity]" min="1" class="form-control form-control-sm" placeholder="0" required>
       </div>
       <div class="col-12">

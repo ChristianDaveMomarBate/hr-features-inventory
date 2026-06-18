@@ -64,8 +64,11 @@
                 <th>Name</th>
                 <th>Category</th>
                 <th>Type</th>
-                <th>Unit</th>
+                <th>Stock Unit</th>
+                <th>Issue Unit</th>
+                <th>Units / Stock Unit</th>
                 <th>Current Stock</th>
+                <th>Bulk Equivalent</th>
                 <th>Minimum Stock</th>
                 <th>Date Registered</th>
             </tr>
@@ -77,14 +80,17 @@
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->category }}</td>
                     <td>{{ $item->type ?? 'Consumable' }}</td>
-                    <td>{{ $item->unit }}</td>
-                    <td>{{ $item->stock }}</td>
+                    <td>{{ $item->stock_unit }}</td>
+                    <td>{{ $item->issue_unit }}</td>
+                    <td>{{ $item->units_per_stock_unit }}</td>
+                    <td>{{ $item->display_stock }}</td>
+                    <td>{{ $item->bulk_equivalent ?? '' }}</td>
                     <td>{{ $item->minimum }}</td>
                     <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center">No inventory items found.</td>
+                    <td colspan="11" class="text-center">No inventory items found.</td>
                 </tr>
             @endforelse
         </tbody>

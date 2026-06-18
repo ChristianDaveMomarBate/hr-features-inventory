@@ -15,10 +15,11 @@
     <link href="fonts/fontawesome/css/all.min.css" type="text/css" rel="stylesheet">
     <link href="css/ui.css" rel="stylesheet" type="text/css" />
     <link href="css/responsive.css" rel="stylesheet" type="text/css" />
-    
+
     <!-- Google Fonts -->
     <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/@fontsource/outfit/index.css') }}" rel="stylesheet">
+    @vite('resources/css/kiosk.css')
     @include('style.style')
 </head>
 
@@ -42,6 +43,11 @@
                         <a class="nav-link nav-tab-btn" href="#about" data-target="about">About</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link nav-tab-btn kiosk-nav-link" href="#kiosk" data-target="kiosk">
+                            <i class="fas fa-box-open" style="margin-right:5px;"></i>Stock Out
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link nav-tab-btn" href="#login" data-target="login">Login</a>
                     </li>
                 </ul>
@@ -55,11 +61,15 @@
 
         @include('auth.about')
 
+        @include('auth.kiosk')
+
         @include('auth.login-form')
+
+        @include('auth.register-form')
 
     </section>
 
-    @vite('resources/js/inventory/script.js')
+    @vite(['resources/js/inventory/script.js', 'resources/js/inventory/kiosk.js'])
 </body>
 
 </html>

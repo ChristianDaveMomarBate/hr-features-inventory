@@ -32,12 +32,16 @@ class HomeController extends Controller
         'pcs',
         'box',
         'ream',
+        'pack',
+        'bundle',
         'roll',
         'bottle',
         'set',
         'unit',
         'pair',
         'liter',
+        'sheet',
+        'sheets',
     ];
 
     public function __construct()
@@ -67,6 +71,8 @@ class HomeController extends Controller
                   ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('type', 'like', "%{$search}%")
                   ->orWhere('unit', 'like', "%{$search}%")
+                  ->orWhere('stock_unit', 'like', "%{$search}%")
+                  ->orWhere('issue_unit', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
                   ->orWhere('location', 'like', "%{$search}%");
             });
@@ -83,7 +89,7 @@ class HomeController extends Controller
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDir = $request->get('sort_dir', 'desc');
         
-        $allowedSorts = ['code', 'name', 'category', 'type', 'unit', 'location', 'stock', 'minimum', 'date_registered', 'created_at'];
+        $allowedSorts = ['code', 'name', 'category', 'type', 'unit', 'stock_unit', 'issue_unit', 'location', 'stock', 'minimum', 'date_registered', 'created_at'];
         if (in_array($sortBy, $allowedSorts)) {
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
         }
@@ -135,15 +141,18 @@ class HomeController extends Controller
             'name' => 'required|string|max:255',
             'category' => ['required', 'string', Rule::in(self::CATEGORIES)],
             'type' => ['required', 'string', Rule::in(self::ITEM_TYPES)],
-            'unit' => ['required', 'string', Rule::in(self::UNITS)],
-            'stock' => 'required|integer|min:0',
+            'stock_unit' => ['required', 'string', Rule::in(self::UNITS)],
+            'issue_unit' => ['required', 'string', Rule::in(self::UNITS)],
+            'units_per_stock_unit' => 'required|integer|min:1',
+            'stock' => 'required|numeric|min:0',
             'minimum' => 'required|integer|min:0',
             'date_registered' => 'required|date',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255'
         ]);
 
-        $validatedData['stock'] = (int) $validatedData['stock'];
+        $validatedData['unit'] = $validatedData['issue_unit'];
+        $validatedData['stock'] = (int) round(((float) $validatedData['stock']) * (int) $validatedData['units_per_stock_unit']);
         $validatedData['minimum'] = (int) $validatedData['minimum'];
 
         // Save into Database
@@ -170,15 +179,18 @@ class HomeController extends Controller
             'name' => 'required|string|max:255',
             'category' => ['required', 'string', Rule::in(self::CATEGORIES)],
             'type' => ['required', 'string', Rule::in(self::ITEM_TYPES)],
-            'unit' => ['required', 'string', Rule::in(self::UNITS)],
-            'stock' => 'required|integer|min:0',
+            'stock_unit' => ['required', 'string', Rule::in(self::UNITS)],
+            'issue_unit' => ['required', 'string', Rule::in(self::UNITS)],
+            'units_per_stock_unit' => 'required|integer|min:1',
+            'stock' => 'required|numeric|min:0',
             'minimum' => 'required|integer|min:0',
             'date_registered' => 'required|date',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255'
         ]);
 
-        $validatedData['stock'] = (int) $validatedData['stock'];
+        $validatedData['unit'] = $validatedData['issue_unit'];
+        $validatedData['stock'] = (int) round(((float) $validatedData['stock']) * (int) $validatedData['units_per_stock_unit']);
         $validatedData['minimum'] = (int) $validatedData['minimum'];
 
         $item = InventoryItem::findOrFail($id);

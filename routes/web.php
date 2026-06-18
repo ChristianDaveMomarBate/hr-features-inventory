@@ -6,6 +6,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\KioskController;
 
 
 Auth::routes();
@@ -13,6 +14,10 @@ Auth::routes();
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+// Public Kiosk Routes (no login required)
+Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk.index');
+Route::post('/kiosk', [KioskController::class, 'store'])->name('kiosk.store');
 
 // Handle form submissions to save new items
 Route::post('/inventory/store', [HomeController::class, 'store'])->middleware(['auth', 'role:admin'])->name('inventory.store');

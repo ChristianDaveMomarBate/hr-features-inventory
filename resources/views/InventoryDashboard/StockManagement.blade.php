@@ -96,7 +96,7 @@
                                     </td>
                                     <td class="py-3">
                                         <span class="qty-badge {{ $tx->type == 'out' ? 'qty-out' : 'qty-in' }}">
-                                            {{ $tx->type == 'out' ? '-' : '+' }}{{ $tx->quantity }}
+                                            {{ $tx->type == 'out' ? '-' : '+' }}{{ number_format($tx->quantity) }} {{ $tx->inventoryItem?->display_unit }}
                                         </span>
                                     </td>
                                     <td class="py-3 fw-medium text-dark">{{ $tx->handled_by ?: '—' }}</td>
@@ -168,7 +168,7 @@
                         <input type="text" id="editTxItemName" class="form-control bg-light" readonly>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Quantity</label>
+                        <label class="form-label fw-bold">Quantity <span class="text-muted small">(issue units)</span></label>
                         <input type="number" name="quantity" id="editTxQuantity" class="form-control" min="1" required>
                     </div>
                     <div class="mb-3">

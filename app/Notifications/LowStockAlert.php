@@ -26,7 +26,9 @@ class LowStockAlert extends Notification
             'code' => $this->item->code,
             'name' => $this->item->name,
             'current_stock' => $this->item->stock,
+            'current_stock_label' => $this->item->display_stock,
             'minimum_stock' => $this->item->minimum,
+            'minimum_stock_label' => number_format((int) $this->item->minimum) . ' ' . $this->item->display_unit,
             'message' => "{$this->item->name} is low on stock.",
         ];
     }

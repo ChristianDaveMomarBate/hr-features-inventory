@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\InventoryItem;
 
 class LoginController extends Controller
 {
@@ -42,7 +43,19 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
-        return view('auth.login');
+        $items = InventoryItem::where('stock', '>', 0)
+            ->orderBy('category')
+            ->orderBy('name')
+            ->get(['id', 'code', 'name', 'category', 'type', 'unit', 'stock_unit', 'issue_unit', 'units_per_stock_unit', 'stock', 'minimum', 'description', 'location']);
+
+        $divisions = [
+            'Administrative Division',
+            'Compensation & Benefits Division',
+            'Office of the OIC-PHRMDO',
+            'Performance Management Learning & Development/Wellness Division',
+        ];
+
+        return view('auth.login', compact('items', 'divisions'));
     }
 
     protected function authenticated(Request $request, $user)

@@ -51,5 +51,5 @@
             </form>
         </div>
     </div>
-    <p class="text-center mt-4">Have an account? <a href="{{ route('login') }}">Log In</a></p>
+    <p class="text-center mt-4">Have an account? <a href="#login" class="nav-tab-btn" data-target="login">Log In</a></p>
 </div>

@@ -3,6 +3,7 @@
     $currentUser ??= auth()->user();
 @endphp
 
+<div class="sidebar-backdrop" data-action="close-sidebar" aria-hidden="true"></div>
 <div class="sidebar">
     <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Hide sidebar" title="Hide sidebar">
         <i class="bi bi-layout-sidebar-inset"></i>

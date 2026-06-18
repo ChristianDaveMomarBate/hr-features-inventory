@@ -8,7 +8,9 @@ export default defineConfig({
             input: [
                 'resources/sass/app.scss',
                 'resources/css/index.style.css',
+                'resources/css/kiosk.css',
                 'resources/js/inventory/script.js',
+                'resources/js/inventory/kiosk.js',
                 'resources/js/app.js',
             ],
             refresh: true,

@@ -47,7 +47,7 @@ class StockController extends Controller
 
                 // Check stock for 'out' transactions
                 if ($type === 'out' && $item->stock < $qty) {
-                    $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->stock}, Requested: {$qty}.";
+                    $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
                     continue;
                 }
 
@@ -89,7 +89,7 @@ class StockController extends Controller
                     'module'         => 'Stock Management',
                     'item_reference' => $item->code,
                     'old_value'      => "Stock: {$oldStock}",
-                    'new_value'      => "Stock: {$item->stock} (Qty: {$qty})",
+                    'new_value'      => "Stock: {$item->display_stock} (Qty: {$qty} {$item->display_unit})",
                     'remarks'        => trim("Handled by: {$handledBy}" . ($remarks ? " | {$remarks}" : '')),
                 ]);
             }

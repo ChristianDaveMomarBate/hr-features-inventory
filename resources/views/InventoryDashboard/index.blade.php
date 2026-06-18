@@ -25,6 +25,12 @@
     @include('style.style')
 </head>
 <body>
+  <div class="dashboard-mobile-bar">
+    <button type="button" class="dashboard-menu-btn" data-action="toggle-sidebar" aria-label="Open navigation">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="dashboard-mobile-title">PHRMDO Inventory</div>
+  </div>
   <div class="dashboard-container">
     @include('InventoryDashboard.sidebar')
     <div class="main-content">
@@ -60,7 +66,7 @@
                                               <div class="fw-semibold text-dark">{{ $data['name'] ?? 'Unknown Item' }}</div>
                                               <small class="text-muted">{{ $data['code'] ?? '' }}</small>
                                           </div>
-                                          <span class="badge bg-danger align-self-start">{{ $data['current_stock'] ?? 0 }} / {{ $data['minimum_stock'] ?? 0 }}</span>
+                                          <span class="badge bg-danger align-self-start">{{ $data['current_stock_label'] ?? ($data['current_stock'] ?? 0) }} / {{ $data['minimum_stock_label'] ?? ($data['minimum_stock'] ?? 0) }}</span>
                                       </div>
                                   </button>
                               </form>
@@ -207,7 +213,7 @@
                                           <div class="fw-semibold text-dark">{{ $item->name }}</div>
                                           <small class="text-muted">{{ $item->code }} / {{ $item->category }}</small>
                                       </div>
-                                      <span class="badge bg-danger align-self-start">{{ $item->stock }} / {{ $item->minimum }}</span>
+                                      <span class="badge bg-danger align-self-start">{{ $item->display_stock }} / {{ number_format($item->minimum) }} {{ $item->display_unit }}</span>
                                   </div>
                               </div>
                           @empty

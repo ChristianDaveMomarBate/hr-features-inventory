@@ -22,12 +22,16 @@
         'pcs',
         'box',
         'ream',
+        'pack',
+        'bundle',
         'roll',
         'bottle',
         'set',
         'unit',
         'pair',
         'liter',
+        'sheet',
+        'sheets',
     ];
 @endphp
 
@@ -99,7 +103,7 @@
                             <th><a href="{{ route('dashboard', array_merge(request()->query(), ['page' => 'inventory-registry', 'sort_by' => 'name', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="text-dark text-decoration-none">Item <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th><a href="{{ route('dashboard', array_merge(request()->query(), ['page' => 'inventory-registry', 'sort_by' => 'category', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="text-dark text-decoration-none">Category <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th><a href="{{ route('dashboard', array_merge(request()->query(), ['page' => 'inventory-registry', 'sort_by' => 'type', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="text-dark text-decoration-none">Type <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
-                            <th>Unit</th>
+                            <th>Units</th>
                             <th><a href="{{ route('dashboard', array_merge(request()->query(), ['page' => 'inventory-registry', 'sort_by' => 'location', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="text-dark text-decoration-none">Location <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th><a href="{{ route('dashboard', array_merge(request()->query(), ['page' => 'inventory-registry', 'sort_by' => 'stock', 'sort_dir' => request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="text-dark text-decoration-none">Current Stock <i class="bi bi-arrow-down-up small text-muted"></i></a></th>
                             <th>Total Stock In</th>
@@ -116,15 +120,23 @@
                                 <td>{{ $item->name }}</td>
                                 <td>{{ $item->category }}</td>
                                 <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ $item->type ?? 'Consumable' }}</span></td>
-                                <td>{{ $item->unit }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ $item->display_unit }}</div>
+                                    @if(($item->stock_unit ?? $item->unit) !== $item->display_unit || ($item->units_per_stock_unit ?? 1) > 1)
+                                        <div class="text-muted small">1 {{ $item->stock_unit }} = {{ $item->units_per_stock_unit }} {{ $item->display_unit }}</div>
+                                    @endif
+                                </td>
                                 <td><span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ $item->location ?? '—' }}</span></td>
                                 <td>
                                     <span class="badge {{ $item->stock <= $item->minimum ? 'bg-danger' : 'badge-soft' }}">
-                                        {{ $item->stock }}
+                                        {{ $item->display_stock }}
                                     </span>
+                                    @if($item->bulk_equivalent)
+                                        <div class="text-muted small mt-1">{{ $item->bulk_equivalent }}</div>
+                                    @endif
                                 </td>
                                 <td>
-                                    <span class="badge bg-success bg-opacity-75">{{ $itemStockIn }}</span>
+                                    <span class="badge bg-success bg-opacity-75">{{ number_format($itemStockIn) }} {{ $item->display_unit }}</span>
                                 </td>
                                 <td>{{ $item->minimum }}</td>
                                 <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
@@ -202,12 +214,23 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Unit</label>
-                                <select name="unit" class="form-select" required>
+                                <label class="form-label">Stock Unit</label>
+                                <select name="stock_unit" class="form-select" required>
                                     @foreach($inventoryUnits as $unit)
                                         <option value="{{ $unit }}">{{ $unit }}</option>
                                     @endforeach
                                 </select>
+                                <div class="form-text">How this item is stored, like box or ream.</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Issue Unit</label>
+                                <select name="issue_unit" class="form-select" required>
+                                    @foreach($inventoryUnits as $unit)
+                                        <option value="{{ $unit }}">{{ $unit }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text">How users request this item, like pcs or sheets.</div>
                             </div>
 
                             <div class="col-md-4">
@@ -215,14 +238,22 @@
                                 <input type="date" name="date_registered" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Initial Stock</label>
-                                <input type="number" min="0" name="stock" class="form-control" required>
+                            <div class="col-md-4">
+                                <label class="form-label">Units per Stock Unit</label>
+                                <input type="number" min="1" name="units_per_stock_unit" class="form-control" required>
+                                <div class="form-text">Example: 1 box = 12 pcs, 1 ream = 500 sheets.</div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="form-label">Stock Quantity</label>
+                                <input type="number" min="0" step="0.01" name="stock" class="form-control" required>
+                                <div class="form-text">Enter quantity in stock units.</div>
+                            </div>
+
+                            <div class="col-md-4">
                                 <label class="form-label">Minimum Stock Level</label>
                                 <input type="number" min="0" name="minimum" class="form-control" required>
+                                <div class="form-text">Minimum is counted in issue units.</div>
                             </div>
 
                             <div class="col-md-12">
