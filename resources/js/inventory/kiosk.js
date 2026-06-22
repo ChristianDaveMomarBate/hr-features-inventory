@@ -340,8 +340,10 @@ function handleFullscreenChange() {
   const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
   if (isFS) {
     document.body.classList.add('kiosk-is-fullscreen');
+    document.documentElement.classList.add('kiosk-is-fullscreen');
   } else {
     document.body.classList.remove('kiosk-is-fullscreen');
+    document.documentElement.classList.remove('kiosk-is-fullscreen');
   }
   window.dispatchEvent(new Event('kiosk:layout-change'));
 }

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initAuthTabs();
   initSidebar();
   initDashboardPage();
@@ -41,10 +41,10 @@ function initAuthTabs() {
       $('.tab-section').hide();
       $('#' + target + '-section').fadeIn(300);
     } else {
-      document.querySelectorAll('.navbar-nav .nav-link').forEach(function(link) {
+      document.querySelectorAll('.navbar-nav .nav-link').forEach(function (link) {
         link.classList.toggle('active', link.dataset.target === target);
       });
-      document.querySelectorAll('.tab-section').forEach(function(section) {
+      document.querySelectorAll('.tab-section').forEach(function (section) {
         section.style.display = section.id === target + '-section' ? 'block' : 'none';
       });
     }
@@ -52,8 +52,8 @@ function initAuthTabs() {
     window.location.hash = target;
   }
 
-  document.querySelectorAll('.nav-tab-btn').forEach(function(button) {
-    button.addEventListener('click', function(event) {
+  document.querySelectorAll('.nav-tab-btn').forEach(function (button) {
+    button.addEventListener('click', function (event) {
       const target = button.dataset.target;
       if (!target) return;
 
@@ -98,7 +98,7 @@ function initSidebar() {
 
   function setMobileSidebar(open) {
     document.body.classList.toggle(mobileOpenClass, open);
-    mobileToggleButtons.forEach(function(button) {
+    mobileToggleButtons.forEach(function (button) {
       button.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
@@ -127,29 +127,29 @@ function initSidebar() {
       setSidebarState(isCollapsed);
     }
 
-    toggleBtn.addEventListener('click', function() {
+    toggleBtn.addEventListener('click', function () {
       setSidebarState(!document.body.classList.contains(collapsedClass));
     });
   }
 
-  mobileToggleButtons.forEach(function(button) {
-    button.addEventListener('click', function() {
+  mobileToggleButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
       setMobileSidebar(!document.body.classList.contains(mobileOpenClass));
     });
   });
 
-  closeButtons.forEach(function(button) {
-    button.addEventListener('click', function() {
+  closeButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
       setMobileSidebar(false);
     });
   });
 
-  window.addEventListener('resize', function() {
+  window.addEventListener('resize', function () {
     if (!mobileQuery.matches) setMobileSidebar(false);
   });
 
-  document.querySelectorAll('[data-page-target]').forEach(function(item) {
-    item.addEventListener('click', function() {
+  document.querySelectorAll('[data-page-target]').forEach(function (item) {
+    item.addEventListener('click', function () {
       const target = item.dataset.pageTarget;
       if (!target) return;
       showPage(target, item);
@@ -157,20 +157,20 @@ function initSidebar() {
     });
   });
 
-  document.querySelectorAll('[data-navigate-url]').forEach(function(item) {
-    item.addEventListener('click', function() {
+  document.querySelectorAll('[data-navigate-url]').forEach(function (item) {
+    item.addEventListener('click', function () {
       const url = item.dataset.navigateUrl;
       if (!url) return;
       window.location = url;
     });
   });
 
-  document.querySelectorAll('[data-action="confirm-logout"]').forEach(function(button) {
+  document.querySelectorAll('[data-action="confirm-logout"]').forEach(function (button) {
     button.addEventListener('click', confirmLogout);
   });
 
-  document.querySelectorAll('[data-action="submit-logout"]').forEach(function(button) {
-    button.addEventListener('click', function() {
+  document.querySelectorAll('[data-action="submit-logout"]').forEach(function (button) {
+    button.addEventListener('click', function () {
       const form = document.getElementById('logoutForm');
       if (form) {
         // Ensure the form is actually submitted
@@ -191,11 +191,11 @@ function showPage(pageId, clickedItem) {
     return;
   }
 
-  document.querySelectorAll('.page').forEach(function(pageElement) {
+  document.querySelectorAll('.page').forEach(function (pageElement) {
     pageElement.classList.remove('active-page');
   });
 
-  document.querySelectorAll('.sidebar li').forEach(function(item) {
+  document.querySelectorAll('.sidebar li').forEach(function (item) {
     item.classList.remove('active');
   });
 
@@ -233,8 +233,8 @@ function initDashboardPage() {
   const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   currentDate.textContent = new Date().toLocaleDateString('en-US', dateOptions);
 
-  document.querySelectorAll('[data-page-link]').forEach(function(link) {
-    link.addEventListener('click', function(event) {
+  document.querySelectorAll('[data-page-link]').forEach(function (link) {
+    link.addEventListener('click', function (event) {
       const page = link.dataset.pageLink;
       if (!page) return;
       event.preventDefault();
@@ -327,7 +327,7 @@ function initOrUpdateCharts(stockIn, stockOut, currentStock) {
             cornerRadius: 8,
             boxPadding: 4,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 let label = context.label || '';
                 if (label) label += ': ';
                 if (context.parsed !== null) label += context.parsed + ' units';
@@ -372,16 +372,16 @@ function initInventoryRegistry() {
   inventoryItems = readJsonScript('inventory-data', []);
   stockInTotalsMap = readJsonScript('stock-in-totals', {});
 
-  document.querySelectorAll('[data-action="open-add-item"]').forEach(function(button) {
+  document.querySelectorAll('[data-action="open-add-item"]').forEach(function (button) {
     button.addEventListener('click', openAddItem);
   });
 
-  inventoryTable.addEventListener('click', function(event) {
+  inventoryTable.addEventListener('click', function (event) {
     const editButton = event.target.closest('[data-edit-item-id]');
     if (editButton) openEditItem(editButton.dataset.editItemId);
   });
 
-  inventoryTable.addEventListener('submit', function(event) {
+  inventoryTable.addEventListener('submit', function (event) {
     const form = event.target.closest('[data-confirm]');
     if (form && !window.confirm(form.dataset.confirm)) event.preventDefault();
   });
@@ -413,7 +413,7 @@ function openAddItem() {
 function openEditItem(id) {
   if (!canManageInventory()) return;
 
-  const item = inventoryItems.find(function(entry) {
+  const item = inventoryItems.find(function (entry) {
     return entry.id == id;
   });
   if (!item) return;
@@ -449,17 +449,17 @@ function updateDashboardCards() {
   let totalStockInTx = 0;
   let totalStockOut = 0;
 
-  rawTx.forEach(function(tx) {
+  rawTx.forEach(function (tx) {
     if (tx.type === 'in') totalStockInTx += Number(tx.quantity);
     if (tx.type === 'out') totalStockOut += Number(tx.quantity);
   });
 
-  const currentTotalStock = inventoryItems.reduce(function(total, item) {
+  const currentTotalStock = inventoryItems.reduce(function (total, item) {
     return total + Number(item.stock || 0);
   }, 0);
 
   const totalStockIn = Math.max(totalStockInTx, currentTotalStock + totalStockOut);
-  const lowStockItems = inventoryItems.filter(function(item) {
+  const lowStockItems = inventoryItems.filter(function (item) {
     return item.stock <= item.minimum;
   }).length;
 
@@ -476,7 +476,7 @@ function initStockManagement() {
   const container = document.getElementById('batchItemsContainer');
   if (!container) return;
 
-  document.querySelectorAll('[data-action="add-stock-row"]').forEach(function(button) {
+  document.querySelectorAll('[data-action="add-stock-row"]').forEach(function (button) {
     button.addEventListener('click', addItemRow);
   });
 
@@ -504,7 +504,7 @@ function updateTxPagination() {
   const start = (currentTxPage - 1) * TX_PER_PAGE;
   const end = start + TX_PER_PAGE;
 
-  rows.forEach(function(row, i) {
+  rows.forEach(function (row, i) {
     row.style.display = (i >= start && i < end) ? '' : 'none';
   });
 
@@ -526,7 +526,7 @@ function updateTxPagination() {
   pageInfo.textContent = `Page ${currentTxPage} of ${totalPages} (${total} total)`;
 }
 
-window.changeTxPage = function(delta) {
+window.changeTxPage = function (delta) {
   currentTxPage += delta;
   updateTxPagination();
 };
@@ -543,7 +543,7 @@ function addItemRow() {
   const typeOptions = isAdmin
     ? '<option value="in">Stock In</option><option value="out">Stock Out</option><option value="adjustment">Adjustment</option>'
     : '<option value="in">Stock In</option><option value="out">Stock Out</option>';
-  const itemOptions = allInventoryItems.map(function(item) {
+  const itemOptions = allInventoryItems.map(function (item) {
     const displayUnit = item.issue_unit || item.unit || 'pcs';
     const displayStock = item.display_stock || `${item.stock} ${displayUnit}`;
     const bulkText = item.bulk_equivalent ? `, ${item.bulk_equivalent}` : '';
@@ -578,11 +578,11 @@ function addItemRow() {
     </div>
   `;
 
-  row.querySelector('[data-remove-row]').addEventListener('click', function() {
+  row.querySelector('[data-remove-row]').addEventListener('click', function () {
     removeRow(idx);
   });
   container.appendChild(row);
-  
+
   const selectEl = row.querySelector(`select[name="items[${idx}][inventory_item_id]"]`);
   if (window.TomSelect) {
     new window.TomSelect(selectEl, {
@@ -594,7 +594,7 @@ function addItemRow() {
       placeholder: "Search item..."
     });
   }
-  
+
   const totalCards = container.querySelectorAll('.stock-item-card').length;
   window.currentBatchPage = Math.ceil(totalCards / 4);
   updateBatchPagination();
@@ -651,7 +651,7 @@ function updateBatchPagination() {
   `;
 }
 
-window.changeBatchPage = function(delta) {
+window.changeBatchPage = function (delta) {
   window.currentBatchPage += delta;
   updateBatchPagination();
 };
@@ -663,7 +663,7 @@ function initAnalytics() {
 
   const items = readJsonScript('inventory-data', []);
   const categories = {};
-  items.forEach(function(item) {
+  items.forEach(function (item) {
     if (!categories[item.category]) categories[item.category] = 0;
     categories[item.category] += Number(item.stock);
   });
@@ -700,7 +700,7 @@ function initAnalytics() {
   const monthlyIn = Array(12).fill(0);
   const monthlyOut = Array(12).fill(0);
 
-  rawTx.forEach(function(tx) {
+  rawTx.forEach(function (tx) {
     const date = new Date(tx.created_at);
     const month = date.getMonth();
     const type = String(tx.type || '').toLowerCase();
@@ -740,8 +740,8 @@ function initAnalytics() {
 
   initMonthlyReport(items, rawTx);
 
-  document.querySelectorAll('[data-action="print-report"]').forEach(function(button) {
-    button.addEventListener('click', function() {
+  document.querySelectorAll('[data-action="print-report"]').forEach(function (button) {
+    button.addEventListener('click', function () {
       window.print();
     });
   });
@@ -779,7 +779,7 @@ function initMonthlyReport(items, rawTx) {
     });
 
     const itemStats = {};
-    items.forEach(function(item) {
+    items.forEach(function (item) {
       itemStats[item.id] = {
         code: item.code,
         name: item.name,
@@ -789,7 +789,7 @@ function initMonthlyReport(items, rawTx) {
       };
     });
 
-    rawTx.forEach(function(tx) {
+    rawTx.forEach(function (tx) {
       const txDate = new Date(tx.created_at);
       const type = String(tx.type || '').toLowerCase();
       const qty = Number(tx.quantity);
@@ -803,7 +803,7 @@ function initMonthlyReport(items, rawTx) {
     let html = '';
     let hasData = false;
 
-    Object.values(itemStats).forEach(function(stat) {
+    Object.values(itemStats).forEach(function (stat) {
       if (stat.added <= 0 && stat.used <= 0) return;
 
       hasData = true;
@@ -848,18 +848,18 @@ function showToast(type, message) {
   toast.id = id;
   toast.style.cssText = `display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.13);padding:16px 20px;margin-bottom:12px;border-left:4px solid ${isSuccess ? '#10b981' : '#ef4444'};opacity:0;transform:translateX(30px);transition:opacity 0.35s ease,transform 0.35s ease;`;
   toast.innerHTML = `<i class="bi ${isSuccess ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}" style="font-size:20px;line-height:1;margin-top:2px;"></i><div style="flex:1;"><div style="font-weight:600;font-size:14px;color:#111827;margin-bottom:2px;">${isSuccess ? 'Success' : 'Error'}</div><div style="font-size:13px;color:#6b7280;">${message}</div></div><button type="button" class="toast-close-btn" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;line-height:1;padding:0;">&times;</button>`;
-  toast.querySelector('.toast-close-btn').addEventListener('click', function() {
+  toast.querySelector('.toast-close-btn').addEventListener('click', function () {
     removeToast(id);
   });
 
   container.appendChild(toast);
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
       toast.style.opacity = '1';
       toast.style.transform = 'translateX(0)';
     });
   });
-  setTimeout(function() {
+  setTimeout(function () {
     removeToast(id);
   }, 3000);
 }
@@ -870,7 +870,7 @@ function removeToast(id) {
 
   toast.style.opacity = '0';
   toast.style.transform = 'translateX(30px)';
-  setTimeout(function() {
+  setTimeout(function () {
     toast.remove();
   }, 350);
 }
