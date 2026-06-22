@@ -11,6 +11,7 @@ function kioskPlayBeep() {
     kioskBeepAudio.preload = 'auto';
   }
 
+  kioskBeepAudio.pause();
   kioskBeepAudio.currentTime = 4;
   kioskBeepAudio.play().catch(function() {});
 }
@@ -95,8 +96,9 @@ function kioskAdd(btn) {
 
 function kioskQty(id, delta) {
   if (!kioskCart[id]) return;
+  kioskPlayBeep();
   const nq = kioskCart[id].qty + delta;
-  if (nq < 1) { kioskRem(id); return; }
+  if (nq < 1) { kioskRem(id, false); return; }
   kioskCart[id].qty = Math.min(nq, kioskCart[id].stock);
   const v = document.getElementById(`kqv_${id}`);
   const h = document.getElementById(`khq_${id}`);
@@ -104,7 +106,9 @@ function kioskQty(id, delta) {
   if (h) h.value = kioskCart[id].qty;
 }
 
-function kioskRem(id) {
+function kioskRem(id, playSound = true) {
+  if (!kioskCart[id]) return;
+  if (playSound) kioskPlayBeep();
   delete kioskCart[id];
   const card = document.querySelector(`.kiosk-card[data-id="${id}"]`);
   if (card) {
@@ -363,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (kioskForm) {
     kioskForm.addEventListener('submit', function(event) {
       event.preventDefault();
+      kioskPlayBeep();
       sessionStorage.setItem('kioskReturnTab', 'true');
       sessionStorage.setItem(
         'kioskReturnFullscreen',

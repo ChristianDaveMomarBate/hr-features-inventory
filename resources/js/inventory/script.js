@@ -28,6 +28,10 @@ function readJsonScript(id, fallback) {
 function initAuthTabs() {
   if (!document.body.classList.contains('auth-page')) return;
 
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
   function showTab(target) {
     if (window.jQuery) {
       const $ = window.jQuery;
@@ -49,7 +53,12 @@ function initAuthTabs() {
       });
     }
 
+    document.body.classList.toggle('kiosk-mode-active', target === 'kiosk');
+    document.documentElement.classList.toggle('kiosk-mode-active', target === 'kiosk');
     window.location.hash = target;
+    requestAnimationFrame(function () {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
   }
 
   document.querySelectorAll('.nav-tab-btn').forEach(function (button) {
