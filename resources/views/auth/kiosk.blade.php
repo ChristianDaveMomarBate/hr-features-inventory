@@ -1,5 +1,5 @@
 {{-- Kiosk Section – Stock Out --}}
-<div id="kiosk-section" class="tab-section animate-fade-in" style="display: none;" data-beep-url="{{ asset('sound/beeps.mp3') }}">
+<div id="kiosk-section" class="tab-section animate-fade-in" style="display: none;" data-beep-url="{{ asset('sound/beeps.mp3') }}" data-thanks-url="{{ asset('sound/thanks.mp3') }}">
   <div class="kiosk-wrapper">
 
     {{-- Header --}}

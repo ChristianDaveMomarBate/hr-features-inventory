@@ -55,19 +55,24 @@
             padding: 0.5rem 1.2rem !important;
             margin: 0 0.15rem;
             border-radius: 20px;
-            background: #ffffff;
+            background: #ffffff !important;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .navbar-custom .nav-link:hover {
+        .navbar-custom .nav-link:hover,
+        .navbar-custom .nav-link:focus {
             color: #000000 !important;
-            background: #e5e5e5;
+            background: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+            outline: none;
         }
 
+        .navbar-custom .nav-link:active,
         .navbar-custom .nav-link.active {
             color: #000000 !important;
-            background: #ffffff;
-            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+            background: #10b981 !important;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+            outline: none;
         }
 
         /* Glassmorphic Card */

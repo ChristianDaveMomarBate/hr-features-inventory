@@ -1,5 +1,6 @@
 const kioskCart = {};
 let kioskBeepAudio = null;
+let kioskThanksAudio = null;
 
 function kioskPlayBeep() {
   const kioskSection = document.getElementById('kiosk-section');
@@ -14,6 +15,21 @@ function kioskPlayBeep() {
   kioskBeepAudio.pause();
   kioskBeepAudio.currentTime = 4;
   kioskBeepAudio.play().catch(function() {});
+}
+
+function kioskPlayThanks() {
+  const kioskSection = document.getElementById('kiosk-section');
+  const thanksUrl = kioskSection ? kioskSection.dataset.thanksUrl : '';
+  if (!thanksUrl) return;
+
+  if (!kioskThanksAudio) {
+    kioskThanksAudio = new Audio(thanksUrl);
+    kioskThanksAudio.preload = 'auto';
+  }
+
+  kioskThanksAudio.pause();
+  kioskThanksAudio.currentTime = 0;
+  kioskThanksAudio.play().catch(function() {});
 }
 
 function kioskUpdateUI() {
@@ -294,6 +310,7 @@ function kioskSubmitAjax(form) {
       kioskUpdateSubmittedStocks(data.receipt);
       kioskResetAfterSubmit();
       kioskRenderReceipt(data.receipt);
+      kioskPlayThanks();
     })
     .catch(function(error) {
       const validationErrors = error && error.errors && !Array.isArray(error.errors)
