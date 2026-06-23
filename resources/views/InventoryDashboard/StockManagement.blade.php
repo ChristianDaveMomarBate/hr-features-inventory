@@ -11,18 +11,23 @@
         </div>
     </div>
 
-
-    <div class="row g-4">
-        <!-- Batch Transaction Form -->
-        <div class="col-12">
+    <div class="stock-fit-grid">
+        <div class="stock-transaction-panel">
             <div class="chart-card p-0 d-flex flex-column overflow-hidden stock-action-card">
                 <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center card-header-premium">
-                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded p-2"><i class="bi bi-box-seam"></i></div> New Transaction
-                    </h5>
-                    <span class="badge badge-premium badge-multi-item">Multi-Item Mode</span>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <div class="icon-box bg-primary bg-opacity-10 text-primary rounded p-2"><i class="bi bi-box-seam"></i></div>
+                            New Transaction
+                        </h5>
+                        <span class="badge badge-premium badge-multi-item">Multi-Item Mode</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-premium-outline d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#recentTransactionsModal">
+                        <i class="bi bi-clock-history"></i>
+                        View Recent Transactions
+                    </button>
                 </div>
-                <div class="p-4 bg-white">
+                <div class="stock-form-body p-4 bg-white">
                     <form method="POST" action="{{ route('stock.store') }}" id="batchStockForm">
                         @csrf
 
@@ -33,7 +38,6 @@
                             </button>
                         </div>
 
-                        <!-- Batch Item Rows -->
                         <div id="batchItemsContainer" class="stock-items-grid mb-3"></div>
 
                         <div class="mt-4 pt-3 border-top border-light d-flex justify-content-end">
@@ -45,16 +49,23 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Recent Transactions Table -->
-        <div class="col-12">
-            <div class="chart-card p-0 h-100 d-flex flex-column overflow-hidden stock-table-card">
-                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center card-header-premium">
-                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                        <div class="icon-box bg-secondary bg-opacity-10 text-secondary rounded p-2"><i class="bi bi-clock-history"></i></div> Recent Transactions
-                    </h5>
-                </div>
-                <div class="table-responsive flex-grow-1 bg-white p-3 pt-0">
+<script type="application/json" id="stock-management-items-data">@json($allInventoryItems)</script>
+
+<div class="modal fade" id="recentTransactionsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header border-bottom border-light card-header-premium">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2 mb-0">
+                    <div class="icon-box bg-secondary bg-opacity-10 text-secondary rounded p-2"><i class="bi bi-clock-history"></i></div>
+                    Recent Transactions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 bg-white">
+                <div class="table-responsive stock-table-wrap stock-modal-table-wrap">
                     <table class="table table-hover table-modern align-middle mb-0 border-0 stock-table">
                         <thead>
                             <tr>
@@ -99,7 +110,7 @@
                                             {{ $tx->type == 'out' ? '-' : '+' }}{{ number_format($tx->quantity) }} {{ $tx->inventoryItem?->display_unit }}
                                         </span>
                                     </td>
-                                    <td class="py-3 fw-medium text-dark">{{ $tx->handled_by ?: '—' }}</td>
+                                    <td class="py-3 fw-medium text-dark">{{ $tx->handled_by ?: '-' }}</td>
                                     @if($currentUser->isAdmin())
                                         <td class="py-3 text-end pe-4">
                                             <button type="button" class="btn btn-sm btn-outline-primary edit-tx-btn" title="Edit transaction"
@@ -133,8 +144,9 @@
                         </tbody>
                     </table>
                 </div>
-            <div id="txPaginationFooter" class="card-footer bg-white border-top border-light py-3 px-4" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center">
+            </div>
+            <div id="txPaginationFooter" class="modal-footer bg-white border-top border-light py-3 px-4" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center w-100 gap-3">
                     <button type="button" id="txPrevBtn" class="btn btn-sm btn-outline-secondary" onclick="changeTxPage(-1)">
                         <i class="bi bi-chevron-left"></i> Previous
                     </button>
@@ -144,12 +156,9 @@
                     </button>
                 </div>
             </div>
-            </div>
         </div>
     </div>
 </div>
-
-<script type="application/json" id="stock-management-items-data">@json($allInventoryItems)</script>
 
 @if($currentUser->isAdmin())
 <div class="modal fade" id="editTxModal" tabindex="-1" aria-hidden="true">
@@ -190,7 +199,7 @@
         const qty = button.dataset.txQuantity;
         const handledBy = JSON.parse(button.dataset.txHandledBy);
         const itemName = JSON.parse(button.dataset.txItemName);
-        
+
         document.getElementById('editTxForm').action = '/stock/' + id;
         document.getElementById('editTxQuantity').value = qty;
         document.getElementById('editTxHandledBy').value = handledBy;
@@ -198,8 +207,7 @@
         var modal = new bootstrap.Modal(document.getElementById('editTxModal'));
         modal.show();
     }
-    
-    // Initialize click handlers for edit buttons
+
     document.querySelectorAll('.edit-tx-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             openEditTx(this);

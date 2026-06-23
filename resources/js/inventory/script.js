@@ -560,30 +560,34 @@ function addItemRow() {
   }).join('');
 
   const row = document.createElement('div');
-  row.className = 'stock-item-card p-3 position-relative mb-3';
+  row.className = 'stock-item-card bg-white border border-light shadow-sm rounded-4 p-4 mb-3';
   row.id = `item-row-${idx}`;
   row.innerHTML = `
-    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-remove-row="${idx}" title="Remove"></button>
-    <div class="row g-3">
-      <div class="col-12">
-        <label class="form-label small fw-semibold mb-1">Item</label>
-        <select name="items[${idx}][inventory_item_id]" class="form-select form-select-sm" required>
-          <option value="">Select item...</option>
-          ${itemOptions}
-        </select>
+    <div class="mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="form-label small fw-bold text-secondary mb-0">Item</label>
+        <button type="button" class="btn-close bg-light border border-secondary border-opacity-25 rounded-circle" style="opacity: 1; padding: 0.4rem; font-size: 0.75rem;" data-remove-row="${idx}" title="Remove"></button>
       </div>
-      <div class="col-6">
-        <label class="form-label small fw-semibold mb-1">Type</label>
-        <select name="items[${idx}][type]" class="form-select form-select-sm" required>${typeOptions}</select>
+      <select name="items[${idx}][inventory_item_id]" class="form-select rounded-3" required>
+        <option value="">Search item...</option>
+        ${itemOptions}
+      </select>
+    </div>
+    
+    <div class="row g-2 mb-3">
+      <div class="col-5">
+        <label class="form-label small fw-bold text-secondary mb-1">Type</label>
+        <select name="items[${idx}][type]" class="form-select rounded-3" required>${typeOptions}</select>
       </div>
-      <div class="col-6">
-        <label class="form-label small fw-semibold mb-1">Quantity <span class="text-muted">(issue units)</span></label>
-        <input type="number" name="items[${idx}][quantity]" min="1" class="form-control form-control-sm" placeholder="0" required>
+      <div class="col-7">
+        <label class="form-label small fw-bold text-secondary mb-1">Quantity <span class="fw-normal text-muted" style="font-size: 0.75rem;">(issue units)</span></label>
+        <input type="number" name="items[${idx}][quantity]" min="1" class="form-control rounded-3" placeholder="0" required>
       </div>
-      <div class="col-12">
-        <label class="form-label small fw-semibold mb-1">Handled By</label>
-        <input type="text" name="items[${idx}][handled_by]" class="form-control form-control-sm" placeholder="Name of person who stocked in/out" required>
-      </div>
+    </div>
+    
+    <div class="mb-1">
+      <label class="form-label small fw-bold text-secondary mb-1">Handled By</label>
+      <input type="text" name="items[${idx}][handled_by]" class="form-control rounded-3" placeholder="Name of person who stocked in/ou" required>
     </div>
   `;
 
@@ -677,23 +681,28 @@ function initAnalytics() {
     categories[item.category] += Number(item.stock);
   });
 
+  const sortedCategories = Object.entries(categories).sort((a, b) => a[1] - b[1]);
+  const sortedLabels = sortedCategories.map(c => c[0]);
+  const sortedData = sortedCategories.map(c => c[1]);
+
   new window.Chart(categoryChart, {
-    type: 'doughnut',
+    type: 'bar',
     data: {
-      labels: Object.keys(categories),
+      labels: sortedLabels,
       datasets: [{
-        data: Object.values(categories),
-        backgroundColor: ['#14b8a6', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'],
+        data: sortedData,
+        backgroundColor: ['#5bc0de', '#5cb85c', '#f0ad4e', '#d9534f', '#0275d8', '#292b2c', '#17a2b8', '#ffc107', '#28a745', '#dc3545'],
         borderWidth: 0,
-        hoverOffset: 4,
+        barPercentage: 0.9,
+        categoryPercentage: 0.9,
       }],
     },
     options: {
+      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '75%',
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" } } },
+        legend: { display: false },
         tooltip: {
           backgroundColor: 'rgba(15, 23, 42, 0.9)',
           padding: 10,
@@ -701,7 +710,37 @@ function initAnalytics() {
           bodyFont: { family: "'Inter', sans-serif" },
         },
       },
+      scales: {
+        x: { display: true, beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false } },
+        y: { display: false, grid: { display: false } }
+      }
     },
+    plugins: [{
+      id: 'insideLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx, data } = chart;
+        ctx.save();
+        chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+          const label = data.labels[index];
+          const val = data.datasets[0].data[index];
+          const y = datapoint.y;
+          const startX = datapoint.base;
+          
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 13px "Inter", sans-serif';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          
+          ctx.shadowColor = 'rgba(0,0,0,0.6)';
+          ctx.shadowBlur = 3;
+          ctx.shadowOffsetX = 1;
+          ctx.shadowOffsetY = 1;
+          
+          ctx.fillText(`${label}: ${val}`, startX + 10, y);
+        });
+        ctx.restore();
+      }
+    }]
   });
 
   const rawTx = readJsonScript('transactions-data', []);
@@ -713,18 +752,17 @@ function initAnalytics() {
     const date = new Date(tx.created_at);
     const month = date.getMonth();
     const type = String(tx.type || '').toLowerCase();
-
     if (type === 'in') monthlyIn[month] += Number(tx.quantity);
     if (type === 'out') monthlyOut[month] += Number(tx.quantity);
   });
 
   new window.Chart(monthlyChart, {
-    type: 'bar',
+    type: 'line',
     data: {
       labels: months,
       datasets: [
-        monthlyDataset('Stock In', monthlyIn, '#10b981'),
-        monthlyDataset('Stock Out', monthlyOut, '#f59e0b'),
+        monthlyDataset('Stock In', monthlyIn, '#10b981', 'rgba(16, 185, 129, 0.15)'),
+        monthlyDataset('Stock Out', monthlyOut, '#f59e0b', 'rgba(245, 158, 11, 0.15)'),
       ],
     },
     options: {
@@ -756,15 +794,20 @@ function initAnalytics() {
   });
 }
 
-function monthlyDataset(label, data, backgroundColor) {
+function monthlyDataset(label, data, borderColor, backgroundColor) {
   return {
     label,
     data,
-    backgroundColor,
-    borderRadius: 4,
-    barPercentage: 0.75,
-    categoryPercentage: 0.7,
-    maxBarThickness: 28,
+    borderColor: borderColor,
+    backgroundColor: backgroundColor,
+    borderWidth: 2,
+    pointBackgroundColor: '#ffffff',
+    pointBorderColor: borderColor,
+    pointBorderWidth: 2,
+    pointRadius: 3,
+    pointHoverRadius: 5,
+    fill: true,
+    tension: 0.3,
   };
 }
 

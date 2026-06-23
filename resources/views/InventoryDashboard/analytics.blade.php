@@ -1,43 +1,43 @@
 <div id="analytics" class="page {{ (isset($activePageId) && $activePageId === 'analytics') ? 'active-page' : '' }}">
-    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <div class="analytics-header d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
             <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Analytics</h1>
             <p class="text-muted mb-0">Insights and reports on your inventory data.</p>
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="analytics-fit-grid row g-4">
         <!-- Stock by Category -->
-        <div class="col-lg-6 no-print">
+        <div class="col-lg-6 no-print analytics-category-panel">
             <div class="chart-card h-100 p-0 overflow-hidden d-flex flex-column">
                 <div class="p-4 border-bottom border-light bg-white">
                     <h5 class="fw-bold text-dark mb-0">Stock by Category</h5>
                 </div>
-                <div class="p-4 flex-grow-1 bg-white" style="position: relative; height: 300px;">
+                <div class="analytics-chart-area p-4 flex-grow-1 bg-white">
                     <canvas id="categoryChart"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- Monthly Transactions -->
-        <div class="col-lg-6 no-print">
+        <div class="col-lg-6 no-print analytics-monthly-panel">
             <div class="chart-card h-100 p-0 overflow-hidden d-flex flex-column">
                 <div class="p-4 border-bottom border-light bg-white">
                     <h5 class="fw-bold text-dark mb-0">Monthly Stock In vs Out</h5>
                 </div>
-                <div class="p-4 flex-grow-1 bg-white" style="position: relative; height: 300px;">
+                <div class="analytics-chart-area p-4 flex-grow-1 bg-white">
                     <canvas id="monthlyChart"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- Low Stock Alerts -->
-        <div class="col-12 no-print">
-            <div class="chart-card p-0 overflow-hidden">
+        <div class="col-12 no-print analytics-low-panel">
+            <div class="chart-card p-0 overflow-hidden d-flex flex-column">
                 <div class="p-4 border-bottom border-light bg-white">
                     <h5 class="fw-bold text-danger mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Critical Low Stock Items</h5>
                 </div>
-                <div class="table-responsive bg-white">
+                <div class="table-responsive bg-white analytics-table-wrap">
                     <table class="table table-hover table-modern mb-0 border-0">
                         <thead>
                             <tr>
@@ -74,8 +74,8 @@
         </div>
 
         <!-- Monthly Item Activity Report -->
-        <div class="col-12" id="monthly-report-section">
-            <div class="chart-card p-0 overflow-hidden">
+        <div class="col-12 analytics-report-panel" id="monthly-report-section">
+            <div class="chart-card p-0 overflow-hidden d-flex flex-column">
                 <div class="print-report-header">
                     <img src="{{ asset('images/logo-hri.png') }}" alt="Province Seal" class="print-report-logo">
                     <div>
@@ -85,7 +85,6 @@
                         </div>
                         <div class="print-report-title">Monthly Item Activity Report</div>
                     </div>
-                    <img src="{{ asset('images/Surigao_City_Seal.webp') }}" alt="Surigao Seal" class="print-report-logo">
                 </div>
 
                 <div class="print-report-month" id="reportMonthPrintLabel"></div>
@@ -99,7 +98,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="table-responsive bg-white">
+                <div class="table-responsive bg-white analytics-table-wrap">
                     <table class="table table-hover table-modern mb-0 border-0" id="reportTable">
                         <thead>
                             <tr>

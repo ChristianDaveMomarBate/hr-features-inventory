@@ -42,7 +42,7 @@
     data-store-url="{{ route('inventory.store') }}"
     data-update-base-url="{{ url('/inventory/update') }}"
 >
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="registry-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-1">Inventory Registry</h1>
             <p class="text-muted mb-0">Register and maintain inventory item records.</p>
@@ -51,7 +51,7 @@
 
     <div id="successAlert" class="alert alert-success d-none"></div>
 
-    <div class="card inventory-registry-card">
+    <div class="card inventory-registry-card registry-fit-card">
         <div class="card-body">
             <form id="inventoryFilterForm" method="GET" action="{{ route('dashboard', 'inventory-registry') }}" class="row g-3 align-items-end mb-4">
                 <div class="col-lg-3 col-md-6">
@@ -95,7 +95,7 @@
                 </div>
             </form>
 
-            <div class="table-responsive">
+            <div class="table-responsive registry-table-wrap">
                 <table class="table align-middle">
                     <thead>
                         <tr>
@@ -165,7 +165,7 @@
                 </table>
             </div>
             
-            <div class="mt-4">
+            <div class="registry-pagination mt-4">
                 {{ $inventoryItems->appends(request()->query())->links('pagination::bootstrap-5') }}
             </div>
         </div>

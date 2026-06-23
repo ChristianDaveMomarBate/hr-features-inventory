@@ -529,6 +529,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  padding: 0.75rem !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -541,6 +542,22 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
 .stock-item-card .form-control,
 .stock-item-card .form-select {
   font-size: 13px;
+}
+
+.stock-item-card .form-label {
+  margin-bottom: 0.25rem;
+}
+
+.stock-item-card .form-control,
+.stock-item-card .form-select {
+  min-height: 38px;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+.stock-item-card .row {
+  --bs-gutter-x: 0.6rem;
+  --bs-gutter-y: 0.6rem;
 }
 
 .stock-item-card .btn-close {
@@ -1529,6 +1546,30 @@ button,
   max-width: 100%;
 }
 
+.dashboard-fit-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-card-heading {
+  margin-bottom: 1rem;
+}
+
+.dashboard-section-header {
+  flex: 0 0 auto;
+  padding: 1rem 1.25rem;
+}
+
+.dashboard-scroll-list {
+  min-height: 0;
+  overflow: auto;
+}
+
+.dashboard-chart-legend {
+  flex: 0 0 auto;
+  margin-top: 0.75rem;
+}
+
 .auth-page .navbar-toggler {
   min-width: 44px;
   min-height: 44px;
@@ -1600,6 +1641,442 @@ button,
 
   .chart-card {
     padding: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  body:has(.page.active-page) {
+    overflow: hidden;
+  }
+
+  .main-content:has(.page.active-page) {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .page.active-page {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #dashboard.active-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #dashboard .dashboard-main-header {
+    flex: 0 0 auto;
+    margin-bottom: 0.75rem !important;
+  }
+
+  #dashboard .dashboard-main-header h1 {
+    font-size: 26px !important;
+  }
+
+  #dashboard .dashboard-metrics-row {
+    flex: 0 0 auto;
+    --bs-gutter-x: 0.875rem;
+    --bs-gutter-y: 0.875rem;
+    margin-bottom: 0.875rem !important;
+  }
+
+  #dashboard .metric-card-modern {
+    min-height: 84px;
+    padding: 0.875rem;
+    border-radius: 12px;
+  }
+
+  #dashboard .metric-title {
+    font-size: 0.67rem;
+    margin-bottom: 0.15rem;
+  }
+
+  #dashboard .metric-value {
+    font-size: 1.45rem;
+    line-height: 1.05;
+  }
+
+  #dashboard .metric-icon-modern {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.65rem;
+    font-size: 1rem;
+  }
+
+  #dashboard .dashboard-fit-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.85fr);
+    grid-template-rows: minmax(0, 1.04fr) minmax(0, 0.96fr);
+    grid-template-areas:
+      "trend distribution"
+      "audit lowstock";
+  }
+
+  #dashboard .dashboard-trend-card {
+    grid-area: trend;
+  }
+
+  #dashboard .dashboard-distribution-card {
+    grid-area: distribution;
+  }
+
+  #dashboard .dashboard-low-stock-card {
+    grid-area: lowstock;
+  }
+
+  #dashboard .dashboard-audit-card {
+    grid-area: audit;
+  }
+
+  #dashboard .chart-card {
+    min-height: 0;
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  #dashboard .chart-card.p-0 {
+    padding: 0 !important;
+  }
+
+  #dashboard .dashboard-card-heading {
+    margin-bottom: 0.65rem;
+  }
+
+  #dashboard .dashboard-card-heading h5,
+  #dashboard .dashboard-section-header h5 {
+    font-size: 0.95rem;
+  }
+
+  #dashboard .dashboard-card-heading p,
+  #dashboard .dashboard-section-header p {
+    font-size: 0.75rem;
+  }
+
+  #dashboard .chart-area-trend,
+  #dashboard .chart-area-donut {
+    min-height: 0;
+    max-width: none;
+  }
+
+  #dashboard .chart-area-donut {
+    max-height: 175px;
+  }
+
+  #dashboard .donut-total {
+    font-size: 1.35rem !important;
+  }
+
+  #dashboard .dashboard-chart-legend {
+    margin-top: 0.5rem;
+    gap: 1rem !important;
+    font-size: 0.75rem;
+  }
+
+  #dashboard .dashboard-section-header {
+    padding: 0.85rem 1rem;
+  }
+
+  #dashboard .list-group-item {
+    padding: 0.65rem 1rem !important;
+  }
+
+  #dashboard .table {
+    min-width: 640px;
+  }
+
+  #dashboard .table-modern th,
+  #dashboard .table-modern td {
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+    font-size: 0.78rem;
+  }
+
+  #inventory-registry.active-page,
+  #audit-trails.active-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #inventory-registry .registry-header,
+  #audit-trails .audit-header,
+  #analytics .analytics-header,
+  #stock-management .stock-header {
+    flex: 0 0 auto;
+    margin-bottom: 0.75rem !important;
+  }
+
+  #inventory-registry .registry-header h1,
+  #audit-trails .audit-header h1,
+  #analytics .analytics-header h1,
+  #stock-management .stock-header h1 {
+    font-size: 26px !important;
+  }
+
+  #inventory-registry .registry-header p,
+  #audit-trails .audit-header p,
+  #analytics .analytics-header p,
+  #stock-management .stock-header p {
+    font-size: 0.85rem;
+  }
+
+  #inventory-registry #successAlert {
+    flex: 0 0 auto;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 1rem;
+  }
+
+  #inventory-registry .registry-fit-card,
+  #audit-trails .audit-fit-card {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #inventory-registry .inventory-registry-card .card-body,
+  #audit-trails .audit-fit-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #inventory-registry .inventory-registry-card .card-body {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  #inventory-registry #inventoryFilterForm {
+    flex: 0 0 auto;
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.6rem;
+    margin-bottom: 0.75rem !important;
+  }
+
+  #inventory-registry #inventoryFilterForm .form-label {
+    font-size: 0.74rem;
+    margin-bottom: 0.25rem;
+  }
+
+  #inventory-registry #inventoryFilterForm .form-control,
+  #inventory-registry #inventoryFilterForm .form-select,
+  #inventory-registry #inventoryFilterForm .btn {
+    min-height: 38px;
+    font-size: 0.82rem;
+  }
+
+  #inventory-registry .registry-table-wrap,
+  #audit-trails .audit-table-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  #inventory-registry .registry-pagination,
+  #audit-trails .audit-pagination {
+    flex: 0 0 auto;
+    margin-top: 0.75rem !important;
+  }
+
+  #inventory-registry .inventory-registry-card .table,
+  #audit-trails .audit-fit-card .table {
+    min-width: 900px;
+  }
+
+  #inventory-registry .inventory-registry-card .table th,
+  #inventory-registry .inventory-registry-card .table td,
+  #audit-trails .audit-fit-card .table-modern th,
+  #audit-trails .audit-fit-card .table-modern td {
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+    font-size: 0.78rem;
+  }
+
+  #inventory-registry .pagination .page-link,
+  #audit-trails .pagination .page-link {
+    min-height: 34px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  #audit-trails .audit-fit-card > .p-4,
+  #analytics .chart-card > .p-4.border-bottom,
+  #stock-management .card-header-premium {
+    flex: 0 0 auto;
+    padding: 0.85rem 1rem !important;
+  }
+
+  #stock-management.active-page,
+  #analytics.active-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #stock-management .stock-fit-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+  }
+
+  #stock-management .stock-transaction-panel {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+  }
+
+  #stock-management .stock-action-card,
+  #stock-management .stock-table-card {
+    height: 100%;
+    min-height: 0;
+  }
+
+  #stock-management .stock-form-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 1rem 1.15rem !important;
+  }
+
+  #stock-management #batchStockForm {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  #stock-management #batchStockForm > .d-flex:first-of-type {
+    flex: 0 0 auto;
+    margin-bottom: 0.6rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  #stock-management #batchItemsContainer.stock-items-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: visible;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.6rem !important;
+    padding-right: 0.15rem;
+  }
+
+  #stock-management .stock-item-card {
+    min-height: 0;
+  }
+
+  #stock-management #batchStockForm > .mt-4 {
+    flex: 0 0 auto;
+    margin-top: 0.4rem !important;
+    padding-top: 0.55rem !important;
+  }
+
+  #stock-management .stock-table-wrap {
+    min-height: 0;
+    overflow: auto;
+  }
+
+  #stock-management .stock-table th,
+  #stock-management .stock-table td {
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+    font-size: 0.78rem;
+  }
+
+  #stock-management #txPaginationFooter {
+    flex: 0 0 auto;
+    padding: 0.6rem 1rem !important;
+  }
+
+  #stock-management .modal-dialog {
+    max-width: min(1300px, calc(100vw - 2rem));
+  }
+
+  #stock-management .modal-content {
+    max-height: calc(100vh - 2rem);
+  }
+
+  #stock-management .modal-body {
+    min-height: 0;
+  }
+
+  #stock-management .stock-modal-table-wrap {
+    max-height: calc(100vh - 14rem);
+    overflow: auto;
+  }
+
+  #analytics .analytics-fit-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-areas:
+      "category monthly"
+      "low report";
+    gap: 0.875rem;
+    margin: 0;
+  }
+
+  #analytics .analytics-fit-grid > * {
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+  }
+
+  #analytics .analytics-category-panel {
+    grid-area: category;
+  }
+
+  #analytics .analytics-monthly-panel {
+    grid-area: monthly;
+  }
+
+  #analytics .analytics-low-panel {
+    grid-area: low;
+  }
+
+  #analytics .analytics-report-panel {
+    grid-area: report;
+  }
+
+  #analytics .chart-card {
+    height: 100%;
+    min-height: 0;
+  }
+
+  #analytics .analytics-chart-area {
+    position: relative;
+    min-height: 0;
+    height: auto;
+    padding: 0.85rem !important;
+  }
+
+  #analytics .analytics-table-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  #analytics .table {
+    min-width: 680px;
+  }
+
+  #analytics .table-modern th,
+  #analytics .table-modern td {
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+    font-size: 0.78rem;
+  }
+
+  #analytics #monthly-report-section .d-flex.gap-3 {
+    gap: 0.5rem !important;
+  }
+
+  #analytics #reportMonthFilter {
+    min-height: 34px;
   }
 }
 

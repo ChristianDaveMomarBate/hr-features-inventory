@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\KioskController;
+use App\Http\Controllers\ProfileController;
 
 
 Auth::routes();
@@ -35,6 +36,9 @@ Route::get('/users', [UserManagementController::class, 'index'])->name('users.in
 Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
 
 
+
+// Profile Route
+Route::post('/profile', [ProfileController::class, 'update'])->middleware(['auth'])->name('profile.update');
 
 // Dashboard Route
 Route::get('/dashboard/{page?}', [HomeController::class, 'index'])->middleware(['auth', 'role:admin'])->name('dashboard');
