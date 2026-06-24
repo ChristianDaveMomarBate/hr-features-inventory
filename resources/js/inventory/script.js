@@ -493,7 +493,7 @@ function initStockManagement() {
   initTxPagination();
 }
 
-const TX_PER_PAGE = 4;
+const TX_PER_PAGE = 5;
 let currentTxPage = 1;
 
 function initTxPagination() {
@@ -560,34 +560,35 @@ function addItemRow() {
   }).join('');
 
   const row = document.createElement('div');
-  row.className = 'stock-item-card bg-white border border-light shadow-sm rounded-4 p-4 mb-3';
+  row.className = 'stock-item-card';
   row.id = `item-row-${idx}`;
   row.innerHTML = `
-    <div class="mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <label class="form-label small fw-bold text-secondary mb-0">Item</label>
-        <button type="button" class="btn-close bg-light border border-secondary border-opacity-25 rounded-circle" style="opacity: 1; padding: 0.4rem; font-size: 0.75rem;" data-remove-row="${idx}" title="Remove"></button>
-      </div>
-      <select name="items[${idx}][inventory_item_id]" class="form-select rounded-3" required>
-        <option value="">Search item...</option>
+    <div class="stock-item-card-header">
+      <span>Item</span>
+      <button type="button" class="stock-item-remove" data-remove-row="${idx}" title="Remove" aria-label="Remove item row">X</button>
+    </div>
+
+    <div class="stock-item-field stock-item-search">
+      <select name="items[${idx}][inventory_item_id]" class="form-select" required>
+        <option value="">Search Item...</option>
         ${itemOptions}
       </select>
     </div>
-    
-    <div class="row g-2 mb-3">
-      <div class="col-5">
-        <label class="form-label small fw-bold text-secondary mb-1">Type</label>
-        <select name="items[${idx}][type]" class="form-select rounded-3" required>${typeOptions}</select>
+
+    <div class="stock-item-two-col">
+      <div class="stock-item-field stock-item-type">
+        <label class="form-label">Type</label>
+        <select name="items[${idx}][type]" class="form-select" required>${typeOptions}</select>
       </div>
-      <div class="col-7">
-        <label class="form-label small fw-bold text-secondary mb-1">Quantity <span class="fw-normal text-muted" style="font-size: 0.75rem;">(issue units)</span></label>
-        <input type="number" name="items[${idx}][quantity]" min="1" class="form-control rounded-3" placeholder="0" required>
+      <div class="stock-item-field stock-item-quantity">
+        <label class="form-label">Quantity</label>
+        <input type="number" name="items[${idx}][quantity]" min="1" class="form-control" required>
       </div>
     </div>
-    
-    <div class="mb-1">
-      <label class="form-label small fw-bold text-secondary mb-1">Handled By</label>
-      <input type="text" name="items[${idx}][handled_by]" class="form-control rounded-3" placeholder="Name of person who stocked in/ou" required>
+
+    <div class="stock-item-field stock-item-handled">
+      <label class="form-label">Handled By:</label>
+      <input type="text" name="items[${idx}][handled_by]" class="form-control" required>
     </div>
   `;
 
@@ -604,12 +605,12 @@ function addItemRow() {
         field: "text",
         direction: "asc"
       },
-      placeholder: "Search item..."
+      placeholder: "Search Item..."
     });
   }
 
   const totalCards = container.querySelectorAll('.stock-item-card').length;
-  window.currentBatchPage = Math.ceil(totalCards / 4);
+  window.currentBatchPage = Math.ceil(totalCards / 5);
   updateBatchPagination();
 }
 
@@ -624,7 +625,7 @@ function updateBatchPagination() {
   if (!container) return;
   const cards = container.querySelectorAll('.stock-item-card');
   const totalCards = cards.length;
-  const BATCH_ITEMS_PER_PAGE = 4;
+  const BATCH_ITEMS_PER_PAGE = 5;
   const totalPages = Math.ceil(totalCards / BATCH_ITEMS_PER_PAGE) || 1;
 
   if (window.currentBatchPage > totalPages || !window.currentBatchPage) {
