@@ -726,17 +726,17 @@ function initAnalytics() {
           const val = data.datasets[0].data[index];
           const y = datapoint.y;
           const startX = datapoint.base;
-          
+
           ctx.fillStyle = '#ffffff';
           ctx.font = 'bold 13px "Inter", sans-serif';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
-          
+
           ctx.shadowColor = 'rgba(0,0,0,0.6)';
           ctx.shadowBlur = 3;
           ctx.shadowOffsetX = 1;
           ctx.shadowOffsetY = 1;
-          
+
           ctx.fillText(`${label}: ${val}`, startX + 10, y);
         });
         ctx.restore();

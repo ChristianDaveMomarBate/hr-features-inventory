@@ -26,7 +26,7 @@
 <body class="auth-page" data-auth-has-errors="{{ $errors->any() ? 'true' : 'false' }}">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top shadow-sm">
-        <div class="container">
+        <div class="container-fluid px-4 px-md-5">
             <a class="navbar-brand d-flex align-items-center nav-tab-btn" href="#home" data-target="home">
                 <img src="images/logo2.webp" alt="PHRMDO Logo" height="35" class="d-inline-block align-top mr-2" style="margin-right: 8px;">
                 <span>PHRMDO Inventory System</span>

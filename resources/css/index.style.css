@@ -534,10 +534,36 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   padding: 8px 9px 10px !important;
   color: #222222;
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.stock-item-card>* {
+  position: relative;
+  z-index: 2;
+}
+
+.stock-item-card::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  background-image: url('/images/logo-hri.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .stock-item-card:hover {
   box-shadow: none;
+  transform: translateY(2px);
 }
 
 .stock-item-card .form-label,
@@ -2016,8 +2042,8 @@ button,
     font-size: 0.78rem;
   }
 
-  #audit-trails .audit-fit-card > .p-4,
-  #analytics .chart-card > .p-4.border-bottom,
+  #audit-trails .audit-fit-card>.p-4,
+  #analytics .chart-card>.p-4.border-bottom,
   #stock-management .card-header-premium {
     flex: 0 0 auto;
     padding: 0.85rem 1rem !important;
@@ -2064,7 +2090,7 @@ button,
     min-height: 0;
   }
 
-  #stock-management #batchStockForm > .d-flex:first-of-type {
+  #stock-management #batchStockForm>.d-flex:first-of-type {
     flex: 0 0 auto;
     margin-bottom: 0.6rem !important;
     padding-bottom: 0.5rem !important;
@@ -2084,7 +2110,7 @@ button,
     min-height: 0;
   }
 
-  #stock-management #batchStockForm > .mt-4 {
+  #stock-management #batchStockForm>.mt-4 {
     flex: 0 0 auto;
     margin-top: 0.4rem !important;
     padding-top: 0.55rem !important;
@@ -2137,7 +2163,7 @@ button,
     margin: 0;
   }
 
-  #analytics .analytics-fit-grid > * {
+  #analytics .analytics-fit-grid>* {
     width: auto;
     min-width: 0;
     min-height: 0;
