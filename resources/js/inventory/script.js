@@ -551,39 +551,55 @@ function addItemRow() {
   }).join('');
 
   const row = document.createElement('div');
-  row.className = 'stock-item-card p-3 position-relative mb-3';
+  row.className = 'stock-item-card';
   row.id = `item-row-${idx}`;
   row.innerHTML = `
-    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-remove-row="${idx}" title="Remove"></button>
-    <div class="row g-3">
-      <div class="col-12">
-        <label class="form-label small fw-semibold mb-1">Item</label>
-        <select name="items[${idx}][inventory_item_id]" class="form-select form-select-sm" required>
-          <option value="">Select item...</option>
-          ${itemOptions}
-        </select>
+    <!-- X close button: position:absolute, perfect circle at top-right corner of card -->
+    <button type="button" class="replicated-close-btn" data-remove-row="${idx}" title="Remove">&#x2715;</button>
+
+    <!-- Header pill: only the ITEM label, full-width white pill -->
+    <div class="replicated-header-pill">
+      <span class="replicated-title-text">ITEM</span>
+    </div>
+
+    <!-- Search/Select Item (TomSelect) -->
+    <div class="mb-2">
+      <select name="items[${idx}][inventory_item_id]" id="item-select-${idx}" class="replicated-select-item" required>
+        <option value="">Search Item...</option>
+        ${itemOptions}
+      </select>
+    </div>
+
+    <!-- TYPE and QUANTITY side by side -->
+    <div class="row g-2 mb-2">
+      <div class="col-6">
+        <div class="replicated-label-pill">TYPE</div>
+        <div class="replicated-select-wrapper">
+          <select name="items[${idx}][type]" id="type-select-${idx}" class="replicated-input-field replicated-select" required>${typeOptions}</select>
+        </div>
       </div>
       <div class="col-6">
-        <label class="form-label small fw-semibold mb-1">Type</label>
-        <select name="items[${idx}][type]" class="form-select form-select-sm" required>${typeOptions}</select>
+        <div class="replicated-label-pill">QUANTITY</div>
+        <input type="number" name="items[${idx}][quantity]" min="1" class="replicated-input-field" placeholder="##" required>
       </div>
-      <div class="col-6">
-        <label class="form-label small fw-semibold mb-1">Quantity <span class="text-muted">(issue units)</span></label>
-        <input type="number" name="items[${idx}][quantity]" min="1" class="form-control form-control-sm" placeholder="0" required>
-      </div>
-      <div class="col-12">
-        <label class="form-label small fw-semibold mb-1">Handled By</label>
-        <input type="text" name="items[${idx}][handled_by]" class="form-control form-control-sm" placeholder="Name of person who stocked in/out" required>
-      </div>
+    </div>
+
+    <!-- HANDLED BY -->
+    <div class="mb-1">
+      <div class="replicated-label-pill">HANDLED BY</div>
+      <input type="text" name="items[${idx}][handled_by]" class="replicated-input-field" placeholder="" required>
     </div>
   `;
 
+  // Wire up the close button
   row.querySelector('[data-remove-row]').addEventListener('click', function () {
     removeRow(idx);
   });
+
   container.appendChild(row);
 
-  const selectEl = row.querySelector(`select[name="items[${idx}][inventory_item_id]"]`);
+  // Initialise TomSelect on the search-item dropdown
+  const selectEl = row.querySelector(`#item-select-${idx}`);
   if (window.TomSelect) {
     new window.TomSelect(selectEl, {
       create: false,
@@ -591,7 +607,7 @@ function addItemRow() {
         field: "text",
         direction: "asc"
       },
-      placeholder: "Search item..."
+      placeholder: "Search Item..."
     });
   }
 

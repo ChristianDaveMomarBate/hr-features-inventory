@@ -518,23 +518,215 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
 }
 
 #batchItemsContainer.stock-items-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding-top: 4px;
+  overflow: visible;
 }
 
 .stock-item-card {
-  min-width: 0;
-  background-color: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  width: 280px;
+  flex-shrink: 0;
+  background: linear-gradient(160deg, #5142a7 0%, #d0d5f3 60%, #e8eaf6 100%);
+  border: 2px solid #281a6c !important;
+  border-radius: 18px !important;
+  box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 0.25) !important;
+  padding: 14px 14px 16px 14px !important;
+  color: #000000;
+  /* Must be visible so the absolute X button isn't clipped */
+  overflow: visible !important;
+  transition: box-shadow 0.2s ease;
 }
 
 .stock-item-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 7px 7px 0px 0px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ── X close button: perfect circle at top-right corner of the card ── */
+.replicated-close-btn {
+  position: absolute !important;
+  top: -13px !important;
+  right: -13px !important;
+  /* Force a perfect circle — all four dimensions must be equal */
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  max-width: 30px !important;
+  max-height: 30px !important;
+  border-radius: 50% !important;
+  background: #dd1f1f !important;
+  border: 2.5px solid #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  z-index: 20;
+  outline: none !important;
+  text-decoration: none;
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box !important;
+}
+
+.replicated-close-btn:hover,
+.replicated-close-btn:focus {
+  background: #b81010 !important;
+  color: #ffffff !important;
+  transform: scale(1.08);
+  outline: none !important;
+}
+
+/* ── Header pill: white pill — only the ITEM label, full width ── */
+.replicated-header-pill {
+  background-color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  min-height: 36px;
+  width: 100%;
+}
+
+.replicated-title-text {
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #000000;
+  letter-spacing: 0.5px;
+}
+
+/* ── Section label pills (TYPE, QUANTITY, HANDLED BY) ── */
+.replicated-label-pill {
+  background-color: #ffffff;
+  border-radius: 9999px;
+  padding: 3px 14px;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  color: #000000;
+  display: inline-block;
+  margin-bottom: 5px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Input / number fields ── */
+.replicated-input-field {
+  display: block;
+  width: 100%;
+  height: 36px;
+  background-color: #f0f2fa;
+  border: 1.5px solid #000000 !important;
+  border-radius: 9999px !important;
+  padding: 0 14px;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: #000000;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.replicated-input-field:focus {
+  border-color: #5142a7 !important;
+  background-color: #ffffff;
+}
+
+/* ── TYPE select wrapper: relative so the circle "v" button sits inside ── */
+.replicated-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Styled select custom arrow */
+.replicated-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 12px 12px !important;
+  padding-right: 36px !important;
+  cursor: pointer;
+}
+
+/* ── TomSelect (Search Item field) styled to match the pill input ── */
+.stock-item-card .ts-wrapper {
+  width: 100%;
+}
+
+.stock-item-card .ts-wrapper .ts-control {
+  background-color: #f0f2fa !important;
+  border: 1.5px solid #000000 !important;
+  border-radius: 9999px !important;
+  padding: 0 14px !important;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 13px !important;
+  color: #000000 !important;
+  min-height: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  box-shadow: none !important;
+  flex-wrap: nowrap !important;
+}
+
+.stock-item-card .ts-wrapper .ts-control input {
+  font-size: 13px !important;
+  color: #000000 !important;
+  font-family: 'Inter', Arial, sans-serif !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+}
+
+.stock-item-card .ts-wrapper .ts-control .item {
+  color: #000000 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Hide TS's own caret arrow */
+.stock-item-card .ts-wrapper.single .ts-control::after {
+  display: none !important;
+}
+
+.stock-item-card .ts-wrapper .ts-dropdown {
+  border: 1.5px solid #281a6c !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18) !important;
+  margin-top: 4px !important;
+  z-index: 1050 !important;
+  background-color: #ffffff !important;
+}
+
+.stock-item-card .ts-wrapper .ts-dropdown .option {
+  padding: 8px 14px !important;
+  font-size: 12px !important;
+  color: #000000 !important;
+}
+
+.stock-item-card .ts-wrapper .ts-dropdown .option.active,
+.stock-item-card .ts-wrapper .ts-dropdown .option:hover {
+  background-color: #5142a7 !important;
+  color: #ffffff !important;
 }
 
 .stock-item-card .form-label,
@@ -569,7 +761,14 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   color: #64748b;
 }
 
-.stock-action-card,
+.stock-action-card {
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  /* Allow item cards' absolute X buttons to overflow */
+  overflow: visible !important;
+}
+
 .stock-table-card {
   border-radius: 16px;
   border: 1px solid #f1f5f9;

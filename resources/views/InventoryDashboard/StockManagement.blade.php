@@ -15,7 +15,7 @@
     <div class="row g-4">
         <!-- Batch Transaction Form -->
         <div class="col-12">
-            <div class="chart-card p-0 d-flex flex-column overflow-hidden stock-action-card">
+            <div class="chart-card p-0 d-flex flex-column stock-action-card">
                 <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center card-header-premium">
                     <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
                         <div class="icon-box bg-primary bg-opacity-10 text-primary rounded p-2"><i class="bi bi-box-seam"></i></div> New Transaction
