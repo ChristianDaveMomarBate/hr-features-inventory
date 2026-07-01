@@ -587,8 +587,8 @@ function addItemRow() {
   row.id = `item-row-${idx}`;
   row.innerHTML = `
     <div class="stock-item-card-header">
-      <span>Item</span>
-      <button type="button" class="stock-item-remove" data-remove-row="${idx}" title="Remove" aria-label="Remove item row">X</button>
+      <span>Item Details</span>
+      <button type="button" class="stock-item-remove" data-remove-row="${idx}" title="Remove" aria-label="Remove item row"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <div class="stock-item-field stock-item-search">
