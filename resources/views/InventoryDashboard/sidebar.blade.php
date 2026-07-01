@@ -21,6 +21,10 @@
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </li>
+    <li class="{{ (isset($activePageId) && $activePageId === 'item-requests') ? 'active' : '' }}" data-page-target="item-requests">
+        <i class="bi bi-hand-index-fill"></i>
+        <span>Item Requests</span>
+    </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'inventory-registry') ? 'active' : '' }}" data-page-target="inventory-registry">
         <i class="bi bi-clipboard-data-fill"></i>
         <span>Inventory Registry</span>

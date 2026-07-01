@@ -19,7 +19,7 @@
     <!-- Google Fonts -->
     <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/@fontsource/outfit/index.css') }}" rel="stylesheet">
-    @vite('resources/css/kiosk.css')
+    @vite(['resources/css/kiosk.css', 'resources/css/request.css'])
     @include('style.style')
 </head>
 
@@ -44,8 +44,11 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-tab-btn kiosk-nav-link" href="#kiosk" data-target="kiosk">
-                            <i class="fas fa-box-open" style="margin-right:5px;"></i>Stock Out
+                            <i class="fas fa-box-open" style="margin-right:5px;"></i>Kiosk
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-tab-btn" href="#request" data-target="request">Request</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-tab-btn" href="#login" data-target="login">Login</a>
@@ -62,6 +65,8 @@
         @include('auth.about')
 
         @include('auth.kiosk')
+
+        @include('auth.request')
 
         @include('auth.login-form')
 

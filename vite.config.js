@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/sass/app.scss',
                 'resources/css/index.style.css',
                 'resources/css/kiosk.css',
+                'resources/css/request.css',
                 'resources/js/inventory/script.js',
                 'resources/js/inventory/kiosk.js',
                 'resources/js/app.js',

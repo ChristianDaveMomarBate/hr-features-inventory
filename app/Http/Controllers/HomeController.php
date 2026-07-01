@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\InventoryItem;
 use App\Models\StockTransaction;
 use App\Models\AuditTrail;
+use App\Models\ItemRequest;
 use App\Notifications\LowStockAlert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -52,9 +53,7 @@ class HomeController extends Controller
     public function index(Request $request, ?string $page = null)
     {
         $user = $request->user();
-        $allowedPages = ['dashboard', 'inventory-registry'];
-
-        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'analytics', 'audit-trails'];
+        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails'];
 
         if ($page && ! in_array($page, $allowedPages, true)) {
             abort(403, 'Unauthorized dashboard page.');
@@ -90,6 +89,7 @@ class HomeController extends Controller
         $sortDir = $request->get('sort_dir', 'desc');
         
         $allowedSorts = ['code', 'name', 'category', 'type', 'unit', 'stock_unit', 'issue_unit', 'location', 'stock', 'minimum', 'date_registered', 'created_at'];
+
         if (in_array($sortBy, $allowedSorts)) {
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
         }
@@ -100,6 +100,12 @@ class HomeController extends Controller
         $allInventoryItems = InventoryItem::all(); // Needed for JS charts and edit modals
 
         $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->get();
+
+        $itemRequests = ItemRequest::with('item')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'request_page');
+        $itemRequests->withPath(route('dashboard', ['page' => 'item-requests']));
+
         $auditTrailsQuery = AuditTrail::with('user')->orderBy('created_at', 'desc');
 
         $auditTrails = $auditTrailsQuery->paginate(15, ['*'], 'audit_page');
@@ -107,10 +113,9 @@ class HomeController extends Controller
         $lowStockAlertItems = InventoryItem::whereColumn('stock', '<=', 'minimum')
             ->orderBy('name')
             ->get();
-        $lowStockNotifications = Auth::user()
-            ->unreadNotifications
-            ->where('type', LowStockAlert::class);
-        $unreadLowStockCount = $lowStockNotifications->count();
+        
+        $dashboardNotifications = Auth::user()->unreadNotifications;
+        $unreadNotificationCount = $dashboardNotifications->count();
 
         // Per-item stock-in totals (sum of all 'in' type transactions per item)
         $stockInTotals = StockTransaction::where('type', 'in')
@@ -124,11 +129,12 @@ class HomeController extends Controller
             'inventoryItems',
             'allInventoryItems',
             'stockTransactions',
+            'itemRequests',
             'auditTrails',
             'stockInTotals',
             'lowStockAlertItems',
-            'lowStockNotifications',
-            'unreadLowStockCount',
+            'dashboardNotifications',
+            'unreadNotificationCount',
             'paginatedTransactions'
         ));
     }

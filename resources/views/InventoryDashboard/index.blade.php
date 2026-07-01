@@ -4,6 +4,7 @@
     $validDashboardPages = [
         'inventory-registry',
         'stock-management',
+        'item-requests',
         'analytics',
         'audit-trails'
     ];
@@ -42,29 +43,37 @@
                   <div class="dropdown">
                       <button class="btn btn-light position-relative rounded-circle shadow-sm border border-light d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:44px;height:44px;">
                           <i class="bi bi-bell fs-5 text-secondary"></i>
-                          @if(($unreadLowStockCount ?? 0) > 0)
+                          @if(($unreadNotificationCount ?? 0) > 0)
                               <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                  {{ $unreadLowStockCount }}
+                                  {{ $unreadNotificationCount }}
                               </span>
                           @endif
                       </button>
                       <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" style="width:360px; max-height:420px; overflow-y:auto;">
                           <div class="px-3 py-3 border-bottom bg-white">
-                              <h6 class="mb-0 fw-bold">Low Stock Alerts</h6>
-                              <small class="text-muted">{{ ($unreadLowStockCount ?? 0) }} unread notification(s)</small>
+                              <h6 class="mb-0 fw-bold">Notifications</h6>
+                              <small class="text-muted">{{ ($unreadNotificationCount ?? 0) }} unread notification(s)</small>
                           </div>
-                          @forelse(($lowStockNotifications ?? collect()) as $notification)
+                          @forelse(($dashboardNotifications ?? collect()) as $notification)
                               @php $data = $notification->data; @endphp
                               <form method="POST" action="{{ route('notifications.read', $notification->id) }}" id="notif-form-{{ $notification->id }}">
                                   @csrf
                                   <input type="hidden" name="page" id="notif-page-{{ $notification->id }}" value="">
                                   <button type="submit" class="dropdown-item text-wrap py-3 border-bottom" onclick="document.getElementById('notif-page-{{ $notification->id }}').value = window.location.pathname.split('/').pop() || 'dashboard'">
                                       <div class="d-flex justify-content-between gap-3">
-                                          <div>
-                                              <div class="fw-semibold text-dark">{{ $data['name'] ?? 'Unknown Item' }}</div>
-                                              <small class="text-muted">{{ $data['code'] ?? '' }}</small>
-                                          </div>
-                                          <span class="badge bg-danger align-self-start">{{ $data['current_stock_label'] ?? ($data['current_stock'] ?? 0) }} / {{ $data['minimum_stock_label'] ?? ($data['minimum_stock'] ?? 0) }}</span>
+                                          @if($notification->type === 'App\Notifications\NewItemRequest')
+                                              <div>
+                                                  <div class="fw-semibold text-dark">New Request: {{ $data['item_name'] ?? 'Item' }}</div>
+                                                  <small class="text-muted">By {{ $data['requester_name'] ?? 'Unknown' }} ({{ $data['department'] ?? 'Dept' }})</small>
+                                              </div>
+                                              <span class="badge bg-primary align-self-start">Qty: {{ $data['quantity'] ?? 0 }}</span>
+                                          @else
+                                              <div>
+                                                  <div class="fw-semibold text-dark">{{ $data['name'] ?? 'Unknown Item' }}</div>
+                                                  <small class="text-muted">{{ $data['code'] ?? '' }}</small>
+                                              </div>
+                                              <span class="badge bg-danger align-self-start">{{ $data['current_stock_label'] ?? ($data['current_stock'] ?? 0) }} / {{ $data['minimum_stock_label'] ?? ($data['minimum_stock'] ?? 0) }}</span>
+                                          @endif
                                       </div>
                                   </button>
                               </form>
@@ -294,10 +303,9 @@
           </div>
       </div>
 
-
-
     @include('InventoryDashboard.inventoryRegistry')
     @include('InventoryDashboard.stockManagement')
+    @include('InventoryDashboard.itemRequests')
     @include('InventoryDashboard.analytics')
     @include('InventoryDashboard.auditTrails')
     

@@ -19,6 +19,8 @@ Route::get('/', function () {
 // Public Kiosk Routes (no login required)
 Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk.index');
 Route::post('/kiosk', [KioskController::class, 'store'])->name('kiosk.store');
+Route::post('/kiosk/request', [\App\Http\Controllers\ItemRequestController::class, 'store'])->name('kiosk.request.store');
+Route::get('/kiosk/request/track', [\App\Http\Controllers\ItemRequestController::class, 'track'])->name('kiosk.request.track');
 
 // Handle form submissions to save new items
 Route::post('/inventory/store', [HomeController::class, 'store'])->middleware(['auth', 'role:admin'])->name('inventory.store');
@@ -31,6 +33,11 @@ Route::get('/inventory/export/excel', [ExportController::class, 'exportExcel'])-
 Route::post('/stock/store', [\App\Http\Controllers\StockController::class, 'store'])->middleware(['auth', 'role:admin'])->name('stock.store');
 Route::put('/stock/{id}', [\App\Http\Controllers\StockController::class, 'update'])->middleware(['auth', 'role:admin'])->name('stock.update');
 Route::delete('/stock/{id}', [\App\Http\Controllers\StockController::class, 'destroy'])->middleware(['auth', 'role:admin'])->name('stock.destroy');
+
+// Item Requests Management (Admin)
+Route::put('/admin/requests/{id}/status', [\App\Http\Controllers\ItemRequestController::class, 'updateStatus'])->middleware(['auth', 'role:admin'])->name('admin.requests.status');
+Route::delete('/admin/requests/{id}', [\App\Http\Controllers\ItemRequestController::class, 'destroy'])->middleware(['auth', 'role:admin'])->name('admin.requests.destroy');
+
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware(['auth', 'role:admin'])->name('notifications.read');
 Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
 Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');

@@ -55,7 +55,9 @@ class LoginController extends Controller
             'Performance Management Learning & Development/Wellness Division',
         ];
 
-        return view('auth.login', compact('items', 'divisions'));
+        $request_items = InventoryItem::orderBy('category')->orderBy('name')->get();
+
+        return view('auth.login', compact('items', 'divisions', 'request_items'));
     }
 
     protected function authenticated(Request $request, $user)

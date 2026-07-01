@@ -55,6 +55,8 @@ function initAuthTabs() {
 
     document.body.classList.toggle('kiosk-mode-active', target === 'kiosk');
     document.documentElement.classList.toggle('kiosk-mode-active', target === 'kiosk');
+    document.body.classList.toggle('request-mode-active', target === 'request');
+    document.documentElement.classList.toggle('request-mode-active', target === 'request');
     window.location.hash = target;
     requestAnimationFrame(function () {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -73,16 +75,37 @@ function initAuthTabs() {
 
   const initialHash = window.location.hash.substring(1);
   const hasErrors = document.body.dataset.authHasErrors === 'true';
-  const validTabs = ['home', 'about', 'login', 'register', 'kiosk'];
+  const validTabs = ['home', 'about', 'login', 'register', 'kiosk', 'request'];
   const shouldReturnToKiosk = sessionStorage.getItem('kioskReturnTab') === 'true'
     || document.getElementById('kioskReceiptModal')
     || document.querySelector('.kiosk-alert-danger');
+  const shouldReturnToRequest = document.getElementById('requestAutoTrackData') !== null
+    || document.querySelector('#request-section .is-invalid') !== null
+    || document.querySelector('#request-section .alert') !== null;
   const shouldRestoreKioskFullscreen = sessionStorage.getItem('kioskReturnFullscreen') === 'true';
 
   sessionStorage.removeItem('kioskReturnTab');
   sessionStorage.removeItem('kioskReturnFullscreen');
 
-  if (shouldReturnToKiosk) {
+  if (shouldReturnToRequest) {
+    showTab('request');
+    const autoTrackData = document.getElementById('requestAutoTrackData');
+    if (autoTrackData) {
+      // Small delay to ensure functions are defined
+      setTimeout(function() {
+        if (typeof window.switchRequestTab === 'function') {
+          window.switchRequestTab('track-request');
+        }
+        const trackInput = document.getElementById('track_request_id');
+        if (trackInput) {
+          trackInput.value = autoTrackData.dataset.requestId;
+          if (typeof window.trackRequest === 'function') {
+            window.trackRequest();
+          }
+        }
+      }, 100);
+    }
+  } else if (shouldReturnToKiosk) {
     showTab('kiosk');
     if (shouldRestoreKioskFullscreen) {
       document.body.classList.add('kiosk-is-fullscreen');
@@ -90,7 +113,7 @@ function initAuthTabs() {
     }
   } else if (validTabs.includes(initialHash)) {
     showTab(initialHash);
-  } else if (hasErrors) {
+  } else if (hasErrors && document.querySelector('#login-section .is-invalid')) {
     showTab('login');
   } else {
     showTab('home');
