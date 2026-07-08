@@ -1,9 +1,10 @@
 <div id="analytics" class="page {{ (isset($activePageId) && $activePageId === 'analytics') ? 'active-page' : '' }}">
     <div class="analytics-header d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
-            <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Analytics</h1>
+            <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">ANALYTICS</h1>
             <p class="text-muted mb-0">Insights and reports on your inventory data.</p>
         </div>
+        @include('InventoryDashboard.navbar')
     </div>
 
     <div class="analytics-fit-grid row g-4">
@@ -75,46 +76,80 @@
 
         <!-- Monthly Item Activity Report -->
         <div class="col-12 analytics-report-panel" id="monthly-report-section">
-            <div class="chart-card p-0 overflow-hidden d-flex flex-column">
-                <div class="print-report-header">
-                    <img src="{{ asset('images/logo-hri.png') }}" alt="Province Seal" class="print-report-logo">
-                    <div>
-                        <div class="print-report-office">
-                            Provincial Human Resource Management<br>
-                            and Development Office Inventory Reports
+            <div class="chart-card p-0 overflow-hidden" style="background: white; border: none; box-shadow: none;">
+
+                <div class="print-container">
+
+                    {{-- ===== HEADER: Blue banner + logo + address ===== --}}
+                    <div class="print-header-top">
+                        {{-- The blue wave background --}}
+                        <div class="print-header-banner"></div>
+                        {{-- Logo and address text overlaid on banner --}}
+                        <div class="print-header-inner">
+                            <img src="{{ asset('images/print-logo.png') }}" alt="Province Seal" class="print-logo">
+                            <div class="print-address-text">
+                                Republic Of The Philippines<br>
+                                Caraga Region XIII<br>
+                                <strong>PROVINCE OF SURIGAO DEL NORTE</strong><br>
+                                Provincial Capitol<br>
+                                Governor Jose C. Sering Road, Surigao CIty
+                            </div>
                         </div>
-                        <div class="print-report-title">Monthly Item Activity Report</div>
                     </div>
-                </div>
 
-                <div class="print-report-month" id="reportMonthPrintLabel"></div>
+                    {{-- Hidden span required by JS to set the month label --}}
+                    <span id="reportMonthPrintLabel" style="display:none;"></span>
 
-                <div class="p-4 border-bottom border-light bg-white d-flex justify-content-between align-items-center no-print">
-                    <h5 class="fw-bold text-dark mb-0">Monthly Item Activity Report</h5>
-                    <div class="d-flex gap-3 align-items-center">
-                        <input type="month" id="reportMonthFilter" class="form-control form-control-sm" style="width: auto;">
-                        <button class="btn btn-sm btn-outline-secondary" data-action="print-report">
-                            <i class="bi bi-printer me-1"></i> Print
-                        </button>
+                    {{-- ===== REPORT TITLE below banner ===== --}}
+                    <div class="print-main-title">
+                        PHRMDO INVENTORY MONTHLY REPORT
                     </div>
-                </div>
-                <div class="table-responsive bg-white analytics-table-wrap">
-                    <table class="table table-hover table-modern mb-0 border-0" id="reportTable">
-                        <thead>
-                            <tr>
-                                <th class="ps-4 py-3 border-0">Code</th>
-                                <th class="py-3 border-0">Item Name</th>
-                                <th class="py-3 border-0">Category</th>
-                                <th class="py-3 border-0 text-center">Stock Added (IN)</th>
-                                <th class="py-3 border-0 text-center">Stock Used (OUT)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reportTableBody">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
+
+                    {{-- ===== SCREEN-ONLY CONTROLS ===== --}}
+                    <div class="p-3 border-bottom border-light bg-white d-flex justify-content-between align-items-center no-print">
+                        <h5 class="fw-bold text-dark mb-0">Monthly Item Activity Report</h5>
+                        <div class="d-flex gap-3 align-items-center">
+                            <input type="month" id="reportMonthFilter" class="form-control form-control-sm" style="width: auto;">
+                            <button class="btn btn-sm btn-outline-secondary" data-action="print-report">
+                                <i class="bi bi-printer me-1"></i> Print
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- ===== TABLE ===== --}}
+                    <div class="table-responsive analytics-table-wrap" style="overflow: visible;">
+                        <table id="reportTable" style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                            <thead>
+                                <tr>
+                                    <th colspan="3" style="background-color:#a9d08e; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock In</th>
+                                    <th colspan="3" style="background-color:#f4b084; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Out</th>
+                                    <th colspan="2" style="background-color:#9bc2e6; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Balance</th>
+                                </tr>
+                                <tr>
+                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Item Name</th>
+                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
+                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
+                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Item Name</th>
+                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
+                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
+                                    <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Item Name</th>
+                                    <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Balance Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- ===== FOOTER IMAGE ===== --}}
+                    <div class="print-report-footer">
+                        <img src="{{ asset('images/footer.png') }}" alt="Footer">
+                    </div>
+
+                </div>{{-- end .print-container --}}
             </div>
         </div>
     </div>
 </div>
+

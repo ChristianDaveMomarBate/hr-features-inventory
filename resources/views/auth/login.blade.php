@@ -40,9 +40,6 @@
                         <a class="nav-link nav-tab-btn" href="#home" data-target="home">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-tab-btn" href="#about" data-target="about">About</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link nav-tab-btn kiosk-nav-link" href="#kiosk" data-target="kiosk">
                             <i class="fas fa-box-open" style="margin-right:5px;"></i>Kiosk
                         </a>
@@ -62,8 +59,6 @@
 
         @include('auth.home')
 
-        @include('auth.about')
-
         @include('auth.kiosk')
 
         @include('auth.request')
@@ -75,6 +70,18 @@
     </section>
 
     @vite(['resources/js/inventory/script.js', 'resources/js/inventory/kiosk.js'])
+
+    @if($errors->has('email') || $errors->has('password'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const errorAudio = new Audio('{{ asset("sound/credentials.mp3") }}');
+                errorAudio.currentTime = 0;
+                errorAudio.play().catch(function(e) {
+                    console.log("Audio play failed:", e);
+                });
+            });
+        </script>
+    @endif
 </body>
 
 </html>

@@ -2,6 +2,73 @@ const kioskCart = {};
 let kioskBeepAudio = null;
 let kioskThanksAudio = null;
 
+/* ============================================================
+   KIOSK BIBLE VERSE – Hourly rotating verse with shimmer + fade
+   ============================================================ */
+function initKioskBibleVerse() {
+  const pill = document.getElementById('kioskVersePill');
+  const textEl = document.getElementById('kioskVerseText');
+  if (!pill || !textEl) return;
+
+  const verses = [
+    'Psalm 23:1 – The Lord is my shepherd; I shall not want.',
+    'Philippians 4:13 – I can do all things through Christ who strengthens me.',
+    'Proverbs 3:5 – Trust in the Lord with all your heart.',
+    'Isaiah 41:10 – Fear not, for I am with you.',
+    'Psalm 46:10 – Be still, and know that I am God.',
+    'Matthew 5:16 – Let your light shine before others.',
+    'Romans 8:28 – All things work together for good.',
+    'Joshua 1:9 – Be strong and of good courage.',
+    'Psalm 118:24 – This is the day the Lord has made.',
+    'John 14:27 – Peace I leave with you; my peace I give you.',
+    '1 Peter 5:7 – Cast all your anxiety on Him, for He cares for you.',
+    'Psalm 119:105 – Your word is a lamp to my feet and a light to my path.',
+  ];
+
+  function showVerse(verse) {
+    textEl.style.transition = 'opacity 0.4s ease';
+    textEl.style.opacity = '0';
+    setTimeout(function () {
+      textEl.textContent = verse;
+      pill.setAttribute('title', verse);
+      textEl.style.opacity = '1';
+    }, 420);
+  }
+
+  function updateKioskVerse() {
+    const verse = verses[new Date().getHours() % verses.length];
+    showVerse(verse);
+  }
+
+  // --- Exact-fit hover: expand to the actual text scrollWidth ---
+  pill.addEventListener('mouseenter', function () {
+    // Temporarily unclamp to measure the real text width
+    const prevMax = textEl.style.maxWidth;
+    textEl.style.maxWidth = 'none';
+    textEl.style.overflow = 'visible';
+    const fullWidth = textEl.scrollWidth;
+    textEl.style.maxWidth = prevMax;
+    textEl.style.overflow = 'hidden';
+
+    // Now animate pill + text to exact width
+    const paddingOffset = 44; // account for pill padding + icon gap
+    pill.style.transition = 'max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease, background 0.4s ease';
+    pill.style.maxWidth = (fullWidth + paddingOffset) + 'px';
+    textEl.style.transition = 'max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease';
+    textEl.style.maxWidth = fullWidth + 'px';
+    textEl.style.overflow = 'hidden';
+  });
+
+  pill.addEventListener('mouseleave', function () {
+    pill.style.maxWidth = '';
+    textEl.style.maxWidth = '';
+  });
+
+  updateKioskVerse();
+  setInterval(updateKioskVerse, 60 * 1000); // re-check every minute
+}
+
+
 function kioskPlayBeep() {
   const kioskSection = document.getElementById('kiosk-section');
   const beepUrl = kioskSection ? kioskSection.dataset.beepUrl : '';
@@ -509,4 +576,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  // Initialize Bible verse in kiosk hero
+  initKioskBibleVerse();
 });

@@ -29,9 +29,10 @@
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">User Management</h1>
+                    <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">USER MANAGEMENT</h1>
                     <p class="text-muted mb-0">Manage registered admin account access.</p>
                 </div>
+                @include('InventoryDashboard.navbar')
             </div>
 
 

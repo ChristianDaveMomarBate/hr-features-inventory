@@ -35,18 +35,18 @@
     ];
 @endphp
 
-<div
-    id="inventory-registry"
-    class="page {{ (isset($activePageId) && $activePageId === 'inventory-registry') ? 'active-page' : '' }}"
-    data-can-manage="{{ $currentUser->isAdmin() ? 'true' : 'false' }}"
-    data-store-url="{{ route('inventory.store') }}"
-    data-update-base-url="{{ url('/inventory/update') }}"
->
-    <div class="registry-header d-flex justify-content-between align-items-center mb-4">
+<div id="inventory-registry"
+     class="page {{ (isset($activePageId) && $activePageId === 'inventory-registry') ? 'active-page' : '' }}"
+     data-is-admin="{{ $currentUser->isAdmin() ? 'true' : 'false' }}"
+     data-can-manage="{{ $currentUser->isAdmin() ? 'true' : 'false' }}"
+     data-store-url="{{ route('inventory.store') }}"
+     data-update-base-url="{{ url('/inventory/update') }}">
+    <div class="dashboard-main-header d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="mb-1">Inventory Registry</h1>
-            <p class="text-muted mb-0">Register and maintain inventory item records.</p>
+            <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">INVENTORY REGISTRY</h1>
+            <p class="text-muted mb-0">Manage all your items and view real-time stock levels.</p>
         </div>
+        @include('InventoryDashboard.navbar')
     </div>
 
     <div id="successAlert" class="alert alert-success d-none"></div>

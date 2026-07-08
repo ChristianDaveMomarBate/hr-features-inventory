@@ -57,7 +57,12 @@ class LoginController extends Controller
 
         $request_items = InventoryItem::orderBy('category')->orderBy('name')->get();
 
-        return view('auth.login', compact('items', 'divisions', 'request_items'));
+        $submittedRequest = null;
+        if (session('show_receipt_modal') && session('new_request_id')) {
+            $submittedRequest = \App\Models\ItemRequest::with('item')->find(session('new_request_id'));
+        }
+
+        return view('auth.login', compact('items', 'divisions', 'request_items', 'submittedRequest'));
     }
 
     protected function authenticated(Request $request, $user)
@@ -72,6 +77,6 @@ class LoginController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')->with('login_success', true);
     }
 }

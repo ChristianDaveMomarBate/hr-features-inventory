@@ -16,13 +16,24 @@ class ExportController extends Controller
 
     public function exportPDF()
     {
-        $inventoryItems = InventoryItem::orderBy('code')->get();
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $inventoryItems = InventoryItem::with(['stockTransactions' => function ($query) use ($startOfMonth, $endOfMonth) {
+            $query->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
+        }])->orderBy('code')->get();
+
+        foreach ($inventoryItems as $item) {
+            $item->monthly_in = $item->stockTransactions->where('type', 'in')->sum('quantity');
+            $item->monthly_out = $item->stockTransactions->where('type', 'out')->sum('quantity');
+        }
 
         $pdf = Pdf::loadView('exports.inventory-pdf', [
             'inventoryItems' => $inventoryItems,
+            'reportMonth' => Carbon::now()->format('F Y'),
         ])->setPaper('a4', 'landscape');
 
-        return $pdf->download('phrmdo-inventory-list.pdf');
+        return $pdf->download('phrmdo-inventory-monthly-report.pdf');
     }
 
     public function exportExcel()

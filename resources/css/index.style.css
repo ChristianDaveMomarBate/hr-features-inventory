@@ -39,7 +39,31 @@ body {
 }
 
 body.auth-page {
-  background: linear-gradient(rgba(255, 255, 255, 0.88), rgba(244, 246, 249, 0.66)), url("/images/BG.webp") no-repeat center center / cover fixed !important;
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  background: #eef2f7 !important;
+}
+
+body.auth-page::before,
+body.auth-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+body.auth-page::before {
+  z-index: -2;
+  background: url("/images/BG.webp") no-repeat center center / cover;
+  transform: scale(1);
+  animation: authBackgroundZoom 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+body.auth-page::after {
+  z-index: -1;
+  background: linear-gradient(rgba(255, 255, 255, 0.88), rgba(244, 246, 249, 0.66));
 }
 
 .dashboard-container {
@@ -48,10 +72,23 @@ body.auth-page {
   min-height: 100vh;
 }
 
+@keyframes galaxyFlow {
+  0% { background-position: 0% 0%; }
+  33% { background-position: 100% 100%; }
+  66% { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
 .sidebar {
   flex: 0 0 292px;
   min-height: 100vh;
-  background: #111827;
+  background: 
+    radial-gradient(circle at 15% 50%, #1e1b4b 0%, transparent 40%),
+    radial-gradient(circle at 85% 30%, #1e3a8a 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, #0f172a 0%, transparent 50%),
+    #09090b;
+  background-size: 200% 200%;
+  animation: galaxyFlow 18s ease-in-out infinite;
   color: white;
   padding: 26px 22px 130px;
   position: relative;
@@ -187,6 +224,41 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   color: #111827 !important;
 }
 
+.animated-text {
+  color: #0f172a;
+  animation: modernTextColorShift 4.5s ease-in-out infinite;
+  text-shadow: 0 0 14px rgba(20, 184, 166, 0.08);
+}
+
+@keyframes modernTextColorShift {
+  0%,
+  100% {
+    color: #0f172a;
+  }
+
+  25% {
+    color: #0f766e;
+  }
+
+  50% {
+    color: #2563eb;
+  }
+
+  72% {
+    color: #7c3aed;
+  }
+
+  88% {
+    color: #dc2626;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-text {
+    animation: none;
+  }
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -247,6 +319,87 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
 
 .metric-card-modern:hover .metric-icon-modern {
   transform: scale(1.1);
+}
+
+@keyframes verseSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconPulseGlow {
+  0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0)); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5)); color: #3b82f6; }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0)); }
+}
+
+.bible-verse-pill {
+  max-width: 430px;
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e8eef6;
+  border-radius: 999px;
+  color: #334155;
+  box-shadow: 0 2px 10px -3px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: verseSlideIn 0.8s ease-out forwards;
+}
+
+.bible-verse-pill:hover {
+  max-width: 800px;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+  border-color: #cbd5e1;
+}
+
+.bible-verse-pill i {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  animation: iconPulseGlow 3s infinite;
+}
+
+@keyframes textShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.hourlyBibleVerse {
+  display: block;
+  overflow: hidden;
+  font-size: 0.84rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: max-width 0.5s ease-in-out;
+  max-width: 400px; /* default max-width for ellipsis */
+  
+  /* Gradient text color animation */
+  background: linear-gradient(90deg, #334155, #3b82f6, #06b6d4, #8b5cf6, #334155);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: textShimmer 8s ease-in-out infinite;
+}
+
+.bible-verse-pill:hover .hourlyBibleVerse {
+  max-width: 800px; /* expand on hover to show full text */
+}
+
+.verse-animating .hourlyBibleVerse {
+  animation: verseSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards, textShimmer 8s ease-in-out infinite;
 }
 
 .chart-card {
@@ -1088,11 +1241,12 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   font-weight: 700;
   color: #ffffff !important;
   letter-spacing: -0.5px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .auth-page .navbar-custom .navbar-brand:hover {
   opacity: 0.85;
+  transform: translateY(-1px);
 }
 
 .auth-page .navbar-custom .nav-link {
@@ -1103,7 +1257,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   margin: 0 0.15rem;
   border-radius: 20px;
   background: #ffffff !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .auth-page .navbar-custom .nav-link:hover,
@@ -1111,6 +1265,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   color: #000000 !important;
   background: #ffffff !important;
   box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
   outline: none;
 }
 
@@ -1119,6 +1274,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   color: #000000 !important;
   background: #10b981 !important;
   box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
   outline: none;
 }
 
@@ -1149,6 +1305,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   letter-spacing: -1px;
   max-width: 900px;
   margin: 0 auto;
+  animation: authFadeSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .auth-page .hero-subtitle {
@@ -1157,6 +1314,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   max-width: 650px;
   margin: 0 auto;
   line-height: 1.6;
+  animation: authFadeSlideUp 0.7s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .auth-page .btn-premium-cta {
@@ -1168,13 +1326,24 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   font-size: 1.05rem;
   letter-spacing: 0.5px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: authFadeSlideUp 0.7s 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .auth-page .btn-premium-cta:hover {
   background-color: #222222;
   transform: translateY(-2px);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.auth-page .btn-premium-cta .cta-arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+
+.auth-page .btn-premium-cta:hover .cta-arrow,
+.auth-page .btn-premium-cta:focus .cta-arrow {
+  transform: translateX(4px);
 }
 
 .auth-page .about-title {
@@ -1221,6 +1390,31 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   border: 1px solid rgba(255, 255, 255, 0.48);
   border-radius: 14px;
   backdrop-filter: blur(4px);
+  animation: authFadeSlideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.auth-page .about-feature:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.auth-page .about-feature:nth-child(2) {
+  animation-delay: 0.28s;
+}
+
+.auth-page .about-feature:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+.auth-page .about-feature:nth-child(4) {
+  animation-delay: 0.44s;
+}
+
+.auth-page .about-feature:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.12);
 }
 
 .auth-page .about-feature i {
@@ -1234,6 +1428,12 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   color: #ffffff;
   background: #000000;
   font-size: 18px;
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.auth-page .about-feature:hover i {
+  transform: scale(1.08);
+  background: #111111;
 }
 
 .auth-page .about-feature h3 {
@@ -1249,6 +1449,66 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   color: #555555;
   font-size: 0.88rem;
   line-height: 1.4;
+}
+
+@keyframes authFadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authBackgroundZoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.auth-page::before,
+  .auth-page .hero-title,
+  .auth-page .hero-subtitle,
+  .auth-page .about-feature,
+  .auth-page .btn-premium-cta {
+    animation: none !important;
+  }
+
+  .auth-page .navbar-custom,
+  .auth-page .navbar-custom .navbar-brand,
+  .auth-page .navbar-custom .nav-link,
+  .auth-page .hero-logo,
+  .auth-page .about-feature,
+  .auth-page .about-feature i,
+  .auth-page .btn-premium-cta,
+  .auth-page .btn-premium-cta .cta-arrow,
+  .auth-page .card {
+    transition: none !important;
+  }
+
+  body.auth-page::before,
+  .auth-page .navbar-custom .navbar-brand:hover,
+  .auth-page .navbar-custom .nav-link:hover,
+  .auth-page .navbar-custom .nav-link:focus,
+  .auth-page .navbar-custom .nav-link:active,
+  .auth-page .navbar-custom .nav-link.active,
+  .auth-page .hero-logo:hover,
+  .auth-page .about-feature:hover,
+  .auth-page .about-feature:hover i,
+  .auth-page .btn-premium-cta:hover,
+  .auth-page .btn-premium-cta:hover .cta-arrow,
+  .auth-page .btn-premium-cta:focus .cta-arrow,
+  .auth-page .card:hover {
+    transform: none !important;
+  }
 }
 
 .auth-page .card {
@@ -1488,128 +1748,307 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   }
 }
 
+/* ===== Monthly Report Table Cell Colors (screen & print) ===== */
+.report-cell {
+  padding: 5px 8px;
+  border: 1px solid #9ca3af;
+  color: #000;
+  font-size: 0.85rem;
+}
+
+.report-cell-in {
+  background-color: #e2efda;
+}
+
+.report-cell-out {
+  background-color: #fce4d6;
+}
+
+.report-cell-bal {
+  background-color: #dce6f1;
+}
+
+/* ===== Monthly Report - Screen Mode Styles ===== */
+
+/* Hide print-only elements on screen */
+.print-header-top,
+.print-main-title,
+.print-report-footer {
+  display: none;
+}
+
+/* The table itself is always visible (for screen scrolling) */
+.print-container {
+  width: 100%;
+}
+
 @media print {
+
+
+  /* ===========================
+     PAGE SETUP
+  =========================== */
   @page {
-    size: letter portrait;
-    margin: 0.35in;
+    size: A4 portrait;
+    margin: 0;
   }
 
-  html,
-  body {
-    background: #ffffff !important;
-  }
-
-  body * {
-    visibility: hidden;
-  }
-
-  #monthly-report-section,
-  #monthly-report-section * {
-    visibility: visible;
-  }
-
-  #monthly-report-section {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+  html, body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
     margin: 0;
     padding: 0;
+    width: auto;
+    height: auto;
+    overflow: visible;
   }
 
+  /* Hide everything except the monthly report section */
+  body * { visibility: hidden; }
+
+  #monthly-report-section,
+  #monthly-report-section * { visibility: visible; }
+
+  /* Override screen-mode display:none for print-only elements */
+  .print-header-top {
+    display: block !important;
+  }
+
+  .print-main-title {
+    display: block !important;
+  }
+
+  .print-report-footer {
+    display: block !important;
+  }
+
+  /* Report section: natural flow */
+  #monthly-report-section {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: auto;
+    background: white;
+    z-index: 9999;
+  }
+
+  /* Kill Bootstrap card styling */
   .chart-card {
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
     padding: 0 !important;
-  }
-
-  .no-print {
-    display: none !important;
-  }
-
-  .print-report-header {
-    display: grid !important;
-    grid-template-columns: 52px 1fr 52px;
-    align-items: center;
-    column-gap: 10px;
-    margin: 0 0 16px;
-    font-family: "Times New Roman", Times, serif;
-  }
-
-  .print-report-logo {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-  }
-
-  .print-report-office {
-    color: #4b5563;
-    font-size: 12px;
-    line-height: 1.05;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-align: left;
-  }
-
-  .print-report-title {
-    display: block;
-    margin-top: 18px;
-    text-align: center;
-    color: #000000;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 15px;
-    font-style: italic;
-    font-weight: 700;
-  }
-
-  .print-report-month {
+    background: transparent !important;
     display: block !important;
-    margin: 0 0 18px;
-    color: #000000;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 12px;
-    text-align: center;
   }
 
-  #monthly-report-section .table-responsive {
+  .no-print { display: none !important; }
+
+  /* ===========================
+     PRINT CONTAINER
+  =========================== */
+  .print-container {
+    display: block;
+    width: 100%;
+    position: relative;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* ===========================
+     HEADER TOP WRAPPER
+     — contains blue banner + logo + text
+  =========================== */
+  .print-header-top {
+    position: relative;
+    width: 100%;
+    height: 100px;             /* compact header to save space for table */
+    margin-bottom: 4px;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+
+  /* The blue gradient wave background */
+  .print-header-banner {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #1a3e8f 0%, #2e6ad1 35%, #7cb3e8 65%, #c8dff5 85%, #ffffff 100%);
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    /* Slight downward curve at bottom-right, leaving top-left and body area blue */
+    border-radius: 0 0 70% 0 / 0 0 40px 0;
+    z-index: 0;
+  }
+
+  /* Inner flex row: logo left, text center-right */
+  .print-header-inner {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 10px 15px 10px 15px;
+    box-sizing: border-box;
+  }
+
+  /* Logo — transparent PNG, no blend needed */
+  .print-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-right: 10px;
+    background: transparent;
+  }
+
+  /* Address text block */
+  .print-address-text {
+    flex: 1;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #000;
+  }
+
+  .print-address-text strong {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000;
+    display: block;
+  }
+
+  /* ===========================
+     REPORT TITLE (below banner)
+  =========================== */
+  .print-main-title {
+    display: block;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: underline;
+    color: #000;
+    margin: 8px 15px 8px 15px;
+    padding: 0;
+    page-break-after: avoid;
+  }
+
+  /* ===========================
+     TABLE
+  =========================== */
+  #monthly-report-section .table-responsive,
+  #monthly-report-section .analytics-table-wrap {
     overflow: visible !important;
-    background: #ffffff !important;
+    display: block !important;
+    padding: 0 15px !important;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   #monthly-report-section table {
     width: 100% !important;
+    table-layout: fixed;
     border-collapse: collapse !important;
-    color: #000000 !important;
     font-family: Arial, sans-serif;
+    font-size: 9px;
+    page-break-inside: auto;
+  }
+
+  /* Repeat headers on every page */
+  #monthly-report-section thead {
+    display: table-header-group;
+  }
+
+  #monthly-report-section tfoot {
+    display: table-footer-group;
+  }
+
+  #monthly-report-section thead th {
+    padding: 3px 4px !important;
+    border: 1px solid #000 !important;
+    text-align: center;
     font-size: 10px;
+    font-weight: bold;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  #monthly-report-section th,
-  #monthly-report-section td {
-    padding: 6px 8px !important;
-    border: 1px solid #9ca3af !important;
-    color: #000000 !important;
-    background: #ffffff !important;
+  #monthly-report-section tbody {
+    height: auto;
   }
 
-  #monthly-report-section th {
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    letter-spacing: 0;
+  #monthly-report-section tbody tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+    height: 16px;
   }
+
+  #monthly-report-section tbody td,
+  #monthly-report-section .report-cell {
+    padding: 2px 4px !important;
+    border: 1px solid #000 !important;
+    font-size: 9px !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  .report-cell-in  { background-color: #e2efda !important; }
+  .report-cell-out { background-color: #fce4d6 !important; }
+  .report-cell-bal { background-color: #dce6f1 !important; }
 
   #monthly-report-section .badge {
     border: none !important;
     padding: 0 !important;
-    color: #000000 !important;
+    color: #000 !important;
     background: transparent !important;
+    font-weight: normal !important;
+  }
+
+  /* ===========================
+     FOOTER — fixed to very bottom of every printed page
+  =========================== */
+  .print-report-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Remove page-break rules that might force breaks */
+  }
+
+  .print-report-footer img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* No bottom margin needed since the table is small */
+  #monthly-report-section .print-container {
+    margin-bottom: 0; 
+  }
+  
+  #monthly-report-section .analytics-table-wrap {
+    padding-bottom: 0 !important;
   }
 
   .page.active-page {
     margin: 0 !important;
     padding: 0 !important;
   }
+
+
+  /* Hide old header classes that no longer exist */
+  .print-report-header,
+  .print-report-month { display: none !important; }
+
 }
 
 /* ===== Pagination Styles ===== */

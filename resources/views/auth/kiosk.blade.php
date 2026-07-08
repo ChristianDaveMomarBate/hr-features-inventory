@@ -13,6 +13,13 @@
       </div>
       <h1 class="kiosk-hero-title">PHRMDO Inventory System</h1>
       <p class="kiosk-hero-sub">Select items, set quantities, enter your name and division, then submit your stock-out.</p>
+
+      {{-- Bible Verse in Hero --}}
+      <div class="kiosk-verse-pill" id="kioskVersePill" title="Daily Bible Verse">
+        <i class="fas fa-cross kiosk-verse-icon"></i>
+        <span class="kiosk-verse-text" id="kioskVerseText">Loading verse...</span>
+      </div>
+
       <div class="kiosk-hero-fullscreen-brand" aria-label="PHRMDO Surigao City Surigao del Norte">
         <img src="{{ asset('images/logo-hri.png') }}" alt="PHRMDO Logo" class="kiosk-hero-fullscreen-logo">
         <div class="kiosk-hero-fullscreen-brand-text">

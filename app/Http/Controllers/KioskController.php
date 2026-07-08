@@ -26,14 +26,7 @@ class KioskController extends Controller
      */
     public function index()
     {
-        $items = InventoryItem::where('stock', '>', 0)
-            ->orderBy('category')
-            ->orderBy('name')
-            ->get(['id', 'code', 'name', 'category', 'type', 'unit', 'stock_unit', 'issue_unit', 'units_per_stock_unit', 'stock', 'minimum', 'description', 'location']);
-
-        $divisions = self::DIVISIONS;
-
-        return view('kiosk.index', compact('items', 'divisions'));
+        return redirect()->route('login')->withFragment('kiosk');
     }
 
     /**

@@ -2,98 +2,132 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>PHRMDO Inventory List</title>
+    <title>PHRMDO Inventory Monthly Report</title>
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
-            color: #111827;
-            font-size: 11px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 18px;
-        }
-
-        .header h1 {
+            font-family: Arial, sans-serif;
+            color: #000;
+            font-size: 10px;
             margin: 0;
-            font-size: 20px;
-            letter-spacing: 0.04em;
+            padding: 0;
         }
 
-        .header p {
-            margin: 4px 0 0;
-            color: #4b5563;
-            font-size: 12px;
+        .header-container {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .header-text {
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .header-text h1 {
+            margin: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: underline;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
 
-        th,
-        td {
-            border: 1px solid #d1d5db;
-            padding: 7px;
-            text-align: left;
+        th, td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
         }
 
         th {
-            background: #f3f4f6;
-            font-size: 10px;
-            text-transform: uppercase;
+            font-weight: bold;
         }
 
-        .text-center {
+        .bg-green { background-color: #c6e0b4; }
+        .bg-orange { background-color: #f8cbad; }
+        .bg-blue { background-color: #b4c6e7; }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #002060;
+            border-top: 2px solid #002060;
+            padding-top: 5px;
         }
+
+        .footer-tagline {
+            color: #002060;
+        }
+        .footer-tagline .green { color: #00b050; }
+        
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>PHRMDO INVENTORY SYSTEM</h1>
-        <p>Inventory Registry Report</p>
-        <p>Generated: {{ now()->format('M d, Y h:i A') }}</p>
+    <div class="header-container">
+        <div class="header-text">
+            Republic of The Philippines<br>
+            Caraga Region XIII<br>
+            PROVINCE OF SURIGAO DEL NORTE<br>
+            Provincial Capitol<br>
+            Governor Jose C. Sering Road, Surigao City
+            <h1>PHRMDO INVENTORY MONTHLY REPORT</h1>
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Item Code</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Stock Unit</th>
-                <th>Issue Unit</th>
-                <th>Units / Stock Unit</th>
-                <th>Current Stock</th>
-                <th>Bulk Equivalent</th>
-                <th>Minimum Stock</th>
-                <th>Date Registered</th>
+                <th colspan="3" class="bg-green">Stock In</th>
+                <th colspan="3" class="bg-orange">Stock Out</th>
+                <th colspan="2" class="bg-blue">Stock Balance</th>
+            </tr>
+            <tr>
+                <!-- Stock In -->
+                <th class="bg-green">Item Code</th>
+                <th class="bg-green">Item Name</th>
+                <th class="bg-green">Quantity In</th>
+                <!-- Stock Out -->
+                <th class="bg-orange">Item Code</th>
+                <th class="bg-orange">Item Name</th>
+                <th class="bg-orange">Quantity Out</th>
+                <!-- Stock Balance -->
+                <th class="bg-blue">Item Name</th>
+                <th class="bg-blue">Balance Quantity</th>
             </tr>
         </thead>
         <tbody>
             @forelse($inventoryItems as $item)
                 <tr>
-                    <td>{{ $item->code }}</td>
+                    <!-- Stock In -->
+                    <td>{{ $item->monthly_in > 0 ? $item->code : '' }}</td>
+                    <td>{{ $item->monthly_in > 0 ? $item->name : '' }}</td>
+                    <td>{{ $item->monthly_in > 0 ? $item->monthly_in . ' ' . $item->display_unit : '' }}</td>
+                    <!-- Stock Out -->
+                    <td>{{ $item->monthly_out > 0 ? $item->code : '' }}</td>
+                    <td>{{ $item->monthly_out > 0 ? $item->name : '' }}</td>
+                    <td>{{ $item->monthly_out > 0 ? $item->monthly_out . ' ' . $item->display_unit : '' }}</td>
+                    <!-- Stock Balance -->
                     <td>{{ $item->name }}</td>
-                    <td>{{ $item->category }}</td>
-                    <td>{{ $item->type ?? 'Consumable' }}</td>
-                    <td>{{ $item->stock_unit }}</td>
-                    <td>{{ $item->issue_unit }}</td>
-                    <td>{{ $item->units_per_stock_unit }}</td>
                     <td>{{ $item->display_stock }}</td>
-                    <td>{{ $item->bulk_equivalent ?? '' }}</td>
-                    <td>{{ $item->minimum }}</td>
-                    <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="11" class="text-center">No inventory items found.</td>
+                    <td colspan="8">No inventory items found.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
+
+    <div class="footer">
+        <span class="footer-tagline">LIDERATONG: <span class="green">R</span>ESPONSABLE. <span class="green">L</span>IG-ON. <span class="green">S</span>INSERO. MAY <span class="green">B</span>ARUGANAN.</span>
+    </div>
 </body>
 </html>

@@ -1,9 +1,10 @@
 <div id="audit-trails" class="page {{ (isset($activePageId) && $activePageId === 'audit-trails') ? 'active-page' : '' }}">
     <div class="audit-header d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="mb-1 fw-bold" style="font-size: 32px; color: #111827;">Audit Trails</h1>
+            <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">AUDIT TRAILS</h1>
             <p class="text-muted mb-0">Track all user activities and system changes.</p>
         </div>
+        @include('InventoryDashboard.navbar')
     </div>
 
     <div class="chart-card p-0 overflow-hidden audit-fit-card">

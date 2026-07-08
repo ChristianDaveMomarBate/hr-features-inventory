@@ -114,7 +114,9 @@ body.kiosk-is-fullscreen .kiosk-hero {
   min-height: 164px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  text-align: center;
   margin-bottom: 10px !important;
 }
 
@@ -809,15 +811,116 @@ body.kiosk-is-fullscreen .kiosk-ticker {
   margin: 0 auto;
 }
 
-/* --- ALERTS --- */
-.kiosk-alert-success,
-.kiosk-alert-danger {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  border-radius: 14px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
+/* ============================================================
+   KIOSK BIBLE VERSE PILL (Hero Section)
+   ============================================================ */
+
+@keyframes kioskVerseShimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes kioskVersePulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(125, 211, 252, 0.25), 0 0 24px rgba(167, 139, 250, 0.15); }
+  50%       { box-shadow: 0 0 22px rgba(125, 211, 252, 0.5),  0 0 44px rgba(167, 139, 250, 0.3); }
+}
+
+@keyframes kioskVerseFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes kioskIconSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(8deg) scale(1.15); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.kiosk-verse-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 22px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: default;
+  animation: kioskVerseFadeIn 0.9s ease-out forwards, kioskVersePulse 4s ease-in-out infinite;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 620px;
+}
+
+.kiosk-verse-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(125, 211, 252, 0.45);
+  max-width: 900px;
+}
+
+.kiosk-verse-icon {
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  color: #fcd34d;
+  animation: kioskIconSpin 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(252, 211, 77, 0.7));
+}
+
+.kiosk-verse-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: Outfit, Inter, sans-serif;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 560px;
+  transition: max-width 0.5s ease-in-out;
+
+  /* Gradient shimmer text */
+  background: linear-gradient(90deg,
+    #fcd34d,
+    #7dd3fc,
+    #c4b5fd,
+    #34d399,
+    #fcd34d
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: kioskVerseShimmer 7s ease-in-out infinite;
+}
+
+/* JS handles the exact hover width — no fixed max-width override here */
+
+/* Compact pill in fullscreen mode + centered */
+body.kiosk-is-fullscreen .kiosk-verse-pill {
+  margin-top: 8px;
+  padding: 6px 16px;
+  align-self: center;
+}
+
+body.kiosk-is-fullscreen .kiosk-verse-text {
+  font-size: 0.78rem;
+}
+
+@media (max-width: 767px) {
+  body.kiosk-is-fullscreen .kiosk-verse-pill {
+    padding: 4px 12px;
+    gap: 6px;
+    margin-top: 4px;
+    align-self: center;
+  }
+  body.kiosk-is-fullscreen .kiosk-verse-text {
+    font-size: 0.65rem;
+  }
+  body.kiosk-is-fullscreen .kiosk-verse-icon {
+    font-size: 0.6rem;
+  }
 }
 
 .kiosk-alert-success {

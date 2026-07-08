@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initInventoryRegistry();
   initStockManagement();
   initAnalytics();
+  initHourlyBibleVerse();
   showFlashToasts();
 });
 
@@ -27,6 +28,7 @@ function readJsonScript(id, fallback) {
 
 function initAuthTabs() {
   if (!document.body.classList.contains('auth-page')) return;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
@@ -43,7 +45,11 @@ function initAuthTabs() {
       }
 
       $('.tab-section').hide();
-      $('#' + target + '-section').fadeIn(300);
+      if (prefersReducedMotion) {
+        $('#' + target + '-section').show();
+      } else {
+        $('#' + target + '-section').fadeIn(300);
+      }
     } else {
       document.querySelectorAll('.navbar-nav .nav-link').forEach(function (link) {
         link.classList.toggle('active', link.dataset.target === target);
@@ -111,13 +117,53 @@ function initAuthTabs() {
       document.body.classList.add('kiosk-is-fullscreen');
       window.dispatchEvent(new Event('kiosk:layout-change'));
     }
-  } else if (validTabs.includes(initialHash)) {
-    showTab(initialHash);
   } else if (hasErrors && document.querySelector('#login-section .is-invalid')) {
     showTab('login');
+  } else if (validTabs.includes(initialHash)) {
+    showTab(initialHash);
   } else {
     showTab('home');
   }
+}
+
+function initHourlyBibleVerse() {
+  const verseElements = document.querySelectorAll('.hourlyBibleVerse');
+  if (verseElements.length === 0) return;
+
+  const verses = [
+    'Psalm 23:1 - The Lord is my shepherd.I shall not want.',
+    'Philippians 4:13 - I can do all things through Christ who Strengthen me.',
+    'Proverbs 3:5 - Trust in the Lord with all thine heart.',
+    'Isaiah 41:10 - Fear thou not; for I am with thee.',
+    'Psalm 46:10 - Be still, and know that I am God.',
+    'Matthew 5:16 - Let your light so shine before men.',
+    'Romans 8:28 - All things work together for good.',
+    'Joshua 1:9 - Be strong and of a good courage.',
+    'Psalm 118:24 - This is the day which the Lord hath made.',
+    'John 14:27 - Peace I leave with you.',
+    '1 Peter 5:7 - Casting all your care upon him.',
+    'Psalm 119:105 - Thy word is a lamp unto my feet.',
+  ];
+
+  function updateVerse() {
+    const verse = verses[new Date().getHours() % verses.length];
+    verseElements.forEach(function (element) {
+      // Trigger animation
+      if (element.parentElement && element.parentElement.classList.contains('bible-verse-pill')) {
+        element.parentElement.classList.remove('verse-animating');
+        void element.parentElement.offsetWidth; // trigger reflow
+        element.parentElement.classList.add('verse-animating');
+      }
+
+      element.textContent = verse;
+      if (element.parentElement) {
+        element.parentElement.setAttribute('title', verse);
+      }
+    });
+  }
+
+  updateVerse();
+  setInterval(updateVerse, 60 * 1000);
 }
 
 function initSidebar() {
@@ -243,6 +289,10 @@ function showPage(pageId, clickedItem) {
 }
 
 function confirmLogout() {
+  // Play sound immediately when the navbar icon is clicked
+  const audio = new Audio('/sound/logout.mp3');
+  audio.play().catch(function(e) { console.log("Audio play failed:", e); });
+
   const modal = document.getElementById('logoutModal');
   if (!modal || !window.bootstrap) return;
 
@@ -250,8 +300,7 @@ function confirmLogout() {
 }
 
 function initDashboardPage() {
-  const currentDate = document.getElementById('currentDate');
-  if (!currentDate) return;
+  const dateDisplays = document.querySelectorAll('.currentDateDisplay');
 
   const pathSegments = window.location.pathname.split('/');
   const pageId = pathSegments[pathSegments.length - 1];
@@ -262,8 +311,11 @@ function initDashboardPage() {
     if (sidebarItem) showPage(pageId, sidebarItem);
   }
 
-  const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  currentDate.textContent = new Date().toLocaleDateString('en-US', dateOptions);
+  if (dateDisplays.length > 0) {
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = new Date().toLocaleDateString('en-US', dateOptions);
+    dateDisplays.forEach(el => el.textContent = formattedDate);
+  }
 
   document.querySelectorAll('[data-page-link]').forEach(function (link) {
     link.addEventListener('click', function (event) {
@@ -854,51 +906,78 @@ function initMonthlyReport(items, rawTx) {
       year: 'numeric',
     });
 
-    const itemStats = {};
+    // Build a map of item id -> item for quick lookup
+    const itemsById = {};
     items.forEach(function (item) {
-      itemStats[item.id] = {
-        code: item.code,
-        name: item.name,
-        category: item.category,
-        added: 0,
-        used: 0,
-      };
+      itemsById[item.id] = item;
     });
+
+    const stockIn = [];   // Admin stock-in entries
+    const stockOut = [];  // User-request stock-out entries
+    const involvedItemIds = new Set(); // Items that had activity in this month
 
     rawTx.forEach(function (tx) {
       const txDate = new Date(tx.created_at);
       const type = String(tx.type || '').toLowerCase();
       const qty = Number(tx.quantity);
-      const stat = itemStats[tx.inventory_item_id];
+      const ref = String(tx.reference || '');
 
-      if (txDate.getFullYear() !== year || txDate.getMonth() !== month || !stat) return;
-      if (type === 'in') stat.added += qty;
-      if (type === 'out') stat.used += qty;
+      if (txDate.getFullYear() !== year || txDate.getMonth() !== month) return;
+
+      const dateStr = (txDate.getMonth() + 1) + '/' + txDate.getDate() + '/' + txDate.getFullYear();
+      const item = itemsById[tx.inventory_item_id];
+      const name = item ? item.name : 'Unknown';
+
+      // Stock In: admin-driven (type === 'in')
+      if (type === 'in') {
+        stockIn.push({ date: dateStr, name: name, qty: qty, itemId: tx.inventory_item_id });
+        involvedItemIds.add(tx.inventory_item_id);
+      }
+
+      // Stock Out: user request-driven (type === 'out' AND reference contains 'Item Request')
+      if (type === 'out' && ref.toLowerCase().includes('item request')) {
+        stockOut.push({ date: dateStr, name: name, qty: qty, itemId: tx.inventory_item_id });
+        involvedItemIds.add(tx.inventory_item_id);
+      }
+    });
+
+    // Stock Balance: only items involved in the above transactions, with current stock
+    const stockBalance = [];
+    involvedItemIds.forEach(function (id) {
+      const item = itemsById[id];
+      if (item) {
+        stockBalance.push({ name: item.name, qty: item.stock });
+      }
     });
 
     let html = '';
-    let hasData = false;
+    const maxRows = Math.max(stockIn.length, stockOut.length, stockBalance.length);
 
-    Object.values(itemStats).forEach(function (stat) {
-      if (stat.added <= 0 && stat.used <= 0) return;
+    if (maxRows === 0) {
+      html = '<tr><td colspan="8" class="text-center py-5 text-muted">No activity found for the selected month.</td></tr>';
+    } else {
+      for (let i = 0; i < maxRows; i++) {
+        const inData  = stockIn[i]  || { date: '', name: '', qty: '' };
+        const outData = stockOut[i] || { date: '', name: '', qty: '' };
+        const balData = stockBalance[i] || { name: '', qty: '' };
 
-      hasData = true;
-      html += `
-        <tr>
-          <td class="ps-4 py-3 fw-semibold text-dark">${stat.code}</td>
-          <td class="py-3 fw-bold text-dark">${stat.name}</td>
-          <td class="py-3"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">${stat.category}</span></td>
-          <td class="py-3 text-center text-success fw-bold">+${stat.added}</td>
-          <td class="py-3 text-center text-warning fw-bold">-${stat.used}</td>
-        </tr>
-      `;
-    });
-
-    if (!hasData) {
-      html = '<tr><td colspan="5" class="text-center py-5 text-muted">No activity found for the selected month.</td></tr>';
+        html += `
+          <tr>
+            <td class="report-cell report-cell-in">${inData.date}</td>
+            <td class="report-cell report-cell-in">${inData.name}</td>
+            <td class="report-cell report-cell-in text-center">${inData.qty !== '' ? inData.qty : ''}</td>
+            <td class="report-cell report-cell-out">${outData.date}</td>
+            <td class="report-cell report-cell-out">${outData.name}</td>
+            <td class="report-cell report-cell-out text-center">${outData.qty !== '' ? outData.qty : ''}</td>
+            <td class="report-cell report-cell-bal">${balData.name}</td>
+            <td class="report-cell report-cell-bal text-center">${balData.qty !== '' ? balData.qty : ''}</td>
+          </tr>
+        `;
+      }
     }
 
     reportTableBody.innerHTML = html;
+
   }
 
   reportMonthFilter.addEventListener('change', renderMonthlyReport);

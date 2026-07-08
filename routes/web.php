@@ -21,6 +21,7 @@ Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk.index');
 Route::post('/kiosk', [KioskController::class, 'store'])->name('kiosk.store');
 Route::post('/kiosk/request', [\App\Http\Controllers\ItemRequestController::class, 'store'])->name('kiosk.request.store');
 Route::get('/kiosk/request/track', [\App\Http\Controllers\ItemRequestController::class, 'track'])->name('kiosk.request.track');
+Route::get('/kiosk/request/{id}/receipt', [\App\Http\Controllers\ItemRequestController::class, 'receipt'])->name('kiosk.request.receipt');
 
 // Handle form submissions to save new items
 Route::post('/inventory/store', [HomeController::class, 'store'])->middleware(['auth', 'role:admin'])->name('inventory.store');

@@ -33,6 +33,11 @@ class ItemRequest extends Model
         return $this->belongsTo(InventoryItem::class, 'item_id');
     }
 
+    public function requestItems()
+    {
+        return $this->hasMany(ItemRequestItem::class, 'item_request_id');
+    }
+
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
