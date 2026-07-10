@@ -189,17 +189,47 @@
                           </thead>
                           <tbody>
                               @foreach($auditTrails->take(5) as $log)
+                              @php
+                                  $kioskUserName = null;
+                                  if (!$log->user && strtolower($log->module) === 'kiosk' && $log->remarks && str_contains($log->remarks, 'Kiosk request by:')) {
+                                      $extracted = str_replace('Kiosk request by:', '', $log->remarks);
+                                      $parts = explode(' - ', trim($extracted));
+                                      $kioskUserName = $parts[0] ?? trim($extracted);
+                                  }
+                              @endphp
                               <tr>
                                   <td class="ps-4 py-3">
+                                      @if($log->user)
                                       <div class="d-flex align-items-center gap-3">
                                           <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;font-size:12px;">
-                                              {{ substr($log->user->name ?? '?', 0, 1) }}
+                                              {{ substr($log->user->name, 0, 1) }}
                                           </div>
                                           <div>
-                                              <p class="fw-semibold text-dark mb-0">{{ $log->user->name ?? 'System' }}</p>
-                                              <p class="text-muted mb-0" style="font-size:11px;">{{ ucfirst($log->user->role ?? 'system') }}</p>
+                                              <p class="fw-semibold text-dark mb-0">{{ $log->user->name }}</p>
+                                              <p class="text-muted mb-0" style="font-size:11px;">{{ ucfirst($log->user->role) }}</p>
                                           </div>
                                       </div>
+                                      @elseif($kioskUserName)
+                                      <div class="d-flex align-items-center gap-3">
+                                          <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;font-size:12px;">
+                                              {{ strtoupper(substr($kioskUserName, 0, 1)) }}
+                                          </div>
+                                          <div>
+                                              <p class="fw-semibold text-dark mb-0">{{ $kioskUserName }} <span class="badge bg-light text-dark border ms-1" style="font-size: 9px;">Kiosk</span></p>
+                                              <p class="text-muted mb-0" style="font-size:11px;">Kiosk User</p>
+                                          </div>
+                                      </div>
+                                      @else
+                                      <div class="d-flex align-items-center gap-3">
+                                          <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;font-size:12px;">
+                                              ?
+                                          </div>
+                                          <div>
+                                              <p class="fw-semibold text-dark mb-0">System</p>
+                                              <p class="text-muted mb-0" style="font-size:11px;">System</p>
+                                          </div>
+                                      </div>
+                                      @endif
                                   </td>
                                   <td class="py-3">
                                       @if(str_contains(strtolower($log->action), 'in'))
@@ -287,13 +317,12 @@
   <!-- Edit Profile Modal -->
   <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div class="modal-content border-0 shadow">
+          <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="modal-content border-0 shadow">
               <div class="modal-header border-bottom border-light">
                   <h5 class="modal-title fw-bold">Edit Profile</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-                  @csrf
+              @csrf
                   <div class="modal-body p-4">
                       @if($errors->profile->any())
                           <div class="alert alert-danger py-2 small">
@@ -351,7 +380,6 @@
                       <button type="submit" class="btn btn-primary px-4">Save Changes</button>
                   </div>
               </form>
-          </div>
       </div>
   </div>
 

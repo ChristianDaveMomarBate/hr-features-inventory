@@ -28,12 +28,29 @@
                             <tr>
                                 <td class="ps-4 text-nowrap">{{ $log->created_at->format('M d, Y h:i A') }}</td>
                                 <td>
+                                    @php
+                                        $kioskUserName = null;
+                                        if (!$log->user && strtolower($log->module) === 'kiosk' && $log->remarks && str_contains($log->remarks, 'Kiosk request by:')) {
+                                            $extracted = str_replace('Kiosk request by:', '', $log->remarks);
+                                            $parts = explode(' - ', trim($extracted));
+                                            $kioskUserName = $parts[0] ?? trim($extracted);
+                                        }
+                                    @endphp
+
                                     @if($log->user)
                                         <div class="d-flex align-items-center">
                                             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; font-size: 12px;">
                                                 {{ substr($log->user->name, 0, 1) }}
                                             </div>
                                             {{ $log->user->name }}
+                                        </div>
+                                    @elseif($kioskUserName)
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; font-size: 12px;">
+                                                {{ strtoupper(substr($kioskUserName, 0, 1)) }}
+                                            </div>
+                                            {{ $kioskUserName }} 
+                                            <span class="badge bg-light text-dark border ms-2" style="font-size: 10px;">Kiosk</span>
                                         </div>
                                     @else
                                         <span class="text-muted">System/Deleted User</span>

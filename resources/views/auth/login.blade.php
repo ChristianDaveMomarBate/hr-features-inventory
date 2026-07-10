@@ -19,7 +19,7 @@
     <!-- Google Fonts -->
     <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/@fontsource/outfit/index.css') }}" rel="stylesheet">
-    @vite(['resources/css/kiosk.css', 'resources/css/request.css'])
+    @vite(['resources/css/kiosk.css', 'resources/css/request.css', 'resources/css/login.css'])
     @include('style.style')
 </head>
 
@@ -69,7 +69,7 @@
 
     </section>
 
-    @vite(['resources/js/inventory/script.js', 'resources/js/inventory/kiosk.js'])
+    @vite(['resources/js/inventory/script.js', 'resources/js/inventory/kiosk.js', 'resources/js/inventory/login.js'])
 
     @if($errors->has('email') || $errors->has('password'))
         <script>

@@ -901,10 +901,11 @@ function initMonthlyReport(items, rawTx) {
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth();
 
-    reportMonthPrintLabel.textContent = selectedDate.toLocaleDateString('en-US', {
+    const monthLabel = selectedDate.toLocaleDateString('en-US', {
       month: 'long',
       year: 'numeric',
     });
+    reportMonthPrintLabel.textContent = monthLabel;
 
     // Build a map of item id -> item for quick lookup
     const itemsById = {};
@@ -934,8 +935,8 @@ function initMonthlyReport(items, rawTx) {
         involvedItemIds.add(tx.inventory_item_id);
       }
 
-      // Stock Out: user request-driven (type === 'out' AND reference contains 'Item Request')
-      if (type === 'out' && ref.toLowerCase().includes('item request')) {
+      // Stock Out: all out transactions
+      if (type === 'out') {
         stockOut.push({ date: dateStr, name: name, qty: qty, itemId: tx.inventory_item_id });
         involvedItemIds.add(tx.inventory_item_id);
       }
@@ -950,9 +951,10 @@ function initMonthlyReport(items, rawTx) {
       }
     });
 
-    let html = '';
     const maxRows = Math.max(stockIn.length, stockOut.length, stockBalance.length);
-
+    let html = '';
+    
+    // Build table rows for screen
     if (maxRows === 0) {
       html = '<tr><td colspan="8" class="text-center py-5 text-muted">No activity found for the selected month.</td></tr>';
     } else {
@@ -975,8 +977,86 @@ function initMonthlyReport(items, rawTx) {
         `;
       }
     }
-
     reportTableBody.innerHTML = html;
+
+    // --- Build Pagination for Print ---
+    function buildPageHeaderHtml() {
+      return `
+          <div class="print-header-top" style="text-align: center; margin-bottom: 6px;">
+            <img src="/images/GovMail Header.png" alt="GovMail Header" style="width: 100%; height: auto; display: block;">
+          </div>
+          <div class="print-main-title" style="margin: 4px 0;">PHRMDO INVENTORY MONTHLY REPORT</div>
+          <div class="print-month-label" style="text-align: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 6px;">${monthLabel}</div>
+        `;
+    }
+
+    const printContainer = document.getElementById('printPagesContainer');
+    if (!printContainer) return;
+    
+    let printHtml = '';
+    const itemsPerPage = 21;
+    const totalPages = Math.max(1, Math.ceil(maxRows / itemsPerPage));
+
+    for (let page = 0; page < totalPages; page++) {
+      printHtml += `<div class="print-page" style="page-break-after: always; padding-bottom: 20px;">`;
+      printHtml += buildPageHeaderHtml();
+      
+      printHtml += `
+        <div class="table-responsive print-page-table-wrap" style="overflow: visible;">
+          <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+            <thead>
+              <tr>
+                <th colspan="3" style="background-color:#a9d08e; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock In</th>
+                <th colspan="3" style="background-color:#f4b084; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Out</th>
+                <th colspan="2" style="background-color:#9bc2e6; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Balance</th>
+              </tr>
+              <tr>
+                <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Date</th>
+                <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
+                <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
+                <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Date</th>
+                <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
+                <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Out Quantity</th>
+                <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Item Name</th>
+                <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Balance Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      for (let r = 0; r < itemsPerPage; r++) {
+        const i = page * itemsPerPage + r;
+        if (i >= maxRows) break;
+        
+        // Print up to 27 rows per page
+        const inData  = stockIn[i]  || { date: '', name: '', qty: '' };
+        const outData = stockOut[i] || { date: '', name: '', qty: '' };
+        const balData = stockBalance[i] || { name: '', qty: '' };
+
+        printHtml += `
+          <tr>
+            <td class="report-cell report-cell-in">${inData.date}</td>
+            <td class="report-cell report-cell-in">${inData.name}</td>
+            <td class="report-cell report-cell-in text-center">${inData.qty !== '' ? inData.qty : ''}</td>
+            <td class="report-cell report-cell-out">${outData.date}</td>
+            <td class="report-cell report-cell-out">${outData.name}</td>
+            <td class="report-cell report-cell-out text-center">${outData.qty !== '' ? outData.qty : ''}</td>
+            <td class="report-cell report-cell-bal">${balData.name}</td>
+            <td class="report-cell report-cell-bal text-center">${balData.qty !== '' ? balData.qty : ''}</td>
+          </tr>
+        `;
+      }
+
+      printHtml += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+      `;
+    }
+    
+    printContainer.innerHTML = printHtml;
+
 
   }
 

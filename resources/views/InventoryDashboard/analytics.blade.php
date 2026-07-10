@@ -80,25 +80,18 @@
 
                 <div class="print-container">
 
-                    {{-- ===== HEADER: Blue banner + logo + address ===== --}}
-                    <div class="print-header-top">
-                        {{-- The blue wave background --}}
-                        <div class="print-header-banner"></div>
-                        {{-- Logo and address text overlaid on banner --}}
-                        <div class="print-header-inner">
-                            <img src="{{ asset('images/print-logo.png') }}" alt="Province Seal" class="print-logo">
-                            <div class="print-address-text">
-                                Republic Of The Philippines<br>
-                                Caraga Region XIII<br>
-                                <strong>PROVINCE OF SURIGAO DEL NORTE</strong><br>
-                                Provincial Capitol<br>
-                                Governor Jose C. Sering Road, Surigao CIty
-                            </div>
-                        </div>
+                    {{-- ===== HEADER: GovMail Header image ===== --}}
+                    <div class="print-header-top" style="text-align: center; margin-bottom: 6px;">
+                        <img src="{{ asset('images/GovMail Header.png') }}" alt="GovMail Header" style="width: 100%; height: auto; display: block;">
                     </div>
 
                     {{-- Hidden span required by JS to set the month label --}}
                     <span id="reportMonthPrintLabel" style="display:none;"></span>
+                    {{-- Hidden element exposing asset URLs to JS --}}
+                    <span id="printAssetUrls"
+                          data-logo-src="{{ asset('images/print-logo.png') }}"
+                          data-footer-src="{{ asset('images/footer.png') }}"
+                          style="display:none;"></span>
 
                     {{-- ===== REPORT TITLE below banner ===== --}}
                     <div class="print-main-title">
@@ -126,12 +119,12 @@
                                     <th colspan="2" style="background-color:#9bc2e6; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Balance</th>
                                 </tr>
                                 <tr>
-                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Item Name</th>
-                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
+                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Date</th>
                                     <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
-                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Item Name</th>
-                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
+                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
+                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Date</th>
                                     <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
+                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Out Quantity</th>
                                     <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Item Name</th>
                                     <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Balance Quantity</th>
                                 </tr>
@@ -142,12 +135,20 @@
                         </table>
                     </div>
 
-                    {{-- ===== FOOTER IMAGE ===== --}}
+                    {{-- ===== FOOTER IMAGE (screen reference, hidden in print via CSS) ===== --}}
                     <div class="print-report-footer">
                         <img src="{{ asset('images/footer.png') }}" alt="Footer">
                     </div>
 
                 </div>{{-- end .print-container --}}
+
+                {{-- ===== PRINT PAGES CONTAINER (populated by JS, visible only when printing) ===== --}}
+                <div id="printPagesContainer" class="print-only"></div>
+
+                {{-- ===== FIXED FOOTER: pinned to bottom of every printed page via CSS position:fixed ===== --}}
+                <div id="printFixedFooter" class="print-only">
+                    <img src="{{ asset('images/footer.png') }}" alt="Footer">
+                </div>
             </div>
         </div>
     </div>
