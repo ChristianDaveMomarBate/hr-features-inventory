@@ -16,24 +16,28 @@ class ExportController extends Controller
 
     public function exportPDF()
     {
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
+        ini_set('memory_limit', '512M');
 
-        $inventoryItems = InventoryItem::with(['stockTransactions' => function ($query) use ($startOfMonth, $endOfMonth) {
-            $query->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
-        }])->orderBy('code')->get();
+        $inventoryItems = InventoryItem::orderBy('code')->get();
 
-        foreach ($inventoryItems as $item) {
-            $item->monthly_in = $item->stockTransactions->where('type', 'in')->sum('quantity');
-            $item->monthly_out = $item->stockTransactions->where('type', 'out')->sum('quantity');
-        }
+        // Calculate total stock in per item for the registry
+        $stockInTotals = \App\Models\StockTransaction::where('type', 'in')
+            ->selectRaw('inventory_item_id, SUM(quantity) as total_in')
+            ->groupBy('inventory_item_id')
+            ->pluck('total_in', 'inventory_item_id');
 
-        $pdf = Pdf::loadView('exports.inventory-pdf', [
+        $pdf = Pdf::loadView('exports.registry-pdf', [
             'inventoryItems' => $inventoryItems,
-            'reportMonth' => Carbon::now()->format('F Y'),
-        ])->setPaper('a4', 'landscape');
+            'stockInTotals'  => $stockInTotals,
+        ])->setPaper('a4', 'landscape')
+          ->setOptions([
+              'isHtml5ParserEnabled' => true,
+              'isRemoteEnabled'      => false,
+              'defaultFont'          => 'Arial',
+              'dpi'                  => 96,
+          ]);
 
-        return $pdf->download('phrmdo-inventory-monthly-report.pdf');
+        return $pdf->download('phrmdo-inventory-registry.pdf');
     }
 
     public function exportExcel()

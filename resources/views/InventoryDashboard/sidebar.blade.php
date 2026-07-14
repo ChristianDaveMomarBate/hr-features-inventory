@@ -37,6 +37,10 @@
         <i class="bi bi-bar-chart-fill"></i>
         <span>Analytics</span>
     </li>
+    <li class="{{ (isset($activePageId) && $activePageId === 'reports') ? 'active' : '' }}" data-page-target="reports">
+        <i class="bi bi-file-earmark-bar-graph-fill"></i>
+        <span>Reports</span>
+    </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'audit-trails') ? 'active' : '' }}" data-page-target="audit-trails">
         <i class="bi bi-clock-history"></i>
         <span>Audit Trails</span>
@@ -46,4 +50,20 @@
         <span>Users</span>
     </li>
   </ul>
+
+  <div style="
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.68rem;
+      line-height: 1.6;
+  ">
+      <div style="font-weight: 600; color: rgba(255,255,255,0.75); margin-bottom: 2px;">© 2026 PHRMDO Inventory System</div>
+      <div>Developed by OJT Team:</div>
+      <div style="font-style: italic;">Tudtud Rianne Celone</div>
+      <div style="font-style: italic;">De La Cruz Romel Charles Nico</div>
+  </div>
+
 </div>

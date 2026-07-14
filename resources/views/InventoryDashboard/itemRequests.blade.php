@@ -12,7 +12,7 @@
                         <tr>
                             <th class="ps-4 py-3 text-secondary fw-semibold">ID</th>
                             <th class="py-3 text-secondary fw-semibold">Requester</th>
-                            <th class="py-3 text-secondary fw-semibold">Department</th>
+                            <th class="py-3 text-secondary fw-semibold">Division</th>
                             <th class="py-3 text-secondary fw-semibold">Item</th>
                             <th class="py-3 text-secondary fw-semibold">Qty</th>
                             <th class="py-3 text-secondary fw-semibold">Purpose</th>
@@ -24,7 +24,7 @@
                     <tbody>
                         @forelse($itemRequests as $req)
                         <tr>
-                            <td class="ps-4 py-3 fw-semibold text-dark">#{{ $loop->iteration }}</td>
+                            <td class="ps-4 py-3 fw-semibold text-dark">#{{ $req->id }}</td>
                             <td class="py-3">{{ $req->requester_name }}</td>
                             <td class="py-3">{{ $req->department }}</td>
                             <td class="py-3 fw-medium">
@@ -77,6 +77,9 @@
                                         View
                                     </button>
                                 @endif
+                                <button type="button" onclick="printRequest('{{ route('kiosk.request.receipt', $req->id) }}')" class="btn btn-sm me-1" style="border: 1px solid #ced4da; color: #4989d6; border-radius: 6px; background: transparent;">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
                                 <form action="{{ route('admin.requests.destroy', $req->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
@@ -113,7 +116,7 @@
     @if($req->status === 'Pending')
     <!-- Review Modal (For Pending) -->
     <div class="modal fade" id="reviewRequestModal{{ $req->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom border-light">
                     <h5 class="modal-title fw-bold">Review Request #{{ $req->id }}</h5>
@@ -123,92 +126,162 @@
                     @csrf
                     @method('PUT')
                     <div class="modal-body p-4">
-                        @if($req->requestItems->count() > 0)
-                            <div class="mb-3">
-                                <span class="text-muted fw-bold d-block mb-2">Requested Items</span>
-                                <table class="table table-sm table-bordered mb-0" style="table-layout: fixed; width: 100%;">
-                                    <colgroup>
-                                        <col style="width: 60%;">
-                                        <col style="width: 20%;">
-                                        <col style="width: 20%;">
-                                    </colgroup>
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Item</th>
-                                            <th class="text-center">Req Qty</th>
-                                            <th class="text-center">Stock</th>
+
+                        {{-- Requester Info --}}
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <span class="text-muted d-block small fw-bold text-uppercase">Requester</span>
+                                <span class="fw-semibold">{{ $req->requester_name }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted d-block small fw-bold text-uppercase">Division</span>
+                                <span class="fw-semibold">{{ $req->department }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted d-block small fw-bold text-uppercase">Date</span>
+                                <span class="fw-semibold">{{ $req->created_at->format('M d, Y') }}</span>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <span class="text-muted d-block small fw-bold text-uppercase mb-1">Purpose</span>
+                                    <span class="fw-semibold text-dark text-break">{{ $req->purpose ?: 'No purpose provided.' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Items Table --}}
+                        <div class="mb-3">
+                            <span class="text-muted fw-bold d-block mb-2">Requested Items</span>
+                            <div style="max-height: 350px; overflow-y: auto; border: 1px solid #000;">
+                                <table class="table mb-0" style="border-collapse: collapse; width: 100%; font-size: 13px;">
+                                    <thead style="position: sticky; top: 0; z-index: 1;">
+                                        <tr style="background: #003087; color: #fff;">
+                                            <th style="border: 1px solid #000; padding: 7px 10px; width: 4%; text-align: center;" title="Check to approve this item">✓</th>
+                                            <th style="border: 1px solid #000; padding: 7px 10px; width: 5%; text-align: center;">No.</th>
+                                            <th style="border: 1px solid #000; padding: 7px 10px; width: 32%;">Item Description</th>
+                                            <th style="border: 1px solid #000; padding: 7px 10px; width: 13%; text-align: center;">Quantity</th>
+                                            <th style="border: 1px solid #000; padding: 7px 10px; width: 26%; text-align: center;">Remarks</th>
+                                            <th style="border: 1px solid #000; padding: 7px 10px; width: 20%; text-align: center;">Received</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach($req->requestItems as $reqItem)
-                                        <tr>
-                                            <td class="text-truncate" style="max-width: 0;">{{ $reqItem->item->name ?? 'N/A' }}</td>
-                                            <td class="text-center">{{ $reqItem->requested_quantity }}</td>
-                                            <td class="text-center fw-bold {{ ($reqItem->item->stock ?? 0) < $reqItem->requested_quantity ? 'text-danger' : 'text-success' }}">
-                                                {{ $reqItem->item->stock ?? 0 }}
+                                <tbody>
+                                    @if($req->requestItems->count() > 0)
+                                        @foreach($req->requestItems as $idx => $reqItem)
+                                        <tr id="req-row-{{ $req->id }}-{{ $reqItem->id }}">
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
+                                                <input type="checkbox"
+                                                    name="approve_items[]"
+                                                    value="{{ $reqItem->id }}"
+                                                    class="form-check-input item-approve-check"
+                                                    style="width: 18px; height: 18px; cursor: pointer;"
+                                                    checked
+                                                    onchange="toggleItemRow(this, '{{ $req->id }}', '{{ $reqItem->id }}')">
                                             </td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">{{ $idx + 1 }}</td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;">
+                                                {{ $reqItem->item->name ?? 'N/A' }}
+                                                @if(($reqItem->item->stock ?? 0) < $reqItem->requested_quantity)
+                                                    <span class="badge bg-danger ms-1" title="Low stock">Low Stock</span>
+                                                @endif
+                                                <div class="text-muted" style="font-size:11px;">Stock: {{ $reqItem->item->stock ?? 0 }}</div>
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
+                                                <input type="number" name="item_quantities[{{ $reqItem->id }}]"
+                                                    id="qty-{{ $req->id }}-{{ $reqItem->id }}"
+                                                    value="{{ $reqItem->requested_quantity }}"
+                                                    min="0" max="{{ $reqItem->item->stock ?? 999 }}"
+                                                    class="form-control form-control-sm text-center border-0 p-0"
+                                                    style="width: 60px; margin: 0 auto;"
+                                                    title="Requested: {{ $reqItem->requested_quantity }} | Stock: {{ $reqItem->item->stock ?? 0 }}">
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">
+                                                <input type="text" name="item_remarks[{{ $reqItem->id }}]"
+                                                    placeholder="e.g. Available, Partial..."
+                                                    class="form-control form-control-sm border-0"
+                                                    style="font-size:12px; padding: 3px 6px;">
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
                                         </tr>
                                         @endforeach
-                                    </tbody>
-                                </table>
+                                        @for($e = $req->requestItems->count(); $e < 8; $e++)
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">{{ $e + 1 }}</td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        </tr>
+                                        @endfor
+                                    @else
+                                        <tr id="req-row-{{ $req->id }}-single">
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
+                                                <input type="checkbox"
+                                                    name="approve_items[]"
+                                                    value="single"
+                                                    class="form-check-input item-approve-check"
+                                                    style="width: 18px; height: 18px; cursor: pointer;"
+                                                    checked
+                                                    onchange="toggleItemRow(this, '{{ $req->id }}', 'single')">
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">1</td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;">
+                                                {{ $req->item->name ?? 'N/A' }}
+                                                <div class="text-muted" style="font-size:11px;">Stock: {{ $req->item->stock ?? 0 }}</div>
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
+                                                <input type="number" name="approved_quantity"
+                                                    id="qty-{{ $req->id }}-single"
+                                                    value="{{ $req->requested_quantity }}"
+                                                    min="0" max="{{ $req->item->stock ?? 999 }}"
+                                                    class="form-control form-control-sm text-center border-0 p-0"
+                                                    style="width: 60px; margin: 0 auto;"
+                                                    title="Requested: {{ $req->requested_quantity }} | Stock: {{ $req->item->stock ?? 0 }}">
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">
+                                                <input type="text" name="item_remarks[single]"
+                                                    placeholder="e.g. Available, Partial..."
+                                                    class="form-control form-control-sm border-0"
+                                                    style="font-size:12px; padding: 3px 6px;">
+                                            </td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        </tr>
+                                        @for($e = 1; $e < 8; $e++)
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">{{ $e + 1 }}</td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                            <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        </tr>
+                                        @endfor
+                                    @endif
+                                </tbody>
+                            </table>
                             </div>
+                            <div class="mt-2 small">
+                                <span class="text-muted"><i class="fas fa-check-square me-1 text-success"></i> Check items to approve &nbsp;|&nbsp; <i class="fas fa-pencil-alt me-1 text-primary"></i> Edit quantity &amp; remarks as needed.</span>
+                            </div>
+                        </div>
 
-                            <div class="mb-3 mt-4">
-                                <label class="form-label fw-semibold">Action</label>
-                                <select class="form-select rounded-3" name="status" required>
+                    </div>
+                    <div class="modal-footer border-top border-light bg-light d-flex justify-content-between flex-wrap gap-2" style="position: sticky; bottom: 0; z-index: 10;">
+                        <button type="button" onclick="printRequest('{{ route('kiosk.request.receipt', $req->id) }}', '{{ $req->id }}')" class="btn btn-outline-secondary text-nowrap"><i class="fas fa-print me-1"></i> Print</button>
+                        <div class="d-flex gap-2 align-items-center flex-wrap justify-content-end">
+                            <div class="d-flex align-items-center">
+                                <label class="form-label fw-semibold mb-0 me-2">Decision:</label>
+                                <select class="form-select form-select-sm d-inline-block w-auto rounded-3" name="status" required style="min-width:190px;">
                                     <option value="" disabled selected>Select action...</option>
-                                    <option value="Approved">Approve All</option>
-                                    <option value="Cancelled">Cancel Request</option>
-                                </select>
-                            </div>
-                        @else
-                            <!-- Old single item view -->
-                            <div class="mb-3 d-flex justify-content-between border-bottom pb-2">
-                                <span class="text-muted">Item:</span>
-                                <span class="fw-bold">{{ $req->item->name ?? 'N/A' }}</span>
-                            </div>
-                            <div class="mb-3 d-flex justify-content-between border-bottom pb-2">
-                                <span class="text-muted">Requested Qty:</span>
-                                <span class="fw-bold text-primary">{{ $req->requested_quantity }}</span>
-                            </div>
-                            <div class="mb-3 d-flex justify-content-between border-bottom pb-2">
-                                <span class="text-muted">Available Stock:</span>
-                                <span class="fw-bold {{ ($req->item->stock ?? 0) < $req->requested_quantity ? 'text-danger' : 'text-success' }}">{{ $req->item->stock ?? 0 }}</span>
-                            </div>
-
-                            <div class="mb-3 mt-4">
-                                <label class="form-label fw-semibold">Action</label>
-                                <select class="form-select rounded-3"
-                                    name="status"
-                                    id="statusSelect{{ $req->id }}"
-                                    data-request-id="{{ $req->id }}"
-                                    data-requested-quantity="{{ $req->requested_quantity }}"
-                                    required
-                                    onchange="toggleQtyInput(this)">
-                                    <option value="" disabled selected>Select action...</option>
-                                    <option value="Approved">Approve Fully</option>
+                                    <option value="Approved">Approve Checked Items</option>
                                     <option value="Adjusted">Approve with Adjustment</option>
                                     <option value="Cancelled">Cancel / Reject</option>
                                 </select>
                             </div>
-
-                            <div class="mb-3" id="qtyInputWrapper{{ $req->id }}" style="display: none;">
-                                <label class="form-label fw-semibold">Approved Quantity</label>
-                                <input type="number" class="form-control rounded-3" name="approved_quantity" id="approvedQtyInput{{ $req->id }}" 
-                                    value="{{ min($req->requested_quantity, $req->item->stock ?? 0) }}" 
-                                    max="{{ $req->item->stock ?? 0 }}" min="1">
-                                <div class="form-text">Must not exceed available stock ({{ $req->item->stock ?? 0 }}).</div>
-                            </div>
-                        @endif
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Admin Note (Optional)</label>
-                            <textarea class="form-control rounded-3" name="admin_note" rows="2" placeholder="Reason for adjustment/cancellation..."></textarea>
+                            <input type="text" name="admin_note" class="form-control form-control-sm rounded-3" placeholder="Admin note (optional)" style="min-width:180px;">
+                            <button type="button" class="btn btn-light text-secondary text-nowrap" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success px-4 fw-bold text-nowrap"><i class="fas fa-save me-1"></i> Save &amp; Submit</button>
                         </div>
-                    </div>
-                    <div class="modal-footer border-top border-light bg-light">
-                        <button type="button" class="btn btn-light text-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary px-4">Submit Decision</button>
                     </div>
                 </form>
             </div>
@@ -217,7 +290,7 @@
     @else
     <!-- View Modal (For Processed) -->
     <div class="modal fade" id="viewRequestModal{{ $req->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom border-light">
                     <h5 class="modal-title fw-bold">Request #{{ $req->id }} Details</h5>
@@ -225,80 +298,115 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <span class="text-muted d-block small">Requester</span>
+                        <div class="col-md-4">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Requester</span>
                             <span class="fw-semibold">{{ $req->requester_name }}</span>
                         </div>
-                        <div class="col-6">
-                            <span class="text-muted d-block small">Department</span>
+                        <div class="col-md-4">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Division</span>
                             <span class="fw-semibold">{{ $req->department }}</span>
                         </div>
-                        <div class="col-6">
-                            <span class="text-muted d-block small">Status</span>
+                        <div class="col-md-4">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Status</span>
                             <span class="fw-bold">{{ $req->status }}</span>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded-3 border">
+                                <span class="text-muted d-block small fw-bold text-uppercase mb-1">Purpose</span>
+                                <span class="fw-semibold text-dark text-break">{{ $req->purpose ?: 'No purpose provided.' }}</span>
+                            </div>
                         </div>
                     </div>
 
-                    @if($req->requestItems->count() > 0)
-                        <div class="mb-3">
-                            <span class="text-muted fw-bold d-block mb-2 small">Requested Items</span>
-                            <table class="table table-sm table-bordered mb-0" style="table-layout: fixed; width: 100%;">
-                                <colgroup>
-                                    <col style="width: 55%;">
-                                    <col style="width: 22%;">
-                                    @if(in_array($req->status, ['Approved', 'Adjusted']))
-                                    <col style="width: 23%;">
-                                    @endif
-                                </colgroup>
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Item</th>
-                                        <th class="text-center">Req Qty</th>
-                                        @if(in_array($req->status, ['Approved', 'Adjusted']))
-                                        <th class="text-center text-success">Appr Qty</th>
-                                        @endif
+                    {{-- Items Table --}}
+                    <div class="mb-3">
+                        <span class="text-muted fw-bold d-block mb-2">Requested Items</span>
+                        <div style="max-height: 350px; overflow-y: auto; border: 1px solid #000;">
+                            <table class="table mb-0" style="border-collapse: collapse; width: 100%; font-size: 13px;">
+                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                    <tr style="background: #003087; color: #fff;">
+                                        <th style="border: 1px solid #000; padding: 7px 10px; width: 5%; text-align: center;">No.</th>
+                                        <th style="border: 1px solid #000; padding: 7px 10px; width: 40%;">Item Description</th>
+                                        <th style="border: 1px solid #000; padding: 7px 10px; width: 15%; text-align: center;">Quantity</th>
+                                        <th style="border: 1px solid #000; padding: 7px 10px; width: 20%; text-align: center;">Remarks</th>
+                                        <th style="border: 1px solid #000; padding: 7px 10px; width: 20%; text-align: center;">Received</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach($req->requestItems as $reqItem)
+                            <tbody>
+                                @if($req->requestItems->count() > 0)
+                                    @foreach($req->requestItems as $idx => $reqItem)
                                     <tr>
-                                        <td class="text-truncate" style="max-width: 0;">{{ $reqItem->item->name ?? 'N/A' }}</td>
-                                        <td class="text-center">{{ $reqItem->requested_quantity }}</td>
-                                        @if(in_array($req->status, ['Approved', 'Adjusted']))
-                                        <td class="text-center fw-bold text-success">{{ $reqItem->approved_quantity ?? '-' }}</td>
-                                        @endif
+                                        <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">{{ $idx + 1 }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;">{{ $reqItem->item->name ?? 'N/A' }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
+                                            @if(in_array($req->status, ['Approved', 'Adjusted']) && $reqItem->approved_quantity)
+                                                <strong>{{ $reqItem->approved_quantity }}</strong>
+                                                <span class="text-muted" style="font-size:11px;"> (Req: {{ $reqItem->requested_quantity }})</span>
+                                            @else
+                                                {{ $reqItem->requested_quantity }}
+                                            @endif
+                                        </td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;">{{ $reqItem->remarks }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
                                     </tr>
                                     @endforeach
-                                </tbody>
-                            </table>
+                                    @for($e = $req->requestItems->count(); $e < 8; $e++)
+                                    <tr>
+                                        <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">{{ $e + 1 }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                    </tr>
+                                    @endfor
+                                @else
+                                    <tr>
+                                        <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">1</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;">{{ $req->item->name ?? 'N/A' }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
+                                            @if(in_array($req->status, ['Approved', 'Adjusted']))
+                                                <strong>{{ $req->approved_quantity }}</strong>
+                                                <span class="text-muted" style="font-size:11px;"> (Req: {{ $req->requested_quantity }})</span>
+                                            @else
+                                                {{ $req->requested_quantity }}
+                                            @endif
+                                        </td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;">{{ $req->remarks }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                    </tr>
+                                    @for($e = 1; $e < 8; $e++)
+                                    <tr>
+                                        <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">{{ $e + 1 }}</td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                        <td style="border: 1px solid #000; padding: 6px 10px;"></td>
+                                    </tr>
+                                    @endfor
+                                @endif
+                            </tbody>
+                        </table>
                         </div>
-                    @else
-                        <div class="row g-3 mb-3 mt-0">
-                            <div class="col-6">
-                                <span class="text-muted d-block small">Item</span>
-                                <span class="fw-semibold">{{ $req->item->name ?? 'N/A' }}</span>
-                            </div>
-                            <div class="col-6">
-                                <span class="text-muted d-block small">Requested Qty</span>
-                                <span class="fw-semibold">{{ $req->requested_quantity }}</span>
-                            </div>
-                            @if(in_array($req->status, ['Approved', 'Adjusted']))
-                            <div class="col-6">
-                                <span class="text-muted d-block small">Approved Qty</span>
-                                <span class="fw-bold text-success">{{ $req->approved_quantity }}</span>
-                            </div>
-                            @endif
-                        </div>
-                    @endif
-                    
+                    </div>
+
                     @if($req->admin_note)
                     <div class="alert alert-light border rounded-3 mt-3 mb-0 small">
                         <i class="fas fa-comment-alt text-muted me-1"></i> <strong>Admin Note:</strong> {{ $req->admin_note }}
                     </div>
                     @endif
                 </div>
-                <div class="modal-footer border-top border-light bg-light">
-                    <button type="button" class="btn btn-light text-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer border-top border-light bg-light d-flex justify-content-between">
+                    <button type="button" onclick="printRequest('{{ route('kiosk.request.receipt', $req->id) }}')" class="btn btn-outline-secondary"><i class="fas fa-print me-1"></i> Print</button>
+                    <div class="d-flex gap-2">
+                        @if(in_array($req->status, ['Approved', 'Adjusted']))
+                            <button type="button" class="btn btn-warning text-dark d-flex align-items-center gap-2"
+                                onclick="openRevertConfirm({{ $req->id }}, '{{ route('admin.requests.revert', $req->id) }}')">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                Revert to Pending
+                            </button>
+                        @endif
+                        <button type="button" class="btn btn-light text-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -328,4 +436,145 @@
             input.value = requestedQuantity;
         }
     }
+
+    function printRequest(url, reqId = null) {
+        if (reqId) {
+            const form = document.querySelector(`#reviewRequestModal${reqId} form`);
+            if (form) {
+                const checkboxes = form.querySelectorAll('input.item-approve-check:checked');
+                let previewItems = [];
+                checkboxes.forEach(cb => {
+                    const itemId = cb.value;
+                    const row = document.getElementById(`req-row-${reqId}-${itemId}`);
+                    if (row) {
+                        let desc = row.cells[2].innerText.split('\n')[0].trim();
+                        if (desc.includes('Low Stock')) {
+                            desc = desc.replace('Low Stock', '').trim();
+                        }
+                        const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
+                        const remarksInput = row.querySelector(`input[name^="item_remarks"]`);
+                        
+                        previewItems.push({
+                            desc: desc,
+                            qty: qtyInput ? qtyInput.value : '',
+                            remarks: remarksInput ? remarksInput.value : ''
+                        });
+                    }
+                });
+
+                if (previewItems.length > 0) {
+                    const previewJson = encodeURIComponent(JSON.stringify(previewItems));
+                    const separator = url.includes('?') ? '&' : '?';
+                    url = url + separator + 'preview_data=' + previewJson;
+                }
+            }
+        }
+
+        // Use a hidden iframe to print without opening a new tab
+        let iframe = document.getElementById('print-iframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'print-iframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+        
+        iframe.onload = function() {
+            setTimeout(() => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            }, 500);
+        };
+        iframe.src = url;
+    }
+
+    /**
+     * When a checkbox is unchecked, dim the row and zero out the quantity.
+     * When re-checked, restore the row and quantity.
+     */
+    function toggleItemRow(checkbox, reqId, itemId) {
+        const row = document.getElementById(`req-row-${reqId}-${itemId}`);
+        const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
+        if (!row) return;
+
+        if (checkbox.checked) {
+            // Restore row
+            row.style.opacity = '1';
+            row.style.background = '';
+            if (qtyInput) {
+                qtyInput.disabled = false;
+                // Restore previous value from data attribute
+                if (qtyInput.dataset.prevVal) {
+                    qtyInput.value = qtyInput.dataset.prevVal;
+                }
+            }
+            // Re-enable remarks input
+            const remarksInput = row.querySelector('input[name^="item_remarks"]');
+            if (remarksInput) remarksInput.disabled = false;
+        } else {
+            // Dim row
+            row.style.opacity = '0.4';
+            row.style.background = '#f8f8f8';
+            if (qtyInput) {
+                // Save current value before zeroing
+                qtyInput.dataset.prevVal = qtyInput.value;
+                qtyInput.value = 0;
+                qtyInput.disabled = true;
+            }
+            // Disable remarks input
+            const remarksInput = row.querySelector('input[name^="item_remarks"]');
+            if (remarksInput) remarksInput.disabled = true;
+        }
+    }
+
+    /* ===== Modern Revert Confirmation Modal ===== */
+    function openRevertConfirm(requestId, actionUrl) {
+        document.getElementById('revertRequestId').textContent = '#' + requestId;
+        document.getElementById('revertConfirmForm').action = actionUrl;
+        const modal = new bootstrap.Modal(document.getElementById('revertConfirmModal'));
+        modal.show();
+    }
 </script>
+
+{{-- ===== Modern Revert Confirmation Modal ===== --}}
+<div class="modal fade" id="revertConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+
+            {{-- Amber accent top bar --}}
+            <div style="height: 5px; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
+
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                        style="width:48px; height:48px; background: #fef3c7;">
+                        <i class="bi bi-arrow-counterclockwise" style="font-size: 22px; color: #d97706;"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0" style="color: #1e293b;">Revert Request</h6>
+                        <span class="text-muted" style="font-size: 13px;">Request <span id="revertRequestId" class="fw-semibold text-dark"></span></span>
+                    </div>
+                </div>
+
+                <p class="mb-0" style="font-size: 14px; color: #475569; line-height: 1.6;">
+                    This will <strong>restore all stock quantities</strong> back to the inventory and
+                    set the request status to <span class="badge bg-warning text-dark px-2 py-1 rounded-pill" style="font-size:12px;">Pending</span>.
+                    The admin can then review and re-approve it.
+                </p>
+            </div>
+
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2 justify-content-end">
+                <button type="button" class="btn btn-light text-muted fw-semibold rounded-pill px-4"
+                    data-bs-dismiss="modal">Cancel</button>
+                <form id="revertConfirmForm" method="POST" class="d-inline">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn fw-semibold rounded-pill px-4 d-flex align-items-center gap-2"
+                        style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1e293b; border: none;">
+                        <i class="bi bi-arrow-counterclockwise"></i> Yes, Revert
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

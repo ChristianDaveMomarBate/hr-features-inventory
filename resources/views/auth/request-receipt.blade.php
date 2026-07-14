@@ -4,229 +4,315 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Request Receipt #{{ $itemRequest->id }} – PHRMDO Inventory System</title>
-    <link href="{{ asset('images/favicon.ico') }}" rel="shortcut icon" type="image/x-icon">
-    <link href="{{ asset('css/bootstrap.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('fonts/fontawesome/css/all.min.css') }}" rel="stylesheet" type="text/css">
     
-    <!-- Google Fonts -->
-    <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendor/@fontsource/outfit/index.css') }}" rel="stylesheet">
-
     <style>
         body {
-            background: #f4f6f9;
-            font-family: 'Inter', sans-serif;
-            color: #212529;
-            padding: 40px 0;
-        }
-
-        .receipt-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            overflow: hidden;
-            border: 1px solid #eaeaea;
-        }
-
-        .receipt-header {
-            background: #000000;
-            color: #ffffff;
-            text-align: center;
-            padding: 25px 20px;
-            border-bottom: 5px solid #10b981;
-        }
-
-        .receipt-header h4 {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
             margin: 0;
-            letter-spacing: -0.5px;
+            padding: 0;
+            font-family: 'Century Gothic', 'Tw Cen MT', Arial, sans-serif;
+            background: #e2e8f0;
+            color: #000;
         }
 
-        .receipt-header p {
-            margin: 5px 0 0;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .receipt-body {
-            padding: 30px;
-        }
-
-        .receipt-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px dashed #eeeeee;
-        }
-
-        .receipt-item:last-child {
-            border-bottom: none;
-        }
-
-        .receipt-label {
-            font-weight: 600;
-            color: #555555;
-            flex-basis: 40%;
-        }
-
-        .receipt-value {
-            font-weight: 500;
-            color: #111111;
-            flex-basis: 60%;
-            text-align: right;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-badge.Approved { background: #d4edda; color: #155724; }
-        .status-badge.Adjusted { background: #d1ecf1; color: #0c5460; }
-        .status-badge.Cancelled { background: #f8d7da; color: #721c24; }
-
-        .receipt-footer {
-            background: #fafafa;
-            padding: 20px;
+        .no-print {
             text-align: center;
-            border-top: 1px solid #eaeaea;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
-
+        
         .btn-print {
             background: #10b981;
             color: #ffffff;
             border: none;
             padding: 10px 24px;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-            margin: 5px;
+            font-size: 16px;
         }
 
-        .btn-print:hover {
-            background: #0ea5e9;
-            color: #ffffff;
+        .print-container {
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: white;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
         }
 
-        .btn-back {
-            background: #e2e8f0;
-            color: #334155;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-            margin: 5px;
+        .receipt-half {
+            height: 50%;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .btn-back:hover {
-            background: #cbd5e1;
-            color: #0f172a;
+        .receipt-content {
+            padding: 0 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 0px;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .meta-field {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .meta-label {
+            margin-right: 5px;
+        }
+
+        .meta-value {
+            border-bottom: 1px solid #000;
+            padding: 0 10px;
+            min-width: 150px;
+            text-align: center;
+            position: relative;
+            font-weight: normal;
+        }
+        
+        .signature-sub {
+            font-size: 9px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 1px;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+            font-size: 10px;
+        }
+
+        .items-table th, .items-table td {
+            border: 1px solid #000;
+            padding: 3px 5px;
+            text-align: center;
+        }
+
+        .items-table th {
+            font-weight: bold;
+        }
+
+        .items-table td {
+            height: 14px;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 11px;
+        }
+
+        .sign-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .sign-label {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .sign-name-container {
+            text-align: center;
+        }
+
+        .sign-name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        .sign-title {
+            font-size: 10px;
+        }
+
+        .footer-img {
+            width: 100%;
+            height: auto;
+            max-height: 55px;
+            object-fit: cover;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
         }
 
         @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
             body {
-                background: #ffffff;
+                background: none;
+                margin: 0;
                 padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
-            .receipt-container {
+            .no-print {
+                display: none;
+            }
+            .print-container {
                 box-shadow: none;
-                border: 1px solid #000;
-                border-radius: 0;
-            }
-            .receipt-header {
-                color: #000 !important;
-                background: transparent !important;
-                border-bottom: 2px solid #000;
-            }
-            .receipt-header * {
-                color: #000 !important;
-            }
-            .receipt-footer, .no-print {
-                display: none !important;
-            }
-            .receipt-item {
-                border-bottom: 1px solid #ccc;
+                width: 100%;
+                height: 100vh;
             }
         }
     </style>
 </head>
 <body>
 
-    @if(session('success'))
-        <div class="container no-print mb-3" style="max-width: 600px;">
-            <div class="alert alert-success rounded-3 alert-dismissible">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
-    @endif
+    <div class="no-print">
+        <button onclick="window.print()" class="btn-print">Print Document</button>
+    </div>
 
-    <div class="receipt-container">
-        <div class="receipt-header">
-            <h4>PHRMDO Inventory System</h4>
-            <p>Official Item Request Slip</p>
-        </div>
+    @php
+        $items = [];
+        $previewData = request('preview_data');
         
-        <div class="receipt-body">
-            <div class="receipt-item">
-                <div class="receipt-label">Request ID</div>
-                <div class="receipt-value">#{{ $itemRequest->id }}</div>
-            </div>
-            <div class="receipt-item">
-                <div class="receipt-label">Status</div>
-                <div class="receipt-value">
-                    <span class="status-badge {{ $itemRequest->status }}">{{ $itemRequest->status }}</span>
+        if ($previewData) {
+            $previewItems = json_decode($previewData, true) ?? [];
+            foreach($previewItems as $pItem) {
+                $items[] = [
+                    'desc' => $pItem['desc'] ?? '',
+                    'qty' => $pItem['qty'] ?? '',
+                    'appr_qty' => '', // Receipt columns: No, Item, Qty, Remarks, Received. We don't have appr_qty column in the new layout anymore actually, we just use Remarks.
+                    'remarks' => $pItem['remarks'] ?? ''
+                ];
+            }
+        } else {
+            if($itemRequest->requestItems && $itemRequest->requestItems->count() > 0) {
+                foreach($itemRequest->requestItems as $reqItem) {
+                    $items[] = [
+                        'desc' => $reqItem->item->name ?? 'N/A',
+                        'qty' => $reqItem->requested_quantity,
+                        'remarks' => $reqItem->remarks ?? (in_array($itemRequest->status, ['Approved', 'Adjusted']) ? 'Approved: ' . $reqItem->approved_quantity : '')
+                    ];
+                }
+            } elseif($itemRequest->item_id) {
+                $items[] = [
+                    'desc' => $itemRequest->item->name ?? 'N/A',
+                    'qty' => $itemRequest->requested_quantity,
+                    'remarks' => $itemRequest->remarks ?? (in_array($itemRequest->status, ['Approved', 'Adjusted']) ? 'Approved: ' . $itemRequest->approved_quantity : '')
+                ];
+            }
+        }
+        
+        $itemChunks = array_chunk($items, 8);
+        if (count($itemChunks) == 0) {
+             $itemChunks = [array_pad([], 8, ['desc' => '', 'qty' => '', 'remarks' => ''])];
+        } else {
+             $lastChunkIdx = count($itemChunks) - 1;
+             $itemChunks[$lastChunkIdx] = array_pad($itemChunks[$lastChunkIdx], 8, ['desc' => '', 'qty' => '', 'remarks' => '']);
+        }
+    @endphp
+
+    @foreach($itemChunks as $chunkIndex => $chunk)
+    <div class="print-container" style="{{ $chunkIndex > 0 ? 'page-break-before: always;' : '' }}">
+        @for($i = 0; $i < 2; $i++)
+        <div class="receipt-half">
+            <!-- Header Image -->
+            <img src="{{ asset('images/GovMail Header.png') }}" class="header-img" alt="Header">
+
+            <div class="receipt-content">
+                <div class="meta-row">
+                    <div class="meta-field">
+                        <span class="meta-label">Date:</span>
+                        <span class="meta-value" style="width: 180px;">{{ $itemRequest->created_at->format('M d, Y') }}</span>
+                    </div>
+                    <div class="meta-field">
+                        <span class="meta-label">Control No.:</span>
+                        <span class="meta-value" style="width: 120px; font-weight: bold;">{{ $itemRequest->id }}</span>
+                    </div>
+                </div>
+
+                <div class="meta-row" style="margin-bottom: 10px;">
+                    <div class="meta-field" style="width: 100%;">
+                        <span class="meta-label">Requested by:</span>
+                        <span class="meta-value" style="flex: 1; text-align: left; padding-left: 20px;">
+                            {{ $itemRequest->requester_name }} - {{ $itemRequest->department }}
+                            <div class="signature-sub">Name &amp; Signature of Division Head</div>
+                        </span>
+                    </div>
+                </div>
+
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No.</th>
+                            <th style="width: 50%;">Item Description</th>
+                            <th style="width: 15%;">Quantity</th>
+                            <th style="width: 15%;">Remarks</th>
+                            <th style="width: 15%;">Received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($chunk as $index => $item)
+                        <tr>
+                            <td>{{ ($chunkIndex * 8) + $index + 1 }}</td>
+                            <td style="text-align: left;">{{ $item['desc'] }}</td>
+                            <td><strong>{{ $item['qty'] }}</strong></td>
+                            <td>{{ $item['remarks'] }}</td>
+                            <td></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="signatures">
+                    <div class="sign-block">
+                        <div class="sign-label">Noted by:</div>
+                        <div class="sign-name-container">
+                            <div class="sign-name">MAMARETO B. GESTA JR.</div>
+                            <div class="sign-title">Admin. Officer IV</div>
+                        </div>
+                    </div>
+                    <div class="sign-block">
+                        <div class="sign-label">Approved by:</div>
+                        <div class="sign-name-container">
+                            <div class="sign-name">MILA B. LISONDRA</div>
+                            <div class="sign-title">OIC - PHRMDO</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="receipt-item">
-                <div class="receipt-label">Date Submitted</div>
-                <div class="receipt-value">{{ $itemRequest->created_at->format('M d, Y h:i A') }}</div>
-            </div>
-            <div class="receipt-item">
-                <div class="receipt-label">Requester Name</div>
-                <div class="receipt-value">{{ $itemRequest->requester_name }}</div>
-            </div>
-            <div class="receipt-item">
-                <div class="receipt-label">Department / Division</div>
-                <div class="receipt-value">{{ $itemRequest->department }}</div>
-            </div>
-            <div class="receipt-item">
-                <div class="receipt-label">Requested Item</div>
-                <div class="receipt-value">{{ $itemRequest->item->name ?? 'N/A' }}</div>
-            </div>
-            <div class="receipt-item">
-                <div class="receipt-label">Quantity</div>
-                <div class="receipt-value">{{ $itemRequest->requested_quantity }}</div>
-            </div>
-            @if($itemRequest->purpose)
-            <div class="receipt-item">
-                <div class="receipt-label">Purpose</div>
-                <div class="receipt-value">{{ $itemRequest->purpose }}</div>
-            </div>
-            @endif
+
+            <img src="{{ asset('images/footer.png') }}" class="footer-img" alt="Footer">
         </div>
-        
-        <div class="receipt-footer no-print">
-            <button onclick="window.print()" class="btn-print"><i class="fas fa-print me-2"></i>Print Receipt</button>
-            <a href="{{ route('login') }}#request" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Back to Kiosk</a>
-        </div>
+        @endfor
     </div>
-    
-    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    @endforeach
+
 </body>
 </html>

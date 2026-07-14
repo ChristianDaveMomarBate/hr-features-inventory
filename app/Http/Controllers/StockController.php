@@ -95,6 +95,8 @@ class StockController extends Controller
             }
         });
 
+        \App\Services\ReportService::generateMonthlyReportJson();
+
         if (!empty($errors)) {
             return redirect()->route('dashboard', ['page' => 'stock-management'])
                 ->with('error', implode('<br>', $errors));
@@ -136,6 +138,7 @@ class StockController extends Controller
         }
 
         $tx->delete();
+        \App\Services\ReportService::generateMonthlyReportJson();
 
         return redirect()->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Transaction deleted and stock reversed successfully.');
@@ -200,6 +203,8 @@ class StockController extends Controller
                 'remarks' => $request->input('remarks'),
             ]);
         });
+        
+        \App\Services\ReportService::generateMonthlyReportJson();
 
         return redirect()->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Transaction updated successfully.');

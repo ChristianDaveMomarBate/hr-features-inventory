@@ -14,6 +14,7 @@ class ItemRequestItem extends Model
         'inventory_item_id',
         'requested_quantity',
         'approved_quantity',
+        'remarks',
     ];
 
     protected $casts = [

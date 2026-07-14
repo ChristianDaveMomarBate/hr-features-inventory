@@ -18,6 +18,7 @@ class ItemRequest extends Model
         'purpose',
         'status',
         'admin_note',
+        'remarks',
         'approved_by',
         'approved_at',
     ];

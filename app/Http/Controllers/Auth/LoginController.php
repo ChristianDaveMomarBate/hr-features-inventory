@@ -77,6 +77,16 @@ class LoginController extends Controller
             ]);
         }
 
+        if ($request->has('remember')) {
+            \Cookie::queue('saved_email', $request->email, 43200);
+            \Cookie::queue('saved_password', $request->password, 43200);
+            \Cookie::queue('saved_remember', 'checked', 43200);
+        } else {
+            \Cookie::queue(\Cookie::forget('saved_email'));
+            \Cookie::queue(\Cookie::forget('saved_password'));
+            \Cookie::queue(\Cookie::forget('saved_remember'));
+        }
+
         return redirect()->route('dashboard')->with('login_success', true);
     }
 }

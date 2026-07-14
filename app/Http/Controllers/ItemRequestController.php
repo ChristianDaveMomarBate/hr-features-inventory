@@ -73,8 +73,11 @@ class ItemRequestController extends Controller
 
         $validated = $request->validate([
             'status'            => 'required|in:Approved,Adjusted,Cancelled',
-            'approved_quantity' => 'nullable|integer|min:1',
+            'approve_items'     => 'nullable|array',
+            'item_quantities'   => 'nullable|array',
+            'approved_quantity' => 'nullable|integer|min:0',
             'admin_note'        => 'nullable|string',
+            'item_remarks'      => 'nullable|array',
         ]);
 
         $status = $validated['status'];
@@ -93,90 +96,189 @@ class ItemRequestController extends Controller
             $isMultiItem = $itemRequest->requestItems()->exists();
 
             if ($isMultiItem) {
-                if ($status === 'Adjusted') {
-                    return redirect()->back()->with('error', 'Cannot partially adjust a multi-item request from this interface. Please approve fully or cancel.');
-                }
-                
                 try {
-                    \Illuminate\Support\Facades\DB::transaction(function () use ($itemRequest, $validated) {
+                    \Illuminate\Support\Facades\DB::transaction(function () use ($itemRequest, $validated, $status) {
                         $items = $itemRequest->requestItems()->with('item')->get();
+                        
+                        $approvedItemsIds = $validated['approve_items'] ?? [];
+                        $itemQuantities = $validated['item_quantities'] ?? [];
                         
                         // Check all stock first
                         foreach ($items as $reqItem) {
-                            if ($reqItem->requested_quantity > $reqItem->item->stock) {
+                            if (!in_array($reqItem->id, $approvedItemsIds)) continue;
+
+                            $qty = $itemQuantities[$reqItem->id] ?? 0;
+                            if ($qty > $reqItem->item->stock) {
                                 throw new \Exception('Cannot approve: Insufficient stock for ' . $reqItem->item->name . ' (Only ' . $reqItem->item->stock . ' available).');
                             }
                         }
                         
                         // Deduct stock and log transactions
                         foreach ($items as $reqItem) {
+                            if (!in_array($reqItem->id, $approvedItemsIds)) {
+                                $reqItem->update(['approved_quantity' => 0, 'remarks' => $validated['item_remarks'][$reqItem->id] ?? null]);
+                                continue;
+                            }
+                            
+                            $qty = $itemQuantities[$reqItem->id] ?? 0;
+                            if ($qty <= 0) {
+                                $reqItem->update(['approved_quantity' => 0, 'remarks' => $validated['item_remarks'][$reqItem->id] ?? null]);
+                                continue;
+                            }
+
                             $inventoryItem = $reqItem->item;
-                            $inventoryItem->stock -= $reqItem->requested_quantity;
+                            $inventoryItem->stock -= $qty;
                             $inventoryItem->save();
                             
-                            $reqItem->update(['approved_quantity' => $reqItem->requested_quantity]);
+                            $itemRemarks = $validated['item_remarks'][$reqItem->id] ?? null;
+
+                            $reqItem->update([
+                                'approved_quantity' => $qty,
+                                'remarks'           => $itemRemarks
+                            ]);
 
                             \App\Models\StockTransaction::create([
                                 'inventory_item_id' => $inventoryItem->id,
                                 'user_id'           => auth()->id(),
                                 'type'              => 'out',
-                                'quantity'          => $reqItem->requested_quantity,
+                                'quantity'          => $qty,
                                 'reference'         => 'Item Request #' . $itemRequest->id . ' — approved for ' . $itemRequest->requester_name,
                                 'balance'           => $inventoryItem->stock,
                             ]);
                         }
                         
                         $itemRequest->update([
-                            'status'      => 'Approved',
+                            'status'      => $status,
                             'admin_note'  => $validated['admin_note'] ?? null,
                             'approved_by' => auth()->id(),
                             'approved_at' => now(),
                         ]);
                     });
+
+                    \App\Services\ReportService::generateMonthlyReportJson();
                     
-                    return redirect()->back()->with('success', 'Multi-item Request #' . $id . ' has been approved successfully.');
+                    return redirect()->back()->with('success', 'Multi-item Request #' . $itemRequest->id . ' has been processed successfully.');
                 } catch (\Exception $e) {
                     return redirect()->back()->with('error', $e->getMessage());
                 }
 
             } else {
-                $approvedQty   = $validated['approved_quantity'] ?? $itemRequest->requested_quantity;
+                $approvedItemsIds = $validated['approve_items'] ?? [];
+                if (!in_array('single', $approvedItemsIds)) {
+                    $approvedQty = 0;
+                } else {
+                    $approvedQty = $validated['approved_quantity'] ?? $itemRequest->requested_quantity;
+                }
+                
                 $inventoryItem = $itemRequest->item;
 
                 if ($approvedQty > $inventoryItem->stock) {
                     return redirect()->back()->with('error', 'Cannot approve a quantity greater than available stock (' . $inventoryItem->stock . ').');
                 }
 
-                // Deduct stock
-                $inventoryItem->stock -= $approvedQty;
-                $inventoryItem->save();
+                if ($approvedQty > 0) {
+                    // Deduct stock
+                    $inventoryItem->stock -= $approvedQty;
+                    $inventoryItem->save();
+
+                    // Record audit trail
+                    \App\Models\StockTransaction::create([
+                        'inventory_item_id' => $inventoryItem->id,
+                        'user_id'           => auth()->id(),
+                        'type'              => 'out',
+                        'quantity'          => $approvedQty,
+                        'reference'         => 'Item Request #' . $itemRequest->id . ' — approved for ' . $itemRequest->requester_name,
+                        'balance'           => $inventoryItem->stock,
+                    ]);
+                }
 
                 // Determine actual status: Adjusted if qty differs from request
-                $finalStatus = ($approvedQty < $itemRequest->requested_quantity) ? 'Adjusted' : 'Approved';
+                $finalStatus = ($approvedQty < $itemRequest->requested_quantity && $status === 'Approved') ? 'Adjusted' : $status;
 
-                // Record audit trail
-                \App\Models\StockTransaction::create([
-                    'inventory_item_id' => $inventoryItem->id,
-                    'user_id'           => auth()->id(),
-                    'type'              => 'out',
-                    'quantity'          => $approvedQty,
-                    'reference'         => 'Item Request #' . $itemRequest->id . ' — approved for ' . $itemRequest->requester_name,
-                    'balance'           => $inventoryItem->stock,
-                ]);
+                $singleRemark = $validated['item_remarks']['single'] ?? null;
 
                 $itemRequest->update([
                     'status'            => $finalStatus,
                     'approved_quantity' => $approvedQty,
                     'admin_note'        => $validated['admin_note'],
+                    'remarks'           => $singleRemark,
                     'approved_by'       => auth()->id(),
                     'approved_at'       => now(),
                 ]);
 
-                return redirect()->back()->with('success', 'Request #' . $id . ' has been ' . strtolower($finalStatus) . ' successfully.');
+                \App\Services\ReportService::generateMonthlyReportJson();
+
+                return redirect()->back()->with('success', 'Request #' . $id . ' has been processed successfully.');
             }
         }
 
         return redirect()->back()->with('error', 'Invalid action.');
+    }
+
+    public function revert($id)
+    {
+        $itemRequest = \App\Models\ItemRequest::findOrFail($id);
+
+        if (!in_array($itemRequest->status, ['Approved', 'Adjusted'])) {
+            return redirect()->back()->with('error', 'Only Approved or Adjusted requests can be reverted.');
+        }
+
+        DB::transaction(function () use ($itemRequest) {
+            $isMultiItem = $itemRequest->requestItems()->exists();
+
+            if ($isMultiItem) {
+                // Restore stock for each item in a multi-item request
+                $items = $itemRequest->requestItems()->with('item')->get();
+                foreach ($items as $reqItem) {
+                    if ($reqItem->approved_quantity && $reqItem->item) {
+                        $reqItem->item->stock += $reqItem->approved_quantity;
+                        $reqItem->item->save();
+
+                        // Log the reversal in audit trail
+                        \App\Models\StockTransaction::create([
+                            'inventory_item_id' => $reqItem->item->id,
+                            'user_id'           => auth()->id(),
+                            'type'              => 'in',
+                            'quantity'          => $reqItem->approved_quantity,
+                            'reference'         => 'REVERT: Item Request #' . $itemRequest->id . ' — stock restored for ' . $itemRequest->requester_name,
+                            'balance'           => $reqItem->item->stock,
+                        ]);
+
+                        // Clear the approved quantity
+                        $reqItem->update(['approved_quantity' => null]);
+                    }
+                }
+            } else {
+                // Single-item request
+                $inventoryItem = $itemRequest->item;
+                if ($inventoryItem && $itemRequest->approved_quantity) {
+                    $inventoryItem->stock += $itemRequest->approved_quantity;
+                    $inventoryItem->save();
+
+                    \App\Models\StockTransaction::create([
+                        'inventory_item_id' => $inventoryItem->id,
+                        'user_id'           => auth()->id(),
+                        'type'              => 'in',
+                        'quantity'          => $itemRequest->approved_quantity,
+                        'reference'         => 'REVERT: Item Request #' . $itemRequest->id . ' — stock restored for ' . $itemRequest->requester_name,
+                        'balance'           => $inventoryItem->stock,
+                    ]);
+                }
+            }
+
+            // Reset the request back to Pending
+            $itemRequest->update([
+                'status'            => 'Pending',
+                'approved_quantity' => null,
+                'approved_by'       => null,
+                'approved_at'       => null,
+                'admin_note'        => null,
+            ]);
+        });
+
+        \App\Services\ReportService::generateMonthlyReportJson();
+
+        return redirect()->back()->with('success', 'Request #' . $id . ' has been reverted to Pending. Stock has been restored.');
     }
 
     public function destroy($id)

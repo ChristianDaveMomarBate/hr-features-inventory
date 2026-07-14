@@ -44,9 +44,7 @@
                             <i class="fas fa-box-open" style="margin-right:5px;"></i>Kiosk
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-tab-btn" href="#request" data-target="request">Request</a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link nav-tab-btn" href="#login" data-target="login">Login</a>
                     </li>
@@ -61,7 +59,7 @@
 
         @include('auth.kiosk')
 
-        @include('auth.request')
+
 
         @include('auth.login-form')
 
@@ -82,6 +80,58 @@
             });
         </script>
     @endif
+    <footer id="site-footer" style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 8px 16px;
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(6px);
+        color: rgba(255,255,255,0.6);
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+        z-index: 9999;
+    ">
+        <small>
+            © 2026 <strong style="color:rgba(255,255,255,0.85);">PHRMDO Inventory System</strong>
+            &nbsp;·&nbsp;
+            Developed by OJT Team: <em>Tudtud Rianne Celone &amp; De La Cruz Romel Charles Nico</em>
+        </small>
+    </footer>
+
+    <script>
+        (function() {
+            const footer = document.getElementById('site-footer');
+            function updateFooter() {
+                const hash = window.location.hash;
+                if (hash === '#kiosk' || document.body.classList.contains('kiosk-active')) {
+                    footer.style.display = 'none';
+                } else {
+                    footer.style.display = '';
+                }
+            }
+            // Hide immediately if on kiosk hash
+            updateFooter();
+            // Listen for tab changes via hash
+            window.addEventListener('hashchange', updateFooter);
+            // Also watch clicks on the kiosk nav link
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-target]');
+                if (!btn) return;
+                setTimeout(function() {
+                    const active = document.querySelector('.tab-section[style*="block"], .tab-section.active-tab');
+                    if (btn.dataset.target === 'kiosk') {
+                        footer.style.display = 'none';
+                    } else {
+                        footer.style.display = '';
+                    }
+                }, 50);
+            });
+        })();
+    </script>
 </body>
 
 </html>
+

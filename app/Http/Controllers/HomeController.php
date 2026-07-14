@@ -53,7 +53,7 @@ class HomeController extends Controller
     public function index(Request $request, ?string $page = null)
     {
         $user = $request->user();
-        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails'];
+        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails', 'reports'];
 
         if ($page && ! in_array($page, $allowedPages, true)) {
             abort(403, 'Unauthorized dashboard page.');
@@ -174,6 +174,8 @@ class HomeController extends Controller
             'remarks' => 'Item initialized.'
         ]);
 
+        \App\Services\ReportService::generateMonthlyReportJson();
+
         // Redirect back to preserve pagination and filter state with success message
         return back()->with('success', 'Inventory item added successfully.');
     }
@@ -214,6 +216,8 @@ class HomeController extends Controller
             'remarks' => 'Item updated via Inventory Registry.'
         ]);
 
+        \App\Services\ReportService::generateMonthlyReportJson();
+
         return back()->with('success', 'Inventory item updated successfully.');
     }
 
@@ -233,6 +237,8 @@ class HomeController extends Controller
             'new_value' => null,
             'remarks' => 'Item deleted from Inventory Registry.'
         ]);
+
+        \App\Services\ReportService::generateMonthlyReportJson();
 
         return back()->with('success', 'Inventory item deleted successfully.');
     }

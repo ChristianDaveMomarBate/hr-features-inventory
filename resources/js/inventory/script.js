@@ -117,7 +117,7 @@ function initAuthTabs() {
       document.body.classList.add('kiosk-is-fullscreen');
       window.dispatchEvent(new Event('kiosk:layout-change'));
     }
-  } else if (hasErrors && document.querySelector('#login-section .is-invalid')) {
+  } else if (hasErrors && document.querySelector('#login-section .is-invalid, #login-section .lp-inp--err')) {
     showTab('login');
   } else if (validTabs.includes(initialHash)) {
     showTab(initialHash);
@@ -861,11 +861,42 @@ function initAnalytics() {
     },
   });
 
-  initMonthlyReport(items, rawTx);
+  initMonthlyReport();
 
   document.querySelectorAll('[data-action="print-report"]').forEach(function (button) {
     button.addEventListener('click', function () {
+      const printContainer = document.getElementById('printPagesContainer');
+      const originalParent = printContainer ? printContainer.parentNode : null;
+      const originalNextSibling = printContainer ? printContainer.nextSibling : null;
+
+      // Move printPagesContainer directly under body so it escapes all
+      // parent layout containers (sidebar, main-content, col padding, etc.)
+      if (printContainer) {
+        printContainer.style.position = 'absolute';
+        printContainer.style.top = '0';
+        printContainer.style.left = '0';
+        printContainer.style.width = '100%';
+        printContainer.style.margin = '0';
+        printContainer.style.padding = '0';
+        document.body.appendChild(printContainer);
+      }
+
       window.print();
+
+      // Restore the container to its original location after printing
+      if (printContainer && originalParent) {
+        if (originalNextSibling) {
+          originalParent.insertBefore(printContainer, originalNextSibling);
+        } else {
+          originalParent.appendChild(printContainer);
+        }
+        printContainer.style.position = '';
+        printContainer.style.top = '';
+        printContainer.style.left = '';
+        printContainer.style.width = '';
+        printContainer.style.margin = '';
+        printContainer.style.padding = '';
+      }
     });
   });
 }
@@ -887,8 +918,16 @@ function monthlyDataset(label, data, borderColor, backgroundColor) {
   };
 }
 
-function initMonthlyReport(items, rawTx) {
+async function initMonthlyReport() {
+  const reportType = document.getElementById('reportType');
   const reportMonthFilter = document.getElementById('reportMonthFilter');
+  const reportQuarterFilter = document.getElementById('reportQuarterFilter');
+  const reportYearFilter = document.getElementById('reportYearFilter');
+  const monthlyFilters = document.getElementById('monthlyFilters');
+  const quarterlyFilters = document.getElementById('quarterlyFilters');
+  const reportUITitle = document.getElementById('reportUITitle');
+  const reportPrintTitle = document.getElementById('reportPrintTitle');
+
   const reportTableBody = document.getElementById('reportTableBody');
   const reportMonthPrintLabel = document.getElementById('reportMonthPrintLabel');
   if (!reportMonthFilter || !reportTableBody || !reportMonthPrintLabel) return;
@@ -896,16 +935,93 @@ function initMonthlyReport(items, rawTx) {
   const today = new Date();
   reportMonthFilter.value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
 
-  function renderMonthlyReport() {
-    const selectedDate = new Date(reportMonthFilter.value + '-01');
-    const year = selectedDate.getFullYear();
-    const month = selectedDate.getMonth();
+  // Dynamically populate year dropdown: 2024 → current year + 5
+  if (reportYearFilter) {
+    const startYear = 2024;
+    const endYear   = today.getFullYear() + 5;
+    reportYearFilter.innerHTML = '';
+    for (let y = endYear; y >= startYear; y--) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      reportYearFilter.appendChild(opt);
+    }
+    reportYearFilter.value = today.getFullYear();
+  }
+  
+  if (reportType) {
+      const applyReportTypeUI = () => {
+          if (reportType.value === 'quarterly') {
+              monthlyFilters.style.display = 'none';
+              quarterlyFilters.style.display = 'flex';
+              if (reportUITitle) reportUITitle.textContent = 'Quarterly Item Activity Report';
+              if (reportPrintTitle) reportPrintTitle.textContent = 'PHRMDO INVENTORY QUARTERLY REPORT';
+          } else {
+              monthlyFilters.style.display = 'block';
+              quarterlyFilters.style.display = 'none';
+              if (reportUITitle) reportUITitle.textContent = 'Monthly Item Activity Report';
+              if (reportPrintTitle) reportPrintTitle.textContent = 'PHRMDO INVENTORY MONTHLY REPORT';
+          }
+      };
 
-    const monthLabel = selectedDate.toLocaleDateString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    });
-    reportMonthPrintLabel.textContent = monthLabel;
+      reportType.addEventListener('change', () => {
+          applyReportTypeUI();
+          renderMonthlyReport();
+      });
+
+      // Apply correct initial state on page load
+      applyReportTypeUI();
+
+      if (reportQuarterFilter) reportQuarterFilter.addEventListener('change', renderMonthlyReport);
+      if (reportYearFilter) reportYearFilter.addEventListener('change', renderMonthlyReport);
+
+      ['sigNotedName', 'sigNotedPos', 'sigPreparedName', 'sigPreparedPos', 'sigApprovedName', 'sigApprovedPos'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', renderMonthlyReport);
+      });
+  }
+
+  let currentReportData = {};
+
+  let items = [];
+  let rawTx = [];
+  try {
+    const response = await fetch('/storage/reports/monthly_report.json');
+    if (response.ok) {
+        const data = await response.json();
+        items = data.items || [];
+        rawTx = data.transactions || [];
+    } else {
+        throw new Error("Failed to fetch JSON");
+    }
+  } catch (err) {
+    console.error("Using fallback data due to JSON fetch error:", err);
+    items = readJsonScript('inventory-data', []);
+    rawTx = readJsonScript('transactions-data', []);
+  }
+
+  function renderMonthlyReport() {
+    let year, startMonth, endMonth, periodLabel;
+    
+    if (reportType && reportType.value === 'quarterly') {
+        year = parseInt(reportYearFilter.value, 10);
+        const q = reportQuarterFilter.value;
+        if (q === 'Q1') { startMonth = 0; endMonth = 2; periodLabel = '1st Semester ' + year; }
+        else if (q === 'Q2') { startMonth = 3; endMonth = 5; periodLabel = '2nd Semester ' + year; }
+        else if (q === 'Q3') { startMonth = 6; endMonth = 8; periodLabel = '3rd Semester ' + year; }
+        else { startMonth = 9; endMonth = 11; periodLabel = '4th Semester ' + year; }
+    } else {
+        const selectedDate = new Date(reportMonthFilter.value + '-01');
+        year = selectedDate.getFullYear();
+        startMonth = selectedDate.getMonth();
+        endMonth = selectedDate.getMonth();
+        periodLabel = selectedDate.toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric',
+        });
+    }
+
+    reportMonthPrintLabel.textContent = periodLabel;
 
     // Build a map of item id -> item for quick lookup
     const itemsById = {};
@@ -923,7 +1039,7 @@ function initMonthlyReport(items, rawTx) {
       const qty = Number(tx.quantity);
       const ref = String(tx.reference || '');
 
-      if (txDate.getFullYear() !== year || txDate.getMonth() !== month) return;
+      if (txDate.getFullYear() !== year || txDate.getMonth() < startMonth || txDate.getMonth() > endMonth) return;
 
       const dateStr = (txDate.getMonth() + 1) + '/' + txDate.getDate() + '/' + txDate.getFullYear();
       const item = itemsById[tx.inventory_item_id];
@@ -942,6 +1058,23 @@ function initMonthlyReport(items, rawTx) {
       }
     });
 
+    // Merge stockOut rows with same date + item name (sum their quantities)
+    const mergeRows = (rows) => {
+      const map = new Map();
+      rows.forEach(row => {
+        const key = row.date + '||' + row.name;
+        if (map.has(key)) {
+          map.get(key).qty += row.qty;
+        } else {
+          map.set(key, { ...row });
+        }
+      });
+      return Array.from(map.values());
+    };
+
+    const mergedStockOut = mergeRows(stockOut);
+    const mergedStockIn  = mergeRows(stockIn);
+
     // Stock Balance: only items involved in the above transactions, with current stock
     const stockBalance = [];
     involvedItemIds.forEach(function (id) {
@@ -951,7 +1084,7 @@ function initMonthlyReport(items, rawTx) {
       }
     });
 
-    const maxRows = Math.max(stockIn.length, stockOut.length, stockBalance.length);
+    const maxRows = Math.max(mergedStockIn.length, mergedStockOut.length, stockBalance.length);
     let html = '';
     
     // Build table rows for screen
@@ -959,8 +1092,8 @@ function initMonthlyReport(items, rawTx) {
       html = '<tr><td colspan="8" class="text-center py-5 text-muted">No activity found for the selected month.</td></tr>';
     } else {
       for (let i = 0; i < maxRows; i++) {
-        const inData  = stockIn[i]  || { date: '', name: '', qty: '' };
-        const outData = stockOut[i] || { date: '', name: '', qty: '' };
+        const inData  = mergedStockIn[i]  || { date: '', name: '', qty: '' };
+        const outData = mergedStockOut[i] || { date: '', name: '', qty: '' };
         const balData = stockBalance[i] || { name: '', qty: '' };
 
         html += `
@@ -981,24 +1114,34 @@ function initMonthlyReport(items, rawTx) {
 
     // --- Build Pagination for Print ---
     function buildPageHeaderHtml() {
+      const isQuarterly = reportType && reportType.value === 'quarterly';
+      const reportTitleStr = `PHRMDO INVENTORY ${isQuarterly ? 'QUARTERLY' : 'MONTHLY'} REPORT`;
+
       return `
-          <div class="print-header-top" style="text-align: center; margin-bottom: 6px;">
-            <img src="/images/GovMail Header.png" alt="GovMail Header" style="width: 100%; height: auto; display: block;">
+          <div class="print-header-top" style="margin: 0; padding: 0; text-align: center;">
+            <img src="/images/GovMail Header.png" alt="GovMail Header" style="width: 100%; height: auto; display: block; margin: 0; padding: 0;">
           </div>
-          <div class="print-main-title" style="margin: 4px 0;">PHRMDO INVENTORY MONTHLY REPORT</div>
-          <div class="print-month-label" style="text-align: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 6px;">${monthLabel}</div>
+          <div class="print-main-title" style="margin: 4px 0;">${reportTitleStr}</div>
+          <div class="print-month-label" style="text-align: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 6px;">${periodLabel}</div>
         `;
     }
 
+    currentReportData = {
+      period: periodLabel,
+      items: [
+        ...mergedStockIn.map(i => ({ type: 'Stock In', ...i })),
+        ...mergedStockOut.map(i => ({ type: 'Stock Out', ...i }))
+      ]
+    };
     const printContainer = document.getElementById('printPagesContainer');
     if (!printContainer) return;
     
     let printHtml = '';
-    const itemsPerPage = 21;
+    const itemsPerPage = 19;
     const totalPages = Math.max(1, Math.ceil(maxRows / itemsPerPage));
 
     for (let page = 0; page < totalPages; page++) {
-      printHtml += `<div class="print-page" style="page-break-after: always; padding-bottom: 20px;">`;
+      printHtml += `<div class="print-page" style="page-break-after: always; padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 94vh; position: relative;">` ;
       printHtml += buildPageHeaderHtml();
       
       printHtml += `
@@ -1028,21 +1171,20 @@ function initMonthlyReport(items, rawTx) {
         const i = page * itemsPerPage + r;
         if (i >= maxRows) break;
         
-        // Print up to 27 rows per page
-        const inData  = stockIn[i]  || { date: '', name: '', qty: '' };
-        const outData = stockOut[i] || { date: '', name: '', qty: '' };
+        const inData  = mergedStockIn[i]  || { date: '', name: '', qty: '' };
+        const outData = mergedStockOut[i] || { date: '', name: '', qty: '' };
         const balData = stockBalance[i] || { name: '', qty: '' };
 
         printHtml += `
           <tr>
-            <td class="report-cell report-cell-in">${inData.date}</td>
-            <td class="report-cell report-cell-in">${inData.name}</td>
-            <td class="report-cell report-cell-in text-center">${inData.qty !== '' ? inData.qty : ''}</td>
-            <td class="report-cell report-cell-out">${outData.date}</td>
-            <td class="report-cell report-cell-out">${outData.name}</td>
-            <td class="report-cell report-cell-out text-center">${outData.qty !== '' ? outData.qty : ''}</td>
-            <td class="report-cell report-cell-bal">${balData.name}</td>
-            <td class="report-cell report-cell-bal text-center">${balData.qty !== '' ? balData.qty : ''}</td>
+            <td class="report-cell report-cell-in" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${inData.date}</td>
+            <td class="report-cell report-cell-in" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${inData.name}</td>
+            <td class="report-cell report-cell-in text-center" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${inData.qty !== '' ? inData.qty : ''}</td>
+            <td class="report-cell report-cell-out" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${outData.date}</td>
+            <td class="report-cell report-cell-out" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${outData.name}</td>
+            <td class="report-cell report-cell-out text-center" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${outData.qty !== '' ? outData.qty : ''}</td>
+            <td class="report-cell report-cell-bal" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${balData.name}</td>
+            <td class="report-cell report-cell-bal text-center" style="border: 1px solid #000; padding: 4px; font-size: 10px;">${balData.qty !== '' ? balData.qty : ''}</td>
           </tr>
         `;
       }
@@ -1051,14 +1193,56 @@ function initMonthlyReport(items, rawTx) {
             </tbody>
           </table>
         </div>
-      </div>
       `;
+
+      if (page === totalPages - 1) {
+          const sigNotedName = document.getElementById('sigNotedName') ? document.getElementById('sigNotedName').value : 'MAMARETO B. GESTA JR.';
+          const sigNotedPos = document.getElementById('sigNotedPos') ? document.getElementById('sigNotedPos').value : 'Admin. Officer IV';
+          const sigPreparedName = document.getElementById('sigPreparedName') ? document.getElementById('sigPreparedName').value : '';
+          const sigPreparedPos = document.getElementById('sigPreparedPos') ? document.getElementById('sigPreparedPos').value : 'POSITION';
+          const sigApprovedName = document.getElementById('sigApprovedName') ? document.getElementById('sigApprovedName').value : 'MILA B. LISONDRA';
+          const sigApprovedPos = document.getElementById('sigApprovedPos') ? document.getElementById('sigApprovedPos').value : 'OIC - PHRMDO';
+
+          printHtml += `
+          <div style="display: flex; justify-content: space-between; margin-top: auto; padding-bottom: 20px; font-family: Arial, sans-serif; font-size: 13px; color: #000; padding: 20px 10px 0 10px;">
+              <div style="text-align: center; width: 30%;">
+                  <div style="text-align: left; margin-bottom: 25px; font-weight: bold;">Noted by:</div>
+                  <div style="font-weight: bold; text-decoration: underline; text-transform: uppercase;">${sigNotedName}</div>
+                  <div>${sigNotedPos}</div>
+              </div>
+              <div style="text-align: center; width: 30%;">
+                  <div style="text-align: left; margin-bottom: 25px; font-weight: bold;">Prepared by:</div>
+                  <div style="font-weight: bold; text-decoration: underline; text-transform: uppercase; min-height: 18px;">${sigPreparedName}</div>
+                  <div>${sigPreparedPos}</div>
+              </div>
+              <div style="text-align: center; width: 30%;">
+                  <div style="text-align: left; margin-bottom: 25px; font-weight: bold;">Approved by:</div>
+                  <div style="font-weight: bold; text-decoration: underline; text-transform: uppercase;">${sigApprovedName}</div>
+                  <div>${sigApprovedPos}</div>
+              </div>
+          </div>
+          `;
+      }
+
+      printHtml += `</div>`;
     }
     
     printContainer.innerHTML = printHtml;
 
 
   }
+
+  document.querySelectorAll('[data-action="export-json"]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentReportData, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "Activity_Report_" + currentReportData.period.replace(/\s+/g, '_') + ".json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    });
+  });
 
   reportMonthFilter.addEventListener('change', renderMonthlyReport);
   renderMonthlyReport();

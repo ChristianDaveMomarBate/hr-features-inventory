@@ -44,62 +44,56 @@ class KioskController extends Controller
 
         $requesterName = trim($request->input('requester_name'));
         $division      = $request->input('division');
-        $handledBy     = $requesterName . ' – ' . $division;
         $requestItems  = $request->input('items');
 
         $errors = [];
         $receiptItems = [];
+        $itemRequest = null;
 
-        DB::transaction(function () use ($requestItems, $handledBy, &$errors, &$receiptItems) {
+        DB::transaction(function () use ($requesterName, $division, $requestItems, &$errors, &$receiptItems, &$itemRequest) {
+            // First check if items have enough stock (optional, but good for validation)
+            foreach ($requestItems as $row) {
+                $item = InventoryItem::find($row['id']);
+                if (!$item) continue;
+
+                $qty = (int) $row['quantity'];
+                if ($item->stock < $qty) {
+                    $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
+                }
+            }
+
+            if (!empty($errors)) return; // abort transaction
+
+            // Create Item Request
+            $itemRequest = \App\Models\ItemRequest::create([
+                'requester_name' => $requesterName,
+                'department'     => $division, // Map division to department
+                'purpose'        => null, // Kiosk doesn't have purpose
+                'status'         => 'Pending',
+            ]);
+
             foreach ($requestItems as $row) {
                 $item = InventoryItem::find($row['id']);
                 if (!$item) continue;
 
                 $qty = (int) $row['quantity'];
 
-                if ($item->stock < $qty) {
-                    $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
-                    continue;
-                }
-
-                $oldStock = $item->stock;
-
-                StockTransaction::create([
-                    'inventory_item_id' => $item->id,
-                    'type'              => 'out',
-                    'quantity'          => $qty,
-                    'handled_by'        => $handledBy,
-                    'reference'         => 'Kiosk – Stock Out',
-                    'remarks'           => "Stock out submitted via kiosk by {$handledBy}.",
+                \App\Models\ItemRequestItem::create([
+                    'item_request_id'    => $itemRequest->id,
+                    'inventory_item_id'  => $item->id,
+                    'requested_quantity' => $qty,
                 ]);
 
-                $item->stock -= $qty;
-                $item->save();
-
+                // We don't deduct stock here anymore. It will be deducted on approval.
                 $receiptItems[] = [
                     'id'              => $item->id,
-                    'name'     => $item->name,
-                    'quantity' => $qty,
-                    'unit'     => $item->display_unit,
-                    'remaining_stock' => $item->stock,
+                    'name'            => $item->name,
+                    'quantity'        => $qty,
+                    'unit'            => $item->display_unit,
+                    'remaining_stock' => $item->stock, // Stock hasn't changed yet
                     'remaining_display_stock' => $item->display_stock,
                     'bulk_equivalent' => $item->bulk_equivalent,
                 ];
-
-                // Trigger low stock alert for admins
-                if ($item->stock <= $item->minimum) {
-                    User::where('role', 'admin')->get()->each->notify(new LowStockAlert($item));
-                }
-
-                AuditTrail::create([
-                    'user_id'        => null,
-                    'action'         => 'Stock Out',
-                    'module'         => 'Kiosk',
-                    'item_reference' => $item->code,
-                    'old_value'      => "Stock: {$oldStock}",
-                    'new_value'      => "Stock: {$item->stock} (Qty: {$qty})",
-                    'remarks'        => "Kiosk request by: {$handledBy}",
-                ]);
             }
         });
 
@@ -110,12 +104,19 @@ class KioskController extends Controller
                     'errors' => $errors,
                 ], 422);
             }
-
             return back()->with('kiosk_errors', $errors)->withInput();
         }
 
+        // Notify admins
+        if ($itemRequest) {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\NewItemRequest($itemRequest));
+            }
+        }
+
         $receipt = [
-            'number'         => 'K-' . now()->format('YmdHis'),
+            'number'         => 'REQ-' . $itemRequest->id,
             'requester_name' => $requesterName,
             'division'       => $division,
             'submitted_at'   => now()->format('M d, Y h:i A'),

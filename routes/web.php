@@ -38,6 +38,7 @@ Route::delete('/stock/{id}', [\App\Http\Controllers\StockController::class, 'des
 // Item Requests Management (Admin)
 Route::put('/admin/requests/{id}/status', [\App\Http\Controllers\ItemRequestController::class, 'updateStatus'])->middleware(['auth', 'role:admin'])->name('admin.requests.status');
 Route::delete('/admin/requests/{id}', [\App\Http\Controllers\ItemRequestController::class, 'destroy'])->middleware(['auth', 'role:admin'])->name('admin.requests.destroy');
+Route::patch('/admin/requests/{id}/revert', [\App\Http\Controllers\ItemRequestController::class, 'revert'])->middleware(['auth', 'role:admin'])->name('admin.requests.revert');
 
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware(['auth', 'role:admin'])->name('notifications.read');
 Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');

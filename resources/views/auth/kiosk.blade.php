@@ -4,9 +4,14 @@
 
     {{-- Header --}}
     <div class="kiosk-hero text-center position-relative">
-      <button type="button" class="kiosk-fullscreen-btn" onclick="toggleKioskFullscreen()" title="Toggle Fullscreen">
-        <i class="fas fa-expand"></i>
-      </button>
+      <div class="kiosk-header-actions" style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 10;">
+        <button type="button" onclick="showKioskTrackModal()" class="kiosk-track-btn" title="Track Request" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 16px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: all 0.2s; backdrop-filter: blur(5px);">
+          <i class="fas fa-search"></i> <span class="d-none d-md-inline">Track Request</span>
+        </button>
+        <button type="button" class="kiosk-fullscreen-btn" onclick="toggleKioskFullscreen()" title="Toggle Fullscreen" style="position: static;">
+          <i class="fas fa-expand"></i>
+        </button>
+      </div>
       
       <div class="kiosk-hero-icon-wrap">
         <i class="fas fa-box-open"></i>
@@ -235,6 +240,42 @@
           </div>
           <div class="ticker-text">
             TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span> TATAK LYNDON TATAK LIG-ON! <span class="ticker-dot"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+    
+    {{-- Track Request Modal --}}
+    <div class="kiosk-receipt-overlay" id="kioskTrackModal" style="display: none; align-items: center; justify-content: center;" role="dialog" aria-modal="true" aria-labelledby="kioskTrackTitle">
+      <div class="kiosk-receipt-card" style="width: 100%; max-width: 600px; padding: 2rem;">
+        <button type="button" class="kiosk-receipt-close" onclick="closeKioskTrackModal()" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="kiosk-receipt-head mb-4">
+          <div class="kiosk-receipt-check" style="background: var(--k-accent);"><i class="fas fa-search"></i></div>
+          <div>
+            <div class="kiosk-receipt-title" id="kioskTrackTitle">Track Request</div>
+            <div class="kiosk-receipt-sub" style="color: #64748b;">Enter your Request ID to check status</div>
+          </div>
+        </div>
+        
+        <form id="kioskTrackForm" onsubmit="event.preventDefault(); submitKioskTrack();">
+          <div class="kiosk-field">
+            <div style="display: flex; gap: 10px;">
+              <input type="number" id="kiosk_track_id" class="kiosk-input" placeholder="e.g. 12" required min="1" style="flex: 1; border-radius: 8px;">
+              <button type="submit" class="kiosk-submit" style="margin-top: 0; width: auto; border-radius: 8px; padding: 0 1.5rem;">
+                <i class="fas fa-search"></i> Track
+              </button>
+            </div>
+          </div>
+        </form>
+        
+        <div id="kioskTrackResult" style="margin-top: 1.5rem;">
+          <div style="text-align: center; color: #94a3b8; padding: 2rem 0;">
+            <i class="fas fa-clipboard-list fa-2x mb-2" style="opacity: 0.5;"></i>
+            <p style="margin: 0;">Status details will appear here.</p>
           </div>
         </div>
       </div>

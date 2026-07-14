@@ -442,6 +442,67 @@ window.kioskRem = kioskRem;
 window.kioskCheckValid = kioskCheckValid;
 window.toggleKioskFullscreen = toggleKioskFullscreen;
 
+function showKioskTrackModal() {
+  const modal = document.getElementById('kioskTrackModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.getElementById('kiosk_track_id').focus();
+  }
+}
+
+function closeKioskTrackModal() {
+  const modal = document.getElementById('kioskTrackModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function submitKioskTrack() {
+  const reqId = document.getElementById('kiosk_track_id').value.trim();
+  const container = document.getElementById('kioskTrackResult');
+  if (!reqId) return;
+
+  container.innerHTML = '<div style="text-align: center; color: var(--k-primary); padding: 2rem 0;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+
+  fetch('/kiosk/request/track?request_id=' + encodeURIComponent(reqId), {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Server error');
+    return res.text();
+  })
+  .then(function(html) {
+    container.innerHTML = html;
+  })
+  .catch(function() {
+    container.innerHTML = '<div class="kiosk-alert-danger"><div class="kiosk-alert-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="kiosk-alert-body">Failed to load status. Please try again.</div></div>';
+  });
+}
+
+function printReceiptIframe(url) {
+  let iframe = document.getElementById('kioskPrintIframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'kioskPrintIframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+  }
+  
+  iframe.onload = function() {
+    setTimeout(function() {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 500);
+  };
+  
+  iframe.src = url;
+}
+
+window.showKioskTrackModal = showKioskTrackModal;
+window.closeKioskTrackModal = closeKioskTrackModal;
+window.submitKioskTrack = submitKioskTrack;
+window.printReceiptIframe = printReceiptIframe;
+
 document.addEventListener('fullscreenchange', handleFullscreenChange);
 document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 document.addEventListener('msfullscreenchange', handleFullscreenChange);

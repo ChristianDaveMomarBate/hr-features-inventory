@@ -122,7 +122,7 @@
                             <i class="fas fa-envelope lp-inp-icon"></i>
                             <input id="lp_email" type="email" name="email"
                                 class="lp-inp @error('email') lp-inp--err @enderror"
-                                value="{{ old('email') }}"
+                                value="{{ old('email', Cookie::get('saved_email')) }}"
                                 placeholder="Enter your email address"
                                 required autocomplete="email" autofocus>
                         </div>
@@ -138,6 +138,7 @@
                             <i class="fas fa-lock lp-inp-icon"></i>
                             <input id="lp_password" type="password" name="password"
                                 class="lp-inp @error('password') lp-inp--err @enderror"
+                                value="{{ Cookie::get('saved_password') }}"
                                 placeholder="Enter your password"
                                 required autocomplete="current-password">
                             <button type="button" class="lp-eye" onclick="lpTogglePwd()" aria-label="Toggle password">
@@ -152,7 +153,7 @@
                     {{-- Options row --}}
                     <div class="lp-opts">
                         <label class="lp-remember">
-                            <input type="checkbox" name="remember" id="lp_remember" {{ old('remember') ? 'checked' : '' }}>
+                            <input type="checkbox" name="remember" id="lp_remember" {{ old('remember', Cookie::get('saved_remember')) ? 'checked' : '' }}>
                             <span>Remember me</span>
                         </label>
                         @if(Route::has('password.request'))
