@@ -280,7 +280,7 @@
                     <tbody>
                         @foreach($chunk as $index => $item)
                         <tr>
-                            <td>{{ ($chunkIndex * 8) + $index + 1 }}</td>
+                            <td>{{ $index + 1 }}</td>
                             <td style="text-align: left;">{{ $item['desc'] }}</td>
                             <td><strong>{{ $item['qty'] }}</strong></td>
                             <td>{{ $item['remarks'] }}</td>

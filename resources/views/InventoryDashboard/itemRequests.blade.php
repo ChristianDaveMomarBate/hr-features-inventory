@@ -341,7 +341,6 @@
                                         <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
                                             @if(in_array($req->status, ['Approved', 'Adjusted']) && $reqItem->approved_quantity)
                                                 <strong>{{ $reqItem->approved_quantity }}</strong>
-                                                <span class="text-muted" style="font-size:11px;"> (Req: {{ $reqItem->requested_quantity }})</span>
                                             @else
                                                 {{ $reqItem->requested_quantity }}
                                             @endif
@@ -366,7 +365,6 @@
                                         <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
                                             @if(in_array($req->status, ['Approved', 'Adjusted']))
                                                 <strong>{{ $req->approved_quantity }}</strong>
-                                                <span class="text-muted" style="font-size:11px;"> (Req: {{ $req->requested_quantity }})</span>
                                             @else
                                                 {{ $req->requested_quantity }}
                                             @endif
