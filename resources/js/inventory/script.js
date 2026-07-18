@@ -471,6 +471,14 @@ function initInventoryRegistry() {
   });
 
   updateDashboardCards();
+
+  // When stock_unit changes in the add/edit form, keep hidden issue_unit in sync
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.name === 'stock_unit' && e.target.form && e.target.form.id === 'inventoryForm') {
+      var hiddenIssueUnit = e.target.form.querySelector('[name="issue_unit"]');
+      if (hiddenIssueUnit) hiddenIssueUnit.value = e.target.value;
+    }
+  });
 }
 
 function canManageInventory() {
@@ -624,9 +632,6 @@ function addItemRow() {
   const stockManagementPage = document.getElementById('stock-management');
   const allInventoryItems = readJsonScript('stock-management-items-data', []);
   const isAdmin = stockManagementPage?.dataset.isAdmin === 'true';
-  const typeOptions = isAdmin
-    ? '<option value="in">Stock In</option><option value="out">Stock Out</option><option value="adjustment">Adjustment</option>'
-    : '<option value="in">Stock In</option><option value="out">Stock Out</option>';
   const itemOptions = allInventoryItems.map(function (item) {
     const displayUnit = item.issue_unit || item.unit || 'pcs';
     const displayStock = item.display_stock || `${item.stock} ${displayUnit}`;
@@ -653,7 +658,8 @@ function addItemRow() {
     <div class="stock-item-two-col">
       <div class="stock-item-field stock-item-type">
         <label class="form-label">Type</label>
-        <select name="items[${idx}][type]" class="form-select" required>${typeOptions}</select>
+        <input type="text" class="form-control bg-light text-muted fw-bold" value="STOCK IN" readonly>
+        <input type="hidden" name="items[${idx}][type]" value="in">
       </div>
       <div class="stock-item-field stock-item-quantity">
         <label class="form-label">Quantity</label>
@@ -663,7 +669,7 @@ function addItemRow() {
 
     <div class="stock-item-field stock-item-handled">
       <label class="form-label">Handled By:</label>
-      <input type="text" name="items[${idx}][handled_by]" class="form-control" required>
+      <input type="text" name="items[${idx}][handled_by]" class="form-control bg-light text-muted fw-bold" required value="${stockManagementPage?.dataset.adminName || ''}" readonly>
     </div>
   `;
 
@@ -769,8 +775,10 @@ function initAnalytics() {
         data: sortedData,
         backgroundColor: ['#5bc0de', '#5cb85c', '#f0ad4e', '#d9534f', '#0275d8', '#292b2c', '#17a2b8', '#ffc107', '#28a745', '#dc3545'],
         borderWidth: 0,
-        barPercentage: 0.9,
-        categoryPercentage: 0.9,
+        barPercentage: 0.8,
+        categoryPercentage: 0.8,
+        maxBarThickness: 40,
+        borderRadius: 4,
       }],
     },
     options: {
@@ -788,35 +796,9 @@ function initAnalytics() {
       },
       scales: {
         x: { display: true, beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false } },
-        y: { display: false, grid: { display: false } }
+        y: { display: true, grid: { display: false }, ticks: { font: { family: "'Inter', sans-serif" } } }
       }
-    },
-    plugins: [{
-      id: 'insideLabels',
-      afterDatasetsDraw(chart) {
-        const { ctx, data } = chart;
-        ctx.save();
-        chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
-          const label = data.labels[index];
-          const val = data.datasets[0].data[index];
-          const y = datapoint.y;
-          const startX = datapoint.base;
-
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 13px "Inter", sans-serif';
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-
-          ctx.shadowColor = 'rgba(0,0,0,0.6)';
-          ctx.shadowBlur = 3;
-          ctx.shadowOffsetX = 1;
-          ctx.shadowOffsetY = 1;
-
-          ctx.fillText(`${label}: ${val}`, startX + 10, y);
-        });
-        ctx.restore();
-      }
-    }]
+    }
   });
 
   const rawTx = readJsonScript('transactions-data', []);
@@ -861,7 +843,63 @@ function initAnalytics() {
     },
   });
 
+  // Compute top stock-out items for Most Consumed chart
+  var itemStockOutMap = {};
+  rawTx.forEach(function(tx) {
+    if (String(tx.type || '').toLowerCase() !== 'out') return;
+    var txId = tx.inventory_item_id;
+    if (!itemStockOutMap[txId]) itemStockOutMap[txId] = 0;
+    itemStockOutMap[txId] += Number(tx.quantity);
+  });
+  var itemNamesMap = {};
+  items.forEach(function(item) { itemNamesMap[item.id] = item.name; });
+  var consumedItems = Object.entries(itemStockOutMap)
+    .sort(function(a, b) { return b[1] - a[1]; })
+    .slice(0, 10)
+    .map(function(entry) { return { name: itemNamesMap[entry[0]] || 'Unknown', qty: entry[1] }; });
+
   initMonthlyReport();
+
+  // Most Consumed Items (Top 10 by Stock-Out) chart
+  var mostConsumedCanvas = document.getElementById('mostConsumedChart');
+  if (mostConsumedCanvas && consumedItems.length > 0) {
+    new window.Chart(mostConsumedCanvas, {
+      type: 'bar',
+      data: {
+        labels: consumedItems.map(function(d) { return d.name; }),
+        datasets: [{
+          data: consumedItems.map(function(d) { return d.qty; }),
+          backgroundColor: ['#ef4444','#f97316','#eab308','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899','#64748b','#f59e0b'].slice(0, consumedItems.length),
+          borderWidth: 0,
+          barPercentage: 0.8,
+          categoryPercentage: 0.8,
+          maxBarThickness: 40,
+          borderRadius: 4,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            padding: 10,
+            cornerRadius: 8,
+            bodyFont: { family: "'Inter', sans-serif" },
+            callbacks: {
+              label: function(ctx) { return ' ' + ctx.parsed.x + ' units dispensed'; }
+            }
+          },
+        },
+        scales: {
+          x: { display: true, beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false } },
+          y: { display: true, grid: { display: false }, ticks: { font: { family: "'Inter', sans-serif" } } }
+        }
+      }
+    });
+  }
 
   document.querySelectorAll('[data-action="print-report"]').forEach(function (button) {
     button.addEventListener('click', function () {
@@ -974,6 +1012,8 @@ async function initMonthlyReport() {
 
       if (reportQuarterFilter) reportQuarterFilter.addEventListener('change', renderMonthlyReport);
       if (reportYearFilter) reportYearFilter.addEventListener('change', renderMonthlyReport);
+      var reportSortEl = document.getElementById('reportSortOrder');
+      if (reportSortEl) reportSortEl.addEventListener('change', renderMonthlyReport);
 
       ['sigNotedName', 'sigNotedPos', 'sigPreparedName', 'sigPreparedPos', 'sigApprovedName', 'sigApprovedPos'].forEach(id => {
           const el = document.getElementById(id);
@@ -1083,6 +1123,19 @@ async function initMonthlyReport() {
         stockBalance.push({ name: item.name, qty: item.stock });
       }
     });
+
+    // Apply sort order before rendering
+    var reportSortOrder = document.getElementById('reportSortOrder');
+    var sortVal = reportSortOrder ? reportSortOrder.value : 'date';
+    if (sortVal === 'alpha-asc') {
+      mergedStockIn.sort(function(a, b) { return a.name.localeCompare(b.name); });
+      mergedStockOut.sort(function(a, b) { return a.name.localeCompare(b.name); });
+      stockBalance.sort(function(a, b) { return a.name.localeCompare(b.name); });
+    } else if (sortVal === 'alpha-desc') {
+      mergedStockIn.sort(function(a, b) { return b.name.localeCompare(a.name); });
+      mergedStockOut.sort(function(a, b) { return b.name.localeCompare(a.name); });
+      stockBalance.sort(function(a, b) { return b.name.localeCompare(a.name); });
+    }
 
     const maxRows = Math.max(mergedStockIn.length, mergedStockOut.length, stockBalance.length);
     let html = '';

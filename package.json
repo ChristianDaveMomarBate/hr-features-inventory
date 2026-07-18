@@ -11,6 +11,7 @@
         "alpinejs": "^3.4.2",
         "autoprefixer": "^10.4.2",
         "axios": "^1.18.0",
+        "baseline-browser-mapping": "^2.10.43",
         "bootstrap": "^5.3.8",
         "laravel-vite-plugin": "^3.1.0",
         "lodash": "^4.17.19",

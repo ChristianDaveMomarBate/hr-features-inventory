@@ -52,13 +52,23 @@ class ItemRequestController extends Controller
 
     public function track(Request $request)
     {
-        $requestId   = $request->input('request_id');
-        $itemRequest = null;
-        if ($requestId) {
-            $itemRequest = \App\Models\ItemRequest::with(['item', 'approver', 'requestItems.item'])->find($requestId);
+        $searchTerm = trim($request->input('request_id'));
+        $itemRequests = collect();
+        if ($searchTerm) {
+            $query = \App\Models\ItemRequest::with(['item', 'approver', 'requestItems.item']);
+            
+            if (preg_match('/^CN\d{8}-(\d+)$/i', $searchTerm, $matches)) {
+                $query->where('id', (int) $matches[1]);
+            } elseif (is_numeric($searchTerm)) {
+                $query->where('id', $searchTerm)->orWhere('requester_name', $searchTerm);
+            } else {
+                $query->where('requester_name', $searchTerm);
+            }
+            
+            $itemRequests = $query->orderBy('created_at', 'desc')->get();
         }
 
-        return view('auth.track-request', compact('itemRequest', 'requestId'));
+        return view('auth.track-request', compact('itemRequests', 'searchTerm'));
     }
 
     public function receipt($id)

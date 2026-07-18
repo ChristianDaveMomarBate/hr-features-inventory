@@ -159,6 +159,7 @@ function kioskCheckValid() {
 }
 
 function kioskAdd(btn) {
+  if (btn.hasAttribute('disabled') || btn.classList.contains('disabled')) return;
   kioskPlayBeep();
 
   const card  = btn.closest('.kiosk-card');
@@ -225,6 +226,109 @@ function kioskScheduleReceiptRemoval(receiptModal) {
   }, 5000);
 }
 
+function kioskPrintReceipt(receipt, itemsHtml) {
+  const printWindow = window.open('', '_blank', 'width=520,height=700');
+  printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Out Receipt</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Inter, sans-serif;
+      background: #fff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 30px 20px;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      width: 100%;
+      max-width: 460px;
+      border: 1px solid #e2e8f0;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 16px;
+    }
+    .check {
+      width: 44px; height: 44px; min-width: 44px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #16a34a; font-size: 18px;
+    }
+    .title { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+    .sub   { font-size: 0.82rem; color: #16a34a; font-weight: 600; margin-top: 2px; }
+    .meta  { margin-bottom: 18px; }
+    .meta-row {
+      display: flex; justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px dashed #f1f5f9;
+      font-size: 0.85rem;
+    }
+    .meta-row:last-child { border-bottom: none; }
+    .meta-row span { color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .meta-row strong { color: #0f172a; text-align: right; max-width: 60%; }
+    .items { margin-bottom: 16px; }
+    .item-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f8fafc;
+      font-size: 0.88rem; color: #1e293b;
+    }
+    .item-row strong { font-weight: 600; color: #0f172a; }
+    .total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 12px;
+      border-top: 2px solid #e2e8f0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+    }
+    .total-row strong { font-size: 1.2rem; color: #0f172a; }
+    @media print {
+      @page { margin: 10mm; }
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="head">
+      <div class="check"><i class="fas fa-check"></i></div>
+      <div>
+        <div class="title">Stock Out Receipt</div>
+        <div class="sub">Submitted successfully</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><span>Receipt No.</span><strong>${kioskEscapeHtml(receipt.number)}</strong></div>
+      <div class="meta-row"><span>Date</span><strong>${kioskEscapeHtml(receipt.submitted_at)}</strong></div>
+      <div class="meta-row"><span>Name</span><strong>${kioskEscapeHtml(receipt.requester_name)}</strong></div>
+      <div class="meta-row"><span>Division</span><strong>${kioskEscapeHtml(receipt.division)}</strong></div>
+    </div>
+    <div class="items">${itemsHtml}</div>
+    <div class="total-row"><span>Total Quantity</span><strong>${kioskEscapeHtml(receipt.total_quantity)}</strong></div>
+  </div>
+  <script>window.onload = function() { window.print(); };<\/script>
+</body>
+</html>`);
+  printWindow.document.close();
+}
+
 function kioskRenderReceipt(receipt) {
   const oldReceipt = document.getElementById('kioskReceiptModal');
   if (oldReceipt) oldReceipt.remove();
@@ -245,11 +349,20 @@ function kioskRenderReceipt(receipt) {
     `;
   }).join('');
 
+  const printItemsHtml = (receipt.items || []).map(function(item) {
+    return `<div class="item-row"><span>${kioskEscapeHtml(item.name)}</span><strong>${kioskEscapeHtml(item.quantity)} ${kioskEscapeHtml(item.unit)}</strong></div>`;
+  }).join('');
+
   receiptModal.innerHTML = `
     <div class="kiosk-receipt-card">
-      <button type="button" class="kiosk-receipt-close" aria-label="Close receipt">
-        <i class="fas fa-times"></i>
-      </button>
+      <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px;">
+        <button type="button" class="kiosk-receipt-action-btn print-btn" aria-label="Print receipt" title="Print Receipt" style="background: var(--k-accent, #10b981); color: white; border: none; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+          <i class="fas fa-print"></i>
+        </button>
+        <button type="button" class="kiosk-receipt-action-btn close-btn" aria-label="Close receipt" title="Close" style="background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
       <div class="kiosk-receipt-head">
         <div class="kiosk-receipt-check"><i class="fas fa-check"></i></div>
         <div>
@@ -272,10 +385,13 @@ function kioskRenderReceipt(receipt) {
   `;
 
   document.body.appendChild(receiptModal);
-  receiptModal.querySelector('.kiosk-receipt-close').addEventListener('click', function() {
+  receiptModal.querySelector('.close-btn').addEventListener('click', function() {
     receiptModal.remove();
   });
-  kioskScheduleReceiptRemoval(receiptModal);
+  receiptModal.querySelector('.print-btn').addEventListener('click', function() {
+    kioskPrintReceipt(receipt, printItemsHtml);
+  });
+  // Removed auto-close so admin can print: kioskScheduleReceiptRemoval(receiptModal);
 }
 
 function kioskUpdateSubmittedStocks(receipt) {

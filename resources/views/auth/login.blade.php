@@ -97,7 +97,7 @@
         <small>
             © 2026 <strong style="color:rgba(255,255,255,0.85);">PHRMDO Inventory System</strong>
             &nbsp;·&nbsp;
-            Developed by OJT Team: <em>Tudtud Rianne Celone &amp; De La Cruz Romel Charles Nico</em>
+            Developed by OJT Team: <em>Tudtud Rianne Celone &amp; De La Cruz Romel Charlz Nico</em>
         </small>
     </footer>
 

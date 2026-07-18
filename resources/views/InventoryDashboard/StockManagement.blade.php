@@ -3,11 +3,11 @@
     $currentUser ??= auth()->user();
 @endphp
 
-<div id="stock-management" class="page {{ (isset($activePageId) && $activePageId === 'stock-management') ? 'active-page' : '' }}" data-is-admin="{{ $currentUser->isAdmin() ? 'true' : 'false' }}">
+<div id="stock-management" class="page {{ (isset($activePageId) && $activePageId === 'stock-management') ? 'active-page' : '' }}" data-is-admin="{{ $currentUser->isAdmin() ? 'true' : 'false' }}" data-admin-name="{{ $currentUser->name }}">
     <div class="d-flex justify-content-between align-items-center mb-4 stock-header">
         <div>
             <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">STOCK MANAGEMENT</h1>
-            <p class="text-muted mb-0 page-subtitle">Record stock ins, outs, and adjustments. Add multiple items at once.</p>
+            <p class="text-muted mb-0 page-subtitle">Record stock-in transactions. Add multiple items at once.</p>
         </div>
         @include('InventoryDashboard.navbar')
     </div>

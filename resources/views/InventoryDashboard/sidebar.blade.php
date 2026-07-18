@@ -63,7 +63,7 @@
       <div style="font-weight: 600; color: rgba(255,255,255,0.75); margin-bottom: 2px;">© 2026 PHRMDO Inventory System</div>
       <div>Developed by OJT Team:</div>
       <div style="font-style: italic;">Tudtud Rianne Celone</div>
-      <div style="font-style: italic;">De La Cruz Romel Charles Nico</div>
+      <div style="font-style: italic;">De La Cruz Romel Charlz Nico</div>
   </div>
 
 </div>

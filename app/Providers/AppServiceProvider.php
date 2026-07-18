@@ -22,5 +22,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // keep existing code if any
         Schema::defaultStringLength(191);
+        \Illuminate\Support\Facades\View::composer('InventoryDashboard.navbar', \App\View\Composers\NotificationComposer::class);
     }
 }

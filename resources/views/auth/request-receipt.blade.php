@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Request Receipt #{{ $itemRequest->id }} – PHRMDO Inventory System</title>
+    <title>Request Receipt {{ $itemRequest->control_number ?? ('CN' . $itemRequest->created_at->format('mdY') . '-' . str_pad($itemRequest->id, 2, '0', STR_PAD_LEFT)) }} – PHRMDO Inventory System</title>
     
     <style>
         body {
@@ -214,17 +214,21 @@
         } else {
             if($itemRequest->requestItems && $itemRequest->requestItems->count() > 0) {
                 foreach($itemRequest->requestItems as $reqItem) {
+                    $unit = $reqItem->item->display_unit ?? 'pcs';
+                    $qtyStr = $reqItem->requested_quantity . ' ' . $unit;
                     $items[] = [
                         'desc' => $reqItem->item->name ?? 'N/A',
-                        'qty' => $reqItem->requested_quantity,
-                        'remarks' => $reqItem->remarks ?? (in_array($itemRequest->status, ['Approved', 'Adjusted']) ? 'Approved: ' . $reqItem->approved_quantity : '')
+                        'qty' => $qtyStr,
+                        'remarks' => $reqItem->remarks ?? (in_array($itemRequest->status, ['Approved', 'Adjusted']) ? 'Approved: ' . $reqItem->approved_quantity . ' ' . $unit : '')
                     ];
                 }
             } elseif($itemRequest->item_id) {
+                $unit = $itemRequest->item->display_unit ?? 'pcs';
+                $qtyStr = $itemRequest->requested_quantity . ' ' . $unit;
                 $items[] = [
                     'desc' => $itemRequest->item->name ?? 'N/A',
-                    'qty' => $itemRequest->requested_quantity,
-                    'remarks' => $itemRequest->remarks ?? (in_array($itemRequest->status, ['Approved', 'Adjusted']) ? 'Approved: ' . $itemRequest->approved_quantity : '')
+                    'qty' => $qtyStr,
+                    'remarks' => $itemRequest->remarks ?? (in_array($itemRequest->status, ['Approved', 'Adjusted']) ? 'Approved: ' . $itemRequest->approved_quantity . ' ' . $unit : '')
                 ];
             }
         }
@@ -253,7 +257,7 @@
                     </div>
                     <div class="meta-field">
                         <span class="meta-label">Control No.:</span>
-                        <span class="meta-value" style="width: 120px; font-weight: bold;">{{ $itemRequest->id }}</span>
+                        <span class="meta-value" style="width: 120px; font-weight: bold;">{{ $itemRequest->control_number ?? ('CN' . $itemRequest->created_at->format('mdY') . '-' . str_pad($itemRequest->id, 2, '0', STR_PAD_LEFT)) }}</span>
                     </div>
                 </div>
 

@@ -99,12 +99,13 @@ class HomeController extends Controller
         $inventoryItems->withPath(route('dashboard', ['page' => 'inventory-registry']));
         $allInventoryItems = InventoryItem::all(); // Needed for JS charts and edit modals
 
-        $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->get();
+        $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->take(500)->get();
 
-        $itemRequests = ItemRequest::with('item')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10, ['*'], 'request_page');
-        $itemRequests->withPath(route('dashboard', ['page' => 'item-requests']));
+        $itemRequests = ItemRequest::with(['item', 'requestItems.item'])
+            ->orderBy('id', 'desc')
+            ->paginate(8, ['*'], 'request_page');
+        $itemRequests->withPath(route('dashboard', ['page' => 'item-requests']))
+                      ->appends(request()->except('request_page'));
 
         $auditTrailsQuery = AuditTrail::with('user')->orderBy('created_at', 'desc');
 
@@ -114,9 +115,6 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
         
-        $dashboardNotifications = Auth::user()->unreadNotifications;
-        $unreadNotificationCount = $dashboardNotifications->count();
-
         // Per-item stock-in totals (sum of all 'in' type transactions per item)
         $stockInTotals = StockTransaction::where('type', 'in')
             ->selectRaw('inventory_item_id, SUM(quantity) as total_in')
@@ -133,8 +131,6 @@ class HomeController extends Controller
             'auditTrails',
             'stockInTotals',
             'lowStockAlertItems',
-            'dashboardNotifications',
-            'unreadNotificationCount',
             'paginatedTransactions'
         ));
     }

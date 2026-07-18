@@ -42,9 +42,10 @@
                                 @if($req->requestItems->count() > 0)
                                     <div><span class="fw-bold">-</span></div>
                                 @else
-                                    <div>Req: <span class="fw-bold">{{ $req->requested_quantity }}</span></div>
+                                    @php $reqUnit = optional($req->item)->display_unit ?? 'pcs'; @endphp
+                                    <div>Req: <span class="fw-bold">{{ $req->requested_quantity }} {{ $reqUnit }}</span></div>
                                     @if(in_array($req->status, ['Approved', 'Adjusted']))
-                                        <div class="text-success small">Appr: <span class="fw-bold">{{ $req->approved_quantity }}</span></div>
+                                        <div class="text-success small">Appr: <span class="fw-bold">{{ $req->approved_quantity }} {{ $reqUnit }}</span></div>
                                     @endif
                                 @endif
                             </td>
@@ -80,14 +81,11 @@
                                 <button type="button" onclick="printRequest('{{ route('kiosk.request.receipt', $req->id) }}')" class="btn btn-sm me-1" style="border: 1px solid #ced4da; color: #4989d6; border-radius: 6px; background: transparent;">
                                     <i class="fas fa-print"></i> Print
                                 </button>
-                                <form action="{{ route('admin.requests.destroy', $req->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"
-                                        onclick="return confirm('Delete request #{{ $req->id }}? This cannot be undone.');">
-                                        Delete
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill"
+                                        onclick="openDeleteModal('{{ route('admin.requests.destroy', $req->id) }}', '{{ $req->control_number }}')">
+                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                </button>
+
                             </td>
                         </tr>
                         @empty
@@ -102,11 +100,15 @@
                 </table>
             </div>
 
-            @if($itemRequests->hasPages())
-            <div class="d-flex justify-content-end px-4 py-3">
-                {{ $itemRequests->links('pagination::bootstrap-5') }}
+            <div class="item-requests-pagination mt-4 d-flex justify-content-between align-items-center px-4 pb-4">
+                <div class="text-muted small">
+                    Showing {{ $itemRequests->firstItem() ?? 0 }} to {{ $itemRequests->lastItem() ?? 0 }} of {{ $itemRequests->total() }} records
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ $itemRequests->previousPageUrl() }}" class="btn btn-sm btn-outline-secondary {{ $itemRequests->onFirstPage() ? 'disabled' : '' }}">Previous</a>
+                    <a href="{{ $itemRequests->nextPageUrl() }}" class="btn btn-sm btn-outline-secondary {{ !$itemRequests->hasMorePages() ? 'disabled' : '' }}">Next</a>
+                </div>
             </div>
-            @endif
         </div>
     </div>
 </div>
@@ -186,13 +188,16 @@
                                                 <div class="text-muted" style="font-size:11px;">Stock: {{ $reqItem->item->stock ?? 0 }}</div>
                                             </td>
                                             <td style="border: 1px solid #000; padding: 6px 10px; text-align: center;">
-                                                <input type="number" name="item_quantities[{{ $reqItem->id }}]"
-                                                    id="qty-{{ $req->id }}-{{ $reqItem->id }}"
-                                                    value="{{ $reqItem->requested_quantity }}"
-                                                    min="0" max="{{ $reqItem->item->stock ?? 999 }}"
-                                                    class="form-control form-control-sm text-center border-0 p-0"
-                                                    style="width: 60px; margin: 0 auto;"
-                                                    title="Requested: {{ $reqItem->requested_quantity }} | Stock: {{ $reqItem->item->stock ?? 0 }}">
+                                                <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                                                    <input type="number" name="item_quantities[{{ $reqItem->id }}]"
+                                                        id="qty-{{ $req->id }}-{{ $reqItem->id }}"
+                                                        value="{{ $reqItem->requested_quantity }}"
+                                                        min="0" max="{{ $reqItem->item->stock ?? 999 }}"
+                                                        class="form-control form-control-sm text-center border p-1"
+                                                        style="width: 55px;"
+                                                        title="Requested: {{ $reqItem->requested_quantity }} | Stock: {{ $reqItem->item->stock ?? 0 }}">
+                                                    <span class="text-muted" style="font-size: 12px; white-space: nowrap;">{{ $reqItem->item->display_unit ?? 'pcs' }}</span>
+                                                </div>
                                             </td>
                                             <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">
                                                 <input type="text" name="item_remarks[{{ $reqItem->id }}]"
@@ -452,9 +457,19 @@
                         const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
                         const remarksInput = row.querySelector(`input[name^="item_remarks"]`);
                         
+                        let unit = '';
+                        if (qtyInput && qtyInput.nextElementSibling) {
+                            unit = qtyInput.nextElementSibling.innerText.trim();
+                        }
+                        
+                        let qtyValue = qtyInput ? qtyInput.value : '';
+                        if (qtyValue && unit) {
+                            qtyValue += ' ' + unit;
+                        }
+                        
                         previewItems.push({
                             desc: desc,
-                            qty: qtyInput ? qtyInput.value : '',
+                            qty: qtyValue,
                             remarks: remarksInput ? remarksInput.value : ''
                         });
                     }
@@ -576,3 +591,62 @@
         </div>
     </div>
 </div>
+
+{{-- ===================== DELETE CONFIRM MODAL ===================== --}}
+<div class="modal fade" id="deleteRequestModal" tabindex="-1" aria-labelledby="deleteRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+            {{-- Modal Header --}}
+            <div class="modal-header border-0 pb-0 px-4 pt-4" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 48px; height: 48px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-trash-alt" style="color: #dc2626; font-size: 18px;"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" id="deleteRequestModalLabel" style="color: #991b1b;">Delete Request</h5>
+                        <p class="mb-0" style="font-size: 0.78rem; color: #b91c1c;">This action cannot be undone</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            {{-- Modal Body --}}
+            <div class="modal-body px-4 py-3" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
+                <div style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #fecaca;">
+                    <p class="mb-1" style="font-size: 14px; color: #475569;">
+                        You are about to permanently delete:
+                    </p>
+                    <p class="fw-bold mb-0" id="deleteRequestLabel" style="color: #dc2626; font-size: 1rem;"></p>
+                    <p class="mt-2 mb-0" style="font-size: 13px; color: #94a3b8;">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        All data associated with this request will be permanently removed.
+                    </p>
+                </div>
+            </div>
+
+            {{-- Modal Footer --}}
+            <div class="modal-footer border-0 px-4 pb-4 pt-2 gap-2" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
+                <button type="button" class="btn btn-light text-muted fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteRequestForm" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn fw-semibold rounded-pill px-4 d-flex align-items-center gap-2"
+                        style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; border: none;">
+                        <i class="fas fa-trash-alt"></i> Yes, Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeleteModal(actionUrl, controlNumber) {
+    document.getElementById('deleteRequestForm').action = actionUrl;
+    document.getElementById('deleteRequestLabel').textContent = controlNumber;
+    var modal = new bootstrap.Modal(document.getElementById('deleteRequestModal'));
+    modal.show();
+}
+</script>

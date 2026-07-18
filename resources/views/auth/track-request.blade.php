@@ -1,9 +1,11 @@
-@if($itemRequest)
+@if($itemRequests->count() > 0)
+  <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 500px; overflow-y: auto; padding-right: 5px;">
+  @foreach($itemRequests as $itemRequest)
   <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: left; color: #1e293b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0;">
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
       <h4 style="margin: 0; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-file-invoice text-primary"></i> Request #{{ $itemRequest->id }}
+        <i class="fas fa-file-invoice text-primary"></i> {{ $itemRequest->control_number }}
       </h4>
       <div>
         @if($itemRequest->status === 'Pending')
@@ -90,9 +92,11 @@
     </div>
 
   </div>
+  @endforeach
+  </div>
 @else
   <div style="background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 8px; border: 1px solid #fecaca; display: flex; align-items: center; gap: 12px;">
     <i class="fas fa-exclamation-triangle fa-lg"></i>
-    <span>Request ID <strong>#{{ $requestId }}</strong> not found. Please check and try again.</span>
+    <span>No request found for "<strong>{{ $searchTerm }}</strong>". Please check and try again.</span>
   </div>
 @endif

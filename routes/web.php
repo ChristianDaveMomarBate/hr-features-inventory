@@ -41,6 +41,7 @@ Route::delete('/admin/requests/{id}', [\App\Http\Controllers\ItemRequestControll
 Route::patch('/admin/requests/{id}/revert', [\App\Http\Controllers\ItemRequestController::class, 'revert'])->middleware(['auth', 'role:admin'])->name('admin.requests.revert');
 
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware(['auth', 'role:admin'])->name('notifications.read');
+Route::get('/notifications/live', [NotificationController::class, 'live'])->middleware(['auth', 'role:admin'])->name('notifications.live');
 Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
 Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
 

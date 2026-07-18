@@ -40,9 +40,14 @@
     @if($receipt)
     <div class="kiosk-receipt-overlay" id="kioskReceiptModal" role="dialog" aria-modal="true" aria-labelledby="kioskReceiptTitle">
       <div class="kiosk-receipt-card">
-        <button type="button" class="kiosk-receipt-close" onclick="document.getElementById('kioskReceiptModal').remove()" aria-label="Close receipt">
-          <i class="fas fa-times"></i>
-        </button>
+        <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px;">
+          <button type="button" class="kiosk-receipt-action-btn print-btn" onclick="window.print()" aria-label="Print receipt" title="Print Receipt" style="background: var(--k-accent); color: white; border: none; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+            <i class="fas fa-print"></i>
+          </button>
+          <button type="button" class="kiosk-receipt-action-btn close-btn" onclick="document.getElementById('kioskReceiptModal').remove()" aria-label="Close receipt" title="Close" style="background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
         <div class="kiosk-receipt-head">
           <div class="kiosk-receipt-check"><i class="fas fa-check"></i></div>
           <div>
@@ -111,7 +116,7 @@
           {{-- Grid --}}
           <div class="kiosk-grid" id="kioskGrid">
             @forelse($items as $item)
-            <div class="kiosk-card"
+            <div class="kiosk-card" {!! $item->stock <= 0 ? 'style="opacity:0.6;"' : '' !!}
                  data-id="{{ $item->id }}"
                  data-name="{{ $item->name }}"
                  data-category="{{ $item->category }}"
@@ -140,16 +145,27 @@
               </div>
               <div class="kiosk-card-name">{{ $item->name }}</div>
               <div class="kiosk-card-cat">{{ $item->category }}</div>
-              <div class="kiosk-card-stock {{ $item->stock <= $item->minimum ? 'low' : '' }}">
-                <span class="kiosk-stock-dot {{ $item->stock <= $item->minimum ? 'low' : '' }}"></span>
-                {{ $item->display_stock }} available
+              <div class="kiosk-card-stock {{ $item->stock <= 0 ? 'text-danger' : ($item->stock <= $item->minimum ? 'low' : '') }}">
+                @if($item->stock <= 0)
+                  <span class="kiosk-stock-dot" style="background-color: #ef4444;"></span>
+                  Not available
+                @else
+                  <span class="kiosk-stock-dot {{ $item->stock <= $item->minimum ? 'low' : '' }}"></span>
+                  {{ $item->display_stock }} available
+                @endif
               </div>
               @if($item->bulk_equivalent)
                 <div class="kiosk-card-bulk">{{ $item->bulk_equivalent }}</div>
               @endif
-              <button type="button" class="kiosk-add-btn" onclick="kioskAdd(this)" ontouchend="this.click(); event.preventDefault();">
-                <i class="fas fa-plus"></i> Add
-              </button>
+              @if($item->stock <= 0)
+                <button type="button" class="kiosk-add-btn disabled" style="background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed;" disabled>
+                  <i class="fas fa-times"></i> Out of Stock
+                </button>
+              @else
+                <button type="button" class="kiosk-add-btn" onclick="kioskAdd(this)" ontouchend="this.click(); event.preventDefault();">
+                  <i class="fas fa-plus"></i> Add
+                </button>
+              @endif
             </div>
             @empty
             <div class="kiosk-no-items">
@@ -257,14 +273,14 @@
           <div class="kiosk-receipt-check" style="background: var(--k-accent);"><i class="fas fa-search"></i></div>
           <div>
             <div class="kiosk-receipt-title" id="kioskTrackTitle">Track Request</div>
-            <div class="kiosk-receipt-sub" style="color: #64748b;">Enter your Request ID to check status</div>
+            <div class="kiosk-receipt-sub" style="color: #64748b;">Enter your Request ID or Name to check status</div>
           </div>
         </div>
         
         <form id="kioskTrackForm" onsubmit="event.preventDefault(); submitKioskTrack();">
           <div class="kiosk-field">
             <div style="display: flex; gap: 10px;">
-              <input type="number" id="kiosk_track_id" class="kiosk-input" placeholder="e.g. 12" required min="1" style="flex: 1; border-radius: 8px;">
+              <input type="text" id="kiosk_track_id" class="kiosk-input" placeholder="e.g. 12 or John Doe" required style="flex: 1; border-radius: 8px;">
               <button type="submit" class="kiosk-submit" style="margin-top: 0; width: auto; border-radius: 8px; padding: 0 1.5rem;">
                 <i class="fas fa-search"></i> Track
               </button>

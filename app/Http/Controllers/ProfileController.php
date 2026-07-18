@@ -19,7 +19,7 @@ class ProfileController extends Controller
         $request->validateWithBag('profile', [
             'name' => 'required|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'current_password' => 'required_with:password|current_password',
+            'current_password' => ['nullable', 'required_with:password', 'current_password'],
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
 

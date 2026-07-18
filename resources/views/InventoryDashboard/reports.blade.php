@@ -59,6 +59,12 @@
                                 </select>
                             </div>
 
+                            <select id="reportSortOrder" class="form-select form-select-sm" style="width:160px;" title="Sort report items">
+                                <option value="date">↕ Sort: By Date</option>
+                                <option value="alpha-asc">A → Z (Item Name)</option>
+                                <option value="alpha-desc">Z → A (Item Name)</option>
+                            </select>
+
                             <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" data-action="export-json" style="white-space:nowrap;">
                                 <i class="bi bi-filetype-json"></i> <span>Export JSON</span>
                             </button>

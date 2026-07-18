@@ -261,7 +261,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
 .main-content {
   flex: 1;
   min-width: 0;
-  padding: 24px;
+  padding: 24px 24px 24px 16px;
   overflow-x: hidden;
   background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
@@ -1804,7 +1804,7 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   }
 
   .main-content {
-    padding: 28px 18px;
+    padding: 28px 18px 28px 16px;
   }
 
   .page h1 {
@@ -2300,7 +2300,7 @@ button,
 
 @media (min-width: 1280px) {
   .main-content {
-    padding: 32px;
+    padding: 32px 32px 32px 16px;
   }
 
   .chart-card {
@@ -2317,6 +2317,7 @@ button,
     height: 100vh;
     overflow: hidden;
   }
+
 
   .page.active-page {
     height: 100%;
@@ -2458,7 +2459,8 @@ button,
   }
 
   #inventory-registry.active-page,
-  #audit-trails.active-page {
+  #audit-trails.active-page,
+  #reports.active-page {
     display: flex;
     flex-direction: column;
   }
@@ -2466,6 +2468,7 @@ button,
   #inventory-registry .registry-header,
   #audit-trails .audit-header,
   #analytics .analytics-header,
+  #reports .analytics-header,
   #stock-management .stock-header {
     flex: 0 0 auto;
     margin-bottom: 0.75rem !important;
@@ -2474,6 +2477,7 @@ button,
   #inventory-registry .registry-header h1,
   #audit-trails .audit-header h1,
   #analytics .analytics-header h1,
+  #reports .analytics-header h1,
   #stock-management .stock-header h1 {
     font-size: 26px !important;
   }
@@ -2481,8 +2485,23 @@ button,
   #inventory-registry .registry-header p,
   #audit-trails .audit-header p,
   #analytics .analytics-header p,
+  #reports .analytics-header p,
   #stock-management .stock-header p {
     font-size: 0.85rem;
+  }
+
+  #reports .analytics-fit-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #reports .analytics-report-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    width: 100%;
   }
 
   #inventory-registry #successAlert {
@@ -2761,7 +2780,7 @@ button,
   }
 
   .main-content {
-    padding: 22px;
+    padding: 22px 22px 22px 16px;
   }
 
   .page h1,

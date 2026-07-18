@@ -21,12 +21,23 @@ class NewItemRequest extends Notification
 
     public function toArray($notifiable): array
     {
+        $itemsCount = $this->itemRequest->requestItems()->count();
+        $totalQuantity = $this->itemRequest->requestItems()->sum('requested_quantity');
+
+        $itemName = 'Unknown Item';
+        if ($itemsCount === 1) {
+            $firstItem = $this->itemRequest->requestItems()->first();
+            $itemName = $firstItem && $firstItem->item ? $firstItem->item->name : 'Unknown Item';
+        } elseif ($itemsCount > 1) {
+            $itemName = $itemsCount . ' Items';
+        }
+
         return [
             'request_id'     => $this->itemRequest->id,
             'requester_name' => $this->itemRequest->requester_name,
             'department'     => $this->itemRequest->department,
-            'item_name'      => $this->itemRequest->item->name ?? 'Unknown Item',
-            'quantity'       => $this->itemRequest->requested_quantity,
+            'item_name'      => $itemName,
+            'quantity'       => $totalQuantity,
             'message'        => "{$this->itemRequest->requester_name} submitted a new item request.",
         ];
     }

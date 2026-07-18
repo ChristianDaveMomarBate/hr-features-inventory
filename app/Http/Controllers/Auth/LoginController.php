@@ -43,8 +43,7 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
-        $items = InventoryItem::where('stock', '>', 0)
-            ->orderBy('category')
+        $items = InventoryItem::orderBy('category')
             ->orderBy('name')
             ->get(['id', 'code', 'name', 'category', 'type', 'unit', 'stock_unit', 'issue_unit', 'units_per_stock_unit', 'stock', 'minimum', 'description', 'location']);
 

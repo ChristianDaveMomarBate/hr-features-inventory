@@ -116,7 +116,7 @@ class KioskController extends Controller
         }
 
         $receipt = [
-            'number'         => 'REQ-' . $itemRequest->id,
+            'number'         => $itemRequest->control_number,
             'requester_name' => $requesterName,
             'division'       => $division,
             'submitted_at'   => now()->format('M d, Y h:i A'),

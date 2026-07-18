@@ -115,7 +115,7 @@
                     <tbody id="inventoryTable">
                         @forelse($inventoryItems as $item)
                             @php $itemStockIn = $stockInTotals[$item->id] ?? 0; @endphp
-                            <tr>
+                            <tr id="inventory-item-{{ $item->id }}" style="transition: background 0.5s;">
                                 <td class="fw-semibold">{{ $item->code }}</td>
                                 <td>{{ $item->name }}</td>
                                 <td>{{ $item->category }}</td>
@@ -223,25 +223,12 @@
                                 <div class="form-text">How this item is stored, like box or ream.</div>
                             </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label">Issue Unit</label>
-                                <select name="issue_unit" class="form-select" required>
-                                    @foreach($inventoryUnits as $unit)
-                                        <option value="{{ $unit }}">{{ $unit }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="form-text">How users request this item, like pcs or sheets.</div>
-                            </div>
+                            <input type="hidden" name="issue_unit" id="hidden_issue_unit" value="pcs">
+                            <input type="hidden" name="units_per_stock_unit" value="1">
 
                             <div class="col-md-4">
                                 <label class="form-label">Date Registered</label>
                                 <input type="date" name="date_registered" class="form-control" required>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Units per Stock Unit</label>
-                                <input type="number" min="1" name="units_per_stock_unit" class="form-control" required>
-                                <div class="form-text">Example: 1 box = 12 pcs, 1 ream = 500 sheets.</div>
                             </div>
 
                             <div class="col-md-4">
@@ -253,7 +240,7 @@
                             <div class="col-md-4">
                                 <label class="form-label">Minimum Stock Level</label>
                                 <input type="number" min="0" name="minimum" class="form-control" required>
-                                <div class="form-text">Minimum is counted in issue units.</div>
+                                <div class="form-text">Minimum is counted in stock units.</div>
                             </div>
 
                             <div class="col-md-12">
@@ -339,3 +326,25 @@
     });
 </script>
 
+
+@php $highlightId = request('highlight'); @endphp
+@if($highlightId)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const row = document.getElementById('inventory-item-{{ $highlightId }}');
+    if (row) {
+        // Scroll to it
+        setTimeout(function() {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Flash highlight animation
+            row.style.transition = 'background 0s';
+            row.style.background = '#fef9c3';
+            setTimeout(function() {
+                row.style.transition = 'background 1.5s ease';
+                row.style.background = '';
+            }, 1500);
+        }, 600);
+    }
+});
+</script>
+@endif
