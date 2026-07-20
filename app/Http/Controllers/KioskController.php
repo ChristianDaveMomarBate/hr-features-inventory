@@ -58,7 +58,7 @@ class KioskController extends Controller
 
                 $qty = (int) $row['quantity'];
                 if ($item->stock < $qty) {
-                    $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
+                    $errors[] = "Insufficient stock for '{$item->name}'. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
                 }
             }
 

@@ -85,7 +85,7 @@
         <div class="kiosk-alert-title">Some items could not be processed:</div>
         <ul class="kiosk-error-list">
           @foreach(session('kiosk_errors') as $err)
-            <li>{!! $err !!}</li>
+            <li>{{ $err }}</li>
           @endforeach
         </ul>
       </div>
