@@ -7,6 +7,13 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/sass/app.scss',
+                'resources/css/index.style.css',
+                'resources/css/kiosk.css',
+                'resources/css/request.css',
+                'resources/css/login.css',
+                'resources/js/inventory/script.js',
+                'resources/js/inventory/kiosk.js',
+                'resources/js/inventory/login.js',
                 'resources/js/app.js',
             ],
             refresh: true,

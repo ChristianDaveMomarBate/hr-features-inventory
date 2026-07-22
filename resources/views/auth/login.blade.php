@@ -7,69 +7,131 @@
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="max-age=604800" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>HRMIS PGSDN - Confidential Data</title>
-    <link href="images/SDN.png" rel="shortcut icon" type="image/x-icon">
+    <title>PHRMDO Inventory System - Provincial Government of Surigao del Norte</title>
+    <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <script src="js/jquery-2.0.0.min.js" type="text/javascript"></script>
     <script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="fonts/fontawesome/css/all.min.css" type="text/css" rel="stylesheet">
     <link href="css/ui.css" rel="stylesheet" type="text/css" />
     <link href="css/responsive.css" rel="stylesheet" type="text/css" />
-    <script src="js/script.js" type="text/javascript"></script>
+
+    <!-- Google Fonts -->
+    <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/@fontsource/outfit/index.css') }}" rel="stylesheet">
+    @vite(['resources/css/kiosk.css', 'resources/css/request.css', 'resources/css/login.css'])
+    @include('style.style')
 </head>
 
-<body>
-    <a href="/" class="btn btn-dark rounded-pill"
-        style="font-size:13px; z-index:100; position: fixed; bottom:10px; right:10px;">Home</a>
-    <section class="section-conten padding-y" style="min-height:84vh">
-        <div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
-            <div class="card-body">
-                <!-- Centered Logo -->
-                <div class="text-center mb-4">
-                    <img class="img-fluid" src="images/SDN.png" alt="Logo" style="max-height: 100px;">
-                </div>
+<body class="auth-page" data-auth-has-errors="{{ $errors->any() ? 'true' : 'false' }}">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top shadow-sm">
+        <div class="container-fluid px-4 px-md-5">
+            <a class="navbar-brand d-flex align-items-center nav-tab-btn" href="#home" data-target="home">
+                <img src="images/logo2.webp" alt="PHRMDO Logo" height="35" class="d-inline-block align-top mr-2" style="margin-right: 8px;">
+                <span>PHRMDO Inventory System</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-tab-btn" href="#home" data-target="home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-tab-btn kiosk-nav-link" href="#kiosk" data-target="kiosk">
+                            <i class="fas fa-box-open" style="margin-right:5px;"></i>Kiosk
+                        </a>
+                    </li>
 
-                <!-- Login Form -->
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-
-                    <!-- Email Field -->
-                    <div class="form-group mb-3">
-                        <label for="email" class="form-label">Email Address</label>
-                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                            name="email" value="{{ old('email') }}" placeholder="Enter your email" required
-                            autocomplete="email" autofocus>
-                        @error('email')
-                            <span class="invalid-feedback d-block" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                    </div>
-
-                    <!-- Password Field -->
-                    <div class="form-group mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input id="password" type="password"
-                            class="form-control @error('password') is-invalid @enderror" name="password" required
-                            autocomplete="current-password" placeholder="Enter your password">
-                        @error('password')
-                            <span class="invalid-feedback d-block" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block w-100">Login</button>
-                    </div>
-                </form>
+                    <li class="nav-item">
+                        <a class="nav-link nav-tab-btn" href="#login" data-target="login">Login</a>
+                    </li>
+                </ul>
             </div>
+        </div>
+    </nav>
 
-        </div> <!-- card .// -->
+    <section class="section-content padding-y" style="min-height: 80vh;">
 
-        <br><br>
+        @include('auth.home')
+
+        @include('auth.kiosk')
+
+
+
+        @include('auth.login-form')
+
+        @include('auth.register-form')
+
     </section>
+
+    @vite(['resources/js/inventory/script.js', 'resources/js/inventory/kiosk.js', 'resources/js/inventory/login.js'])
+
+    @if($errors->has('email') || $errors->has('password'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const errorAudio = new Audio('{{ asset("sound/credentials.mp3") }}');
+                errorAudio.currentTime = 0;
+                errorAudio.play().catch(function(e) {
+                    console.log("Audio play failed:", e);
+                });
+            });
+        </script>
+    @endif
+    <footer id="site-footer" style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 8px 16px;
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(6px);
+        color: rgba(255,255,255,0.6);
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+        z-index: 9999;
+    ">
+        <small>
+            © 2026 <strong style="color:rgba(255,255,255,0.85);">PHRMDO Inventory System</strong>
+            &nbsp;·&nbsp;
+            Developed by OJT Team: <em>Tudtud Rianne Celone &amp; De La Cruz Romel Charlz Nico</em>
+        </small>
+    </footer>
+
+    <script>
+        (function() {
+            const footer = document.getElementById('site-footer');
+            function updateFooter() {
+                const hash = window.location.hash;
+                if (hash === '#kiosk' || document.body.classList.contains('kiosk-active')) {
+                    footer.style.display = 'none';
+                } else {
+                    footer.style.display = '';
+                }
+            }
+            // Hide immediately if on kiosk hash
+            updateFooter();
+            // Listen for tab changes via hash
+            window.addEventListener('hashchange', updateFooter);
+            // Also watch clicks on the kiosk nav link
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-target]');
+                if (!btn) return;
+                setTimeout(function() {
+                    const active = document.querySelector('.tab-section[style*="block"], .tab-section.active-tab');
+                    if (btn.dataset.target === 'kiosk') {
+                        footer.style.display = 'none';
+                    } else {
+                        footer.style.display = '';
+                    }
+                }, 50);
+            });
+        })();
+    </script>
 </body>
 
 </html>
+

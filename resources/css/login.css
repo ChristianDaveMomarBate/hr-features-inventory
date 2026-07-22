@@ -1,0 +1,628 @@
+/* ═══════════════════════════════════════════════════════════
+   LOGIN PANEL — full viewport split layout
+   All selectors scoped to .lp-* to avoid Bootstrap conflicts
+   ═══════════════════════════════════════════════════════════ */
+
+/* Login & Register sections — fixed full viewport layout */
+#login-section,
+#register-section {
+    display        : none;
+    flex-direction : column;
+    min-height     : 100vh;
+    margin         : 0;
+    position       : fixed;
+    top            : 0;
+    left           : 0;
+    right          : 0;
+    bottom         : 0;
+    z-index        : 1000;
+    background     : linear-gradient(rgba(4, 11, 26, 0.30), rgba(4, 11, 26, 0.45)), url('/images/BG.webp') center/cover no-repeat fixed;
+    align-items    : center;
+    justify-content: center;
+    padding        : 80px 1rem 1rem; /* 80px top padding to clear the 62px navbar */
+}
+#login-section.tab-active,
+#login-section[style*="display: flex"],
+#login-section[style*="display:flex"],
+#login-section[style*="display: block"],
+#login-section[style*="display:block"],
+#register-section.tab-active,
+#register-section[style*="display: flex"],
+#register-section[style*="display:flex"],
+#register-section[style*="display: block"],
+#register-section[style*="display:block"] {
+    display: flex !important;
+    flex-direction: column;
+}
+
+/* ── Main overlay (split row) — constrained centered box ─── */
+.lp-overlay {
+    display      : flex;
+    width        : 100%;
+    max-width    : 880px;          /* compact width */
+    min-height   : 560px;
+    border-radius: 20px;
+    overflow     : hidden;
+    background   : #040b1a;
+    border       : 1px solid rgba(255,255,255,0.08);
+    box-shadow   : 0 30px 80px rgba(0,0,0,0.7),
+                   0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+
+/* ══ LEFT PANEL ══════════════════════════════════════════════ */
+.lp-left {
+    width      : 38%;
+    min-width  : 260px;
+    background : linear-gradient(160deg, #0b1f3a 0%, #061428 50%, #040b1a 100%);
+    position   : relative;
+    display    : flex;
+    flex-direction : column;
+    justify-content: space-between;
+    padding    : 2.5rem 2rem 1.5rem;
+    overflow   : hidden;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Curved glowing line accent on the right edge of left panel */
+.lp-curve-accent {
+    position      : absolute;
+    top           : -10%;
+    right         : -80px;
+    width         : 200px;
+    height        : 120%;
+    border-radius : 50%;
+    border        : 2px solid rgba(59,130,246,0.25);
+    box-shadow    : 0 0 80px 15px rgba(59,130,246,0.18),
+                    inset 0 0 40px rgba(59,130,246,0.05);
+    pointer-events: none;
+    animation     : lp-pulse 6s ease-in-out infinite alternate;
+}
+@keyframes lp-pulse {
+    0%   { opacity: .5; transform: scaleY(1); }
+    100% { opacity: .9; transform: scaleY(1.05); }
+}
+
+/* Seal block */
+.lp-logo-block {
+    display        : flex;
+    flex-direction : column;
+    align-items    : center;
+    text-align     : center;
+    position       : relative;
+    z-index        : 2;
+}
+.lp-seal-ring {
+    width        : 110px;
+    height       : 110px;
+    border-radius: 50%;
+    background   : #fff;
+    display      : flex;
+    align-items  : center;
+    justify-content: center;
+    margin-bottom: 1.1rem;
+    box-shadow   : 0 0 0 4px rgba(255,255,255,0.15),
+                   0 0 30px rgba(255,255,255,0.15);
+    overflow     : hidden;
+    flex-shrink  : 0;
+}
+.lp-seal-ring img {
+    width : 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.lp-office-name {
+    font-size     : 0.85rem !important;
+    font-weight   : 800 !important;
+    letter-spacing: 0.8px !important;
+    color         : #fff !important;
+    line-height   : 1.45 !important;
+    text-transform: uppercase !important;
+    margin        : 0 !important;
+}
+.lp-title-divider {
+    width      : 50px;
+    height     : 2px;
+    background : #3b82f6;
+    box-shadow : 0 0 12px #3b82f6;
+    border-radius: 2px;
+    margin     : 1rem auto 0;
+}
+
+/* Mission card */
+.lp-mission {
+    display   : flex;
+    gap       : 12px;
+    background: rgba(255,255,255,0.04);
+    border    : 1px solid rgba(255,255,255,0.09);
+    border-radius: 12px;
+    padding   : 1rem;
+    position  : relative;
+    z-index   : 2;
+    flex-shrink: 0;
+}
+.lp-mission-icon {
+    width        : 38px;
+    height       : 38px;
+    border-radius: 8px;
+    background   : rgba(59,130,246,0.12);
+    border       : 1px solid rgba(59,130,246,0.25);
+    color        : #3b82f6;
+    display      : flex;
+    align-items  : center;
+    justify-content: center;
+    font-size    : 15px;
+    flex-shrink  : 0;
+}
+.lp-mission-body h3 {
+    font-size  : 0.85rem !important;
+    font-weight: 700 !important;
+    color      : #3b82f6 !important;
+    margin     : 0 0 4px !important;
+}
+.lp-mission-body p {
+    font-size  : 0.76rem !important;
+    color      : #94a3b8 !important;
+    line-height: 1.5 !important;
+    margin     : 0 !important;
+}
+
+/* Building illustration */
+.lp-building {
+    flex    : 1;
+    display : flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity : 0.6;
+    position: relative;
+    z-index : 1;
+    min-height: 80px;
+    max-height: 170px;
+    padding-bottom: 4px;
+}
+.lp-building svg {
+    width     : 100%;
+    max-width : 300px;
+    height    : auto;
+}
+
+/* Core values */
+.lp-values {
+    display    : flex;
+    align-items: center;
+    gap        : 0;
+    position   : relative;
+    z-index    : 2;
+    flex-shrink: 0;
+}
+.lp-sep {
+    width     : 1px;
+    height    : 30px;
+    background: rgba(255,255,255,0.12);
+    margin    : 0 10px;
+    flex-shrink: 0;
+}
+.lp-value {
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+    flex       : 1;
+}
+.lp-value > i {
+    color     : #3b82f6;
+    font-size : 13px;
+    flex-shrink: 0;
+}
+.lp-value > div {
+    display       : flex;
+    flex-direction: column;
+}
+.lp-val-title {
+    font-size  : 0.6rem;
+    font-weight: 800;
+    color      : #3b82f6;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+.lp-val-sub {
+    font-size  : 0.6rem;
+    color      : #94a3b8;
+    line-height: 1.2;
+}
+
+/* ══ RIGHT PANEL ═════════════════════════════════════════════ */
+.lp-right {
+    flex      : 1;
+    display   : flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: radial-gradient(ellipse at 40% 40%, #0d2340 0%, #040b1a 100%);
+    position  : relative;
+    overflow  : hidden;
+}
+
+/* Spacer to push card to middle when justify-content is space-between */
+.lp-top-spacer {
+    height: 10px;
+    width: 100%;
+}
+
+/* Ambient glow blobs */
+.lp-blob {
+    position     : absolute;
+    border-radius: 50%;
+    filter       : blur(70px);
+    pointer-events: none;
+    animation    : lp-float 12s ease-in-out infinite alternate;
+}
+.lp-blob-1 {
+    width     : 380px;
+    height    : 380px;
+    background: radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 70%);
+    top       : -80px;
+    left      : 10%;
+}
+.lp-blob-2 {
+    width         : 300px;
+    height        : 300px;
+    background    : radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%);
+    bottom        : -60px;
+    right         : 5%;
+    animation-delay: -6s;
+}
+@keyframes lp-float {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(20px,25px) scale(1.08); }
+}
+
+/* ── Glass Card ───────────────────────────────────────────── */
+.lp-card {
+    width         : 100%;
+    max-width     : 430px;
+    border-radius : 20px;
+    border        : 1px solid rgba(255,255,255,0.12);
+    box-shadow    : 0 25px 60px rgba(0,0,0,0.65),
+                    0 0 0 1px rgba(255,255,255,0.04) inset;
+    overflow      : hidden;
+    position      : relative;
+    z-index       : 10;
+    animation     : lp-card-in .5s ease;
+    display       : flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+@keyframes lp-card-in {
+    from { opacity:0; transform: translateY(18px); }
+    to   { opacity:1; transform: translateY(0); }
+}
+
+/* Card shimmer sweep */
+.lp-card::before {
+    content   : '';
+    position  : absolute;
+    top       : 0;
+    left      : -120%;
+    width     : 60%;
+    height    : 100%;
+    background: linear-gradient(100deg,
+                    transparent 0%,
+                    rgba(255,255,255,0.04) 50%,
+                    transparent 100%);
+    animation : lp-shimmer 7s 1s infinite;
+    pointer-events: none;
+    z-index   : 0;
+}
+@keyframes lp-shimmer {
+    0%   { left: -120%; }
+    25%  { left: 200%; }
+    100% { left: 200%; }
+}
+
+/* ── Card Header ─────────────────────────────────────────── */
+.lp-card-head {
+    background  : rgba(4, 12, 30, 0.96) !important;
+    padding     : 2rem 2rem 1.5rem;
+    text-align  : center;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    position    : relative;
+    z-index     : 1;
+}
+
+/* Shield + lock icon */
+.lp-shield-icon {
+    position      : relative;
+    width         : 60px;
+    height        : 60px;
+    margin        : 0 auto 1rem;
+    display       : flex;
+    align-items   : center;
+    justify-content: center;
+    border-radius : 16px;
+    background    : rgba(59,130,246,0.12);
+    border        : 1px solid rgba(59,130,246,0.4);
+    box-shadow    : 0 0 24px rgba(59,130,246,0.35),
+                    inset 0 0 14px rgba(59,130,246,0.15);
+    color         : #3b82f6;
+    font-size     : 26px;
+}
+.lp-lock-badge {
+    position     : absolute;
+    bottom       : -4px;
+    right        : -4px;
+    width        : 20px;
+    height       : 20px;
+    border-radius: 50%;
+    background   : #3b82f6;
+    display      : flex;
+    align-items  : center;
+    justify-content: center;
+    font-size    : 9px;
+    color        : #fff;
+    box-shadow   : 0 0 8px rgba(59,130,246,0.6);
+}
+
+.lp-card-title {
+    font-size  : 1.7rem !important;
+    font-weight: 700 !important;
+    color      : #ffffff !important;
+    margin     : 0 0 6px !important;
+    line-height: 1.2 !important;
+}
+.lp-card-sub {
+    font-size  : 0.875rem !important;
+    color      : #94a3b8 !important;
+    margin     : 0 !important;
+}
+.lp-card-divider {
+    width     : 44px;
+    height    : 2px;
+    background: #3b82f6;
+    box-shadow: 0 0 12px #3b82f6;
+    border-radius: 2px;
+    margin    : 1rem auto 0;
+}
+
+/* ── Card Body / Form ─────────────────────────────────────── */
+.lp-card-body {
+    background: rgba(8, 20, 42, 0.92) !important;
+    padding   : 1.75rem 2rem 2rem;
+    position  : relative;
+    z-index   : 1;
+}
+
+/* Field */
+.lp-field { margin-bottom: 1.1rem; }
+
+.lp-lbl {
+    display    : block !important;
+    font-size  : 0.8rem !important;
+    font-weight: 500 !important;
+    color      : #e2e8f0 !important;
+    margin-bottom: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Input wrapper */
+.lp-inp-wrap {
+    position: relative;
+    display : flex;
+    align-items: center;
+}
+.lp-inp-icon {
+    position      : absolute;
+    left          : 13px;
+    color         : #4b5a72;
+    font-size     : 13px;
+    pointer-events: none;
+    transition    : color .25s;
+    z-index       : 2;
+}
+.lp-inp {
+    width         : 100% !important;
+    padding       : 12px 12px 12px 38px !important;
+    background    : rgba(0,0,0,0.35) !important;
+    border        : 1px solid rgba(255,255,255,0.12) !important;
+    border-radius : 12px !important;
+    color         : #fff !important;
+    font-size     : 0.88rem !important;
+    font-family   : 'Inter', sans-serif !important;
+    outline       : none !important;
+    box-shadow    : none !important;
+    transition    : border-color .25s, box-shadow .25s, background .25s !important;
+    -webkit-appearance: none;
+}
+.lp-inp::placeholder {
+    color      : #3d4f66 !important;
+    font-weight: 400 !important;
+}
+.lp-inp:focus {
+    border-color: #3b82f6 !important;
+    background  : rgba(0,0,0,0.55) !important;
+    box-shadow  : 0 0 0 4px rgba(59,130,246,0.18) !important;
+    color       : #fff !important;
+}
+.lp-inp:focus + .lp-inp-icon { color: #3b82f6; }
+.lp-inp--err { border-color: #f87171 !important; }
+
+.lp-err {
+    margin    : 5px 0 0 !important;
+    font-size : 0.76rem !important;
+    color     : #fca5a5 !important;
+    font-weight: 600 !important;
+}
+
+/* Eye toggle */
+.lp-eye {
+    position  : absolute;
+    right     : 11px;
+    top       : 50%;
+    transform : translateY(-50%);
+    background: none !important;
+    border    : none !important;
+    color     : #4b5a72;
+    cursor    : pointer;
+    padding   : 4px 6px;
+    display   : flex;
+    align-items: center;
+    font-size : 14px;
+    line-height: 1;
+    transition: color .2s;
+    z-index   : 2;
+}
+.lp-eye:hover { color: #94a3b8; }
+
+/* Give password field extra right padding so text clears the eye icon */
+#lp_password {
+    padding-right: 42px !important;
+}
+
+/* Options row */
+.lp-opts {
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    margin-bottom  : 1.2rem;
+    font-size      : 0.82rem;
+}
+.lp-remember {
+    display    : flex !important;
+    align-items: center !important;
+    gap        : 7px !important;
+    color      : #cbd5e1 !important;
+    cursor     : pointer !important;
+    margin     : 0 !important;
+    font-weight: 400 !important;
+    font-family: 'Inter', sans-serif !important;
+}
+.lp-remember input[type="checkbox"] {
+    appearance        : none !important;
+    -webkit-appearance: none !important;
+    width             : 15px !important;
+    height            : 15px !important;
+    border            : 1.5px solid rgba(255,255,255,0.28) !important;
+    border-radius     : 3px !important;
+    background        : rgba(0,0,0,0.25) !important;
+    cursor            : pointer !important;
+    position          : relative !important;
+    flex-shrink       : 0 !important;
+    transition        : all .2s !important;
+}
+.lp-remember input[type="checkbox"]:checked {
+    background  : #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+.lp-remember input[type="checkbox"]:checked::after {
+    content      : '' !important;
+    position     : absolute !important;
+    top          : 1px !important;
+    left         : 4px !important;
+    width        : 4px !important;
+    height       : 7px !important;
+    border       : solid #fff !important;
+    border-width : 0 2px 2px 0 !important;
+    transform    : rotate(45deg) !important;
+}
+.lp-forgot {
+    color          : #3b82f6 !important;
+    text-decoration: none !important;
+    font-weight    : 500 !important;
+    transition     : color .2s !important;
+    font-family    : 'Inter', sans-serif !important;
+}
+.lp-forgot:hover { color: #60a5fa !important; }
+
+/* Submit button */
+.lp-submit {
+    width          : 100% !important;
+    padding        : 13px !important;
+    background     : linear-gradient(90deg, #3b82f6 0%, #2563eb 100%) !important;
+    border         : none !important;
+    border-radius  : 12px !important;
+    color          : #fff !important;
+    font-weight    : 700 !important;
+    font-size      : 0.95rem !important;
+    letter-spacing : 1.5px !important;
+    cursor         : pointer !important;
+    display        : flex !important;
+    align-items    : center !important;
+    justify-content: center !important;
+    gap            : 10px !important;
+    transition     : transform .25s, box-shadow .25s, background .25s !important;
+    box-shadow     : 0 4px 18px rgba(37,99,235,0.45) !important;
+    font-family    : 'Inter', sans-serif !important;
+    text-transform : uppercase !important;
+}
+.lp-submit:hover {
+    transform  : translateY(-2px) !important;
+    box-shadow : 0 8px 30px rgba(37,99,235,0.65) !important;
+    background : linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%) !important;
+    color      : #fff !important;
+}
+.lp-submit:active { transform: translateY(0) !important; }
+
+/* OR divider */
+.lp-or {
+    display    : flex;
+    align-items: center;
+    color      : #4b5a72;
+    font-size  : 0.72rem;
+    margin     : 1.2rem 0 0;
+    font-family: 'Inter', sans-serif;
+}
+.lp-or::before, .lp-or::after {
+    content   : '';
+    flex      : 1;
+    height    : 1px;
+    background: rgba(255,255,255,0.08);
+}
+.lp-or span { padding: 0 10px; }
+
+/* No account */
+.lp-no-account {
+    margin    : 1rem 0 0 !important;
+    text-align: center !important;
+    font-size : 0.82rem !important;
+    color     : #64748b !important;
+    font-family: 'Inter', sans-serif !important;
+}
+.lp-no-account a {
+    color          : #3b82f6 !important;
+    text-decoration: none !important;
+    font-weight    : 600 !important;
+    transition     : color .2s !important;
+}
+.lp-no-account a:hover { color: #60a5fa !important; }
+
+/* ══ FOOTER IMAGE (Inside Card) ═════════════════════════════ */
+.lp-card-img-footer {
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    background: rgba(4, 11, 26, 0.5);
+    text-align: center;
+}
+.lp-card-img-footer img {
+    width: 100%;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+/* ═══ RESPONSIVE ═════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .lp-overlay { flex-direction: column; }
+    .lp-left {
+        width  : 100%;
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    .lp-building { display: none; }
+    .lp-curve-accent { display: none; }
+    .lp-right { padding: 1.5rem 1rem; }
+    .lp-card-head, .lp-card-body { padding-left: 1.25rem; padding-right: 1.25rem; }
+}
+@media (max-width: 480px) {
+    .lp-values { flex-wrap: wrap; gap: 8px; }
+    .lp-sep    { display: none; }
+}

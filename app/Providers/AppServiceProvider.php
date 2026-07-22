@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,18 +12,16 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+
+       public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
-        //
+        // keep existing code if any
+        Schema::defaultStringLength(191);
+        \Illuminate\Support\Facades\View::composer('InventoryDashboard.navbar', \App\View\Composers\NotificationComposer::class);
     }
 }

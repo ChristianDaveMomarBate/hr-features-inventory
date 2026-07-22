@@ -1,8 +1,71 @@
 // Fonts
-@import url('https://fonts.bunny.net/css?family=Nunito');
 
 // Variables
 @import 'variables';
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+button,
+.btn,
+a,
+[role="button"],
+.nav-link,
+.dropdown-item,
+.navbar-toggler {
+  touch-action: manipulation;
+}
+
+.btn,
+button,
+.form-control,
+.form-select,
+.dropdown-item,
+.navbar-toggler {
+  min-height: 44px;
+}
+
+.navbar-brand,
+.nav-link,
+.dropdown-item,
+main {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 575.98px) {
+  body {
+    font-size: 13px;
+  }
+
+  .navbar .container {
+    max-width: 100%;
+  }
+
+  .navbar-brand {
+    max-width: calc(100vw - 92px);
+    white-space: normal;
+    line-height: 1.15;
+    font-size: 0.95rem;
+  }
+
+  .navbar-collapse {
+    padding-top: 0.75rem;
+  }
+
+  .navbar-nav .nav-link,
+  .dropdown-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  main.py-4 {
+    padding-top: 1rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+}

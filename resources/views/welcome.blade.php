@@ -1,64 +1,79 @@
-<!DOCTYPE HTML>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="pragma" content="no-cache" />
-    <meta http-equiv="cache-control" content="max-age=604800" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Bootstrap e-commerce html template similar to Alibaba">
-    <meta name="keywords" content="Online template, shop, theme, template, html, css, bootstrap 4">
-    <title>HRMIS PGSDN - Confidential Data</title>
-    <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <title>Simple Tabs</title>
+  <style>
+    body {
+      font-family: Arial;
+    }
 
-    <!-- jQuery -->
-    <script src="js/jquery-2.0.0.min.js" type="text/javascript"></script>
+    .tabs {
+      display: flex;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
 
-    <!-- Bootstrap4 files-->
-    <script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
-    <link href="css/bootstrap3661.css?v=2.0" rel="stylesheet" type="text/css" />
+    .tab {
+      padding: 10px 20px;
+      background: #ddd;
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+    }
 
-    <!-- Font awesome 5 -->
-    <link href="fonts/fontawesome/css/all.min3661.css?v=2.0" type="text/css" rel="stylesheet">
+    .tab.active {
+      background: #fff;
+      border-bottom: 2px solid white;
+    }
 
-    <!-- custom style -->
-    <link href="css/ui3661.css?v=2.0" rel="stylesheet" type="text/css" />
-    <link href="css/responsive3661.css?v=2.0" rel="stylesheet" type="text/css" />
+    .content {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ddd;
+    }
 
-    <!-- custom javascript -->
-    <script src="js/script3661.js?v=2.0" type="text/javascript"></script>
-
+    .content.active {
+      display: block;
+    }
+  </style>
 </head>
 
 <body>
 
-    <!-- REMOVE FOLLOWING LINK -->
-    <a href="#" class="btn btn-dark rounded-pill"
-        style="font-size:13px; z-index:100; position: fixed; bottom:10px; right:10px;">Back to the top</a>
-    <!-- REMOVE  //END -->
+<h2>Simple Tab System</h2>
 
+<div class="tabs">
+  <div class="tab active" onclick="openTab('tab1')">Tab 1</div>
+  <div class="tab" onclick="openTab('tab2')">Tab 2</div>
+  <div class="tab" onclick="openTab('tab3')">Tab 3</div>
+</div>
 
-    <header class="section-header">
-        <section class="header-main border-bottom">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-xl-2 col-lg-3 col-md-12">
-                        <a href="../../index-2.html" class="brand-wrap">
-                            <img class="logo" src="images/sdn.png">
-                        </a> <!-- brand-wrap.// -->
-                    </div>
-                    <div class="col-xl-6 col-lg-5 col-md-6">
-                        <form action="#" class="search-header">
-                            <div class="input-group w-100">
-                                <select class="custom-select border-right" name="category_name">
-                                    <option value="">Series</option>
-                                    <option value="year2022">2022</option>
-                                    <option value="year2023">2023</option>
-                                    <option value="year2024">2024</option>
-                                    <option value="year2025">2025</option>
-                                </select>
-                                <input type="text" class="form-control" placeholder="Search">
+<div id="tab1" class="content active">
+  <h3>Tab 1</h3>
+  <p>This is content for Tab 1.</p>
+</div>
+
+<div id="tab2" class="content">
+  <h3>Tab 2</h3>
+  <p>This is content for Tab 2.</p>
+</div>
+
+<div id="tab3" class="content">
+  <h3>Tab 3</h3>
+  <p>This is content for Tab 3.</p>
+</div>
+
+<script>
+  function openTab(tabId) {
+    let contents = document.querySelectorAll(".content");
+    let tabs = document.querySelectorAll(".tab");
+
+    contents.forEach(c => c.classList.remove("active"));
+    tabs.forEach(t => t.classList.remove("active"));
+
+    document.getElementById(tabId).classList.add("active");
+    event.target.classList.add("active");
+  }
+</script>
 
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="submit">
