@@ -14,8 +14,8 @@
                 <img src="{{ asset('images/logo2.webp') }}" alt="Province Seal">
             </div>
             <h1 class="lp-office-name">
-                PROVINCIAL HUMAN RESOURCE<br>
-                MANAGEMENT AND<br>
+                PROVINCIAL HUMAN RESOURCE
+                MANAGEMENT AND
                 DEVELOPMENT OFFICE
             </h1>
             <div class="lp-title-divider"></div>
@@ -62,30 +62,40 @@
 
         <!-- Core values -->
         <div class="lp-values">
-            <div class="lp-value">
-                <i class="fas fa-shield-alt"></i>
-                <div>
-                    <span class="lp-val-title">LIDERATONG</span>
-                    <span class="lp-val-sub">Tapat</span>
+                <div class="lp-value">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <div>
+                        <span class="lp-val-title">RESPONSABLE</span>
+                    </div>
+                </div>
+
+                <div class="lp-sep"></div>
+
+                <div class="lp-value">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <span class="lp-val-title">LIG-ON</span>
+                    </div>
+                </div>
+
+                <div class="lp-sep"></div>
+
+                <div class="lp-value">
+                    <i class="fas fa-heart"></i>
+                    <div>
+                        <span class="lp-val-title">SINSERO</span>
+                    </div>
+                </div>
+
+                <div class="lp-sep"></div>
+
+                <div class="lp-value">
+                    <i class="fas fa-balance-scale"></i>
+                    <div>
+                        <span class="lp-val-title">BARUGANAN</span>
+                    </div>
                 </div>
             </div>
-            <div class="lp-sep"></div>
-            <div class="lp-value">
-                <i class="fas fa-heart"></i>
-                <div>
-                    <span class="lp-val-title">RESPONSABLE</span>
-                    <span class="lp-val-sub">Mapagkalinga</span>
-                </div>
-            </div>
-            <div class="lp-sep"></div>
-            <div class="lp-value">
-                <i class="fas fa-hands-helping"></i>
-                <div>
-                    <span class="lp-val-title">LIG-ON</span>
-                    <span class="lp-val-sub">Nagkakaisa</span>
-                </div>
-            </div>
-        </div>
     </div><!-- /lp-left -->
 
     <!-- ══════════════ RIGHT PANEL ══════════════ -->
@@ -96,7 +106,7 @@
         <div class="lp-blob lp-blob-2"></div>
 
         <!-- Glass card -->
-        <div class="lp-card">
+        <div class="">
 
             <!-- Card header (dark top section) -->
             <div class="lp-card-head">

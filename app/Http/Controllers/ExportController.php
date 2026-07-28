@@ -17,10 +17,7 @@ class ExportController extends Controller
     public function exportPDF()
     {
         ini_set('memory_limit', '512M');
-
         $inventoryItems = InventoryItem::orderBy('code')->get();
-
-        // Calculate total stock in per item for the registry
         $stockInTotals = \App\Models\StockTransaction::where('type', 'in')
             ->selectRaw('inventory_item_id, SUM(quantity) as total_in')
             ->groupBy('inventory_item_id')

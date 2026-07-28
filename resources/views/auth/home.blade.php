@@ -1,11 +1,11 @@
 <!-- Home Section -->
 <div id="home-section" class="tab-section container animate-fade-in" style="display: none;">
     <div class="text-center py-4">
-        <h1 class="hero-title mb-3" style="font-size: 2.5rem;">
-            Welcome to the Provincial Human Resources Management and Development Office Inventory System
+        <h1 class="hero-title mb-3" style="font-size: 2.3rem;">
+            Welcome to the Provincial Human Resources Management and Development Office Stock & Inventory System
         </h1>
         <p class="hero-subtitle mb-4">
-            A centralized web-based solution for tracking, managing, and maintaining office supplies, materials, and equipment.
+            A web-based solution for tracking, managing, and maintaining office supplies, materials, and equipment.
         </p>
         
         <div class="about-feature-grid mb-4">

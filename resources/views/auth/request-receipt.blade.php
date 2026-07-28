@@ -127,36 +127,45 @@
         }
 
         .signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 11px;
-        }
+    display: flex;
+    margin-top: 5px;
+    font-size: 11px;
+    width: 100%;
+}
 
-        .sign-block {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .sign-label {
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
+.sign-block {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-sizing: border-box;
+}
 
-        .sign-name-container {
-            text-align: center;
-        }
+.sign-block:first-child {
+    padding-left: 0px;
+}
 
-        .sign-name {
-            font-weight: bold;
-            text-decoration: underline;
-        }
-        
-        .sign-title {
-            font-size: 10px;
-        }
+.sign-block:last-child {
+    padding-left: 0px;
+}
 
+.sign-label {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.sign-name-container {
+    text-align: center;
+}
+
+.sign-name {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.sign-title {
+    font-size: 10px;
+}
         .footer-img {
             width: 100%;
             height: auto;
@@ -253,16 +262,16 @@
                 <div class="meta-row">
                     <div class="meta-field">
                         <span class="meta-label">Date:</span>
-                        <span class="meta-value" style="width: 180px;">{{ $itemRequest->created_at->format('M d, Y') }}</span>
+                        <span class="meta-value" style="width: 30px;">{{ $itemRequest->created_at->format('M d, Y') }}</span>
                     </div>
                     <div class="meta-field">
                         <span class="meta-label">Control No.:</span>
-                        <span class="meta-value" style="width: 120px; font-weight: bold;">{{ $itemRequest->control_number ?? ('CN' . $itemRequest->created_at->format('mdY') . '-' . str_pad($itemRequest->id, 2, '0', STR_PAD_LEFT)) }}</span>
+                        <span class="meta-value" style="width: 50px; font-weight: bold;">{{ $itemRequest->control_number ?? ('CN' . $itemRequest->created_at->format('mdY') . '-' . str_pad($itemRequest->id, 2, '0', STR_PAD_LEFT)) }}</span>
                     </div>
                 </div>
 
-                <div class="meta-row" style="margin-bottom: 10px;">
-                    <div class="meta-field" style="width: 100%;">
+                <div class="meta-row" style="margin-bottom: 20px;">
+                    <div class="meta-field" style="width: 50%;">
                         <span class="meta-label">Requested by:</span>
                         <span class="meta-value" style="flex: 1; text-align: left; padding-left: 20px;">
                             {{ $itemRequest->requester_name }} - {{ $itemRequest->department }}
@@ -312,7 +321,7 @@
                 </div>
             </div>
 
-            <img src="{{ asset('images/footer.png') }}" class="footer-img" alt="Footer">
+            {{-- <img src="{{ asset('images/footer.png') }}" class="footer-img" alt="Footer"> --}}
         </div>
         @endfor
     </div>

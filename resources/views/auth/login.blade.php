@@ -7,7 +7,7 @@
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="max-age=604800" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>PHRMDO Inventory System - Provincial Government of Surigao del Norte</title>
+    <title>PHRMDO Stock Wise</title>
     <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <script src="js/jquery-2.0.0.min.js" type="text/javascript"></script>
     <script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
@@ -29,24 +29,32 @@
         <div class="container-fluid px-4 px-md-5">
             <a class="navbar-brand d-flex align-items-center nav-tab-btn" href="#home" data-target="home">
                 <img src="images/logo2.webp" alt="PHRMDO Logo" height="35" class="d-inline-block align-top mr-2" style="margin-right: 8px;">
-                <span>PHRMDO Inventory System</span>
+                <span>Stock Wise</span>
             </a>
             <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
+                <ul class="navbar-nav ml-auto custom-navbar">
                     <li class="nav-item">
-                        <a class="nav-link nav-tab-btn" href="#home" data-target="home">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-tab-btn kiosk-nav-link" href="#kiosk" data-target="kiosk">
-                            <i class="fas fa-box-open" style="margin-right:5px;"></i>Kiosk
+                        <a class="nav-link nav-tab-btn active" href="#home" data-target="home">
+                            <i class="fas fa-home"></i>
+                            Home
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link nav-tab-btn" href="#login" data-target="login">Login</a>
+                        <a class="nav-link nav-tab-btn kiosk-nav-link" href="#kiosk" data-target="kiosk">
+                            <i class="fas fa-box-open"></i>
+                            Kiosk
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-tab-btn" href="#login" data-target="login">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -70,15 +78,16 @@
     @vite(['resources/js/inventory/script.js', 'resources/js/inventory/kiosk.js', 'resources/js/inventory/login.js'])
 
     @if($errors->has('email') || $errors->has('password'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const errorAudio = new Audio('{{ asset("sound/credentials.mp3") }}');
-                errorAudio.currentTime = 0;
-                errorAudio.play().catch(function(e) {
-                    console.log("Audio play failed:", e);
-                });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorAudio = new Audio('{{ asset("sound/credentials.mp3") }}');
+            errorAudio.currentTime = 0;
+            errorAudio.play().catch(function(e) {
+                console.log("Audio play failed:", e);
             });
-        </script>
+        });
+
+    </script>
     @endif
     <footer id="site-footer" style="
         position: fixed;
@@ -95,15 +104,19 @@
         z-index: 9999;
     ">
         <small>
-            © 2026 <strong style="color:rgba(255,255,255,0.85);">PHRMDO Inventory System</strong>
-            &nbsp;·&nbsp;
-            Developed by OJT Team: <em>Tudtud Rianne Celone &amp; De La Cruz Romel Charlz Nico</em>
+            © 2026 All Rights Reserved
+            <strong style="color:rgba(255,255,255,0.85);">
+                Provincial Human Resource Management and Development Office – StockWise
+            </strong>
+            &nbsp;&nbsp;
+            <span style="color:yellow;">CDB.HR_v1r_wojt</span>
         </small>
     </footer>
 
     <script>
         (function() {
             const footer = document.getElementById('site-footer');
+
             function updateFooter() {
                 const hash = window.location.hash;
                 if (hash === '#kiosk' || document.body.classList.contains('kiosk-active')) {
@@ -130,8 +143,8 @@
                 }, 50);
             });
         })();
+
     </script>
 </body>
 
 </html>
-

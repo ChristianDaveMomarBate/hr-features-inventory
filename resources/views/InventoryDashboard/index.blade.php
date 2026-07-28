@@ -1,5 +1,4 @@
 @php
-    /** @var \App\Models\User $currentUser */
     $currentUser = auth()->user();
     $validDashboardPages = [
         'inventory-registry',
@@ -17,106 +16,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHRMDO INVENTORY SYSTEM</title>
+    <title>PHRMDO Stock Wise</title>
+    @include('style.style')
     <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('images/logo-hri.png') }}">
     <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/tom-select/dist/css/tom-select.bootstrap5.min.css') }}" rel="stylesheet">
     <script src="{{ asset('vendor/chart.js/dist/chart.umd.js') }}"></script>
-    @include('style.style')
+    <link href="{{ asset('design/dashboardstyle/index.css') }}" rel="stylesheet">
 </head>
 <body>
   <div class="dashboard-mobile-bar">
     <button type="button" class="dashboard-menu-btn" data-action="toggle-sidebar" aria-label="Open navigation">
       <i class="bi bi-list"></i>
     </button>
-    <div class="dashboard-mobile-title">PHRMDO Inventory</div>
+    <div class="dashboard-mobile-title">PHRMDO StockWise</div>
   </div>
   <div class="dashboard-container">
     @include('InventoryDashboard.sidebar')
     <div class="main-content">
       <div id="dashboard" class="page {{ $activePageId === 'dashboard' ? 'active-page' : '' }}">
           <div class="dashboard-main-header d-flex justify-content-between align-items-center mb-4">
-              <h1 class="mb-0 fw-bold animated-text" style="font-size: 32px;">DASHBOARD</h1>
+                <h1 class="dashboard-title mb-0">
+                    <span class="dashboard-title-badge">StockWise Dashboard</span>
+                </h1>
               @include('InventoryDashboard.navbar')
           </div>
+            @php
+            $metrics = [
+                ['title' => 'Total Items',    'id' => 'totalItems',    'icon' => 'bi-box-seam',          'color' => 'primary'],
+                ['title' => 'Current Stock',  'id' => 'currentStock',  'icon' => 'bi-boxes',             'color' => 'success'],
+                ['title' => 'Stock In',       'id' => 'totalStockIn',  'icon' => 'bi-box-arrow-in-down', 'color' => 'info'],
+                ['title' => 'Stock Out',      'id' => 'totalStockOut', 'icon' => 'bi-box-arrow-up',      'color' => 'warning'],
+                ['title' => 'Low Stock',      'id' => 'lowStockItems', 'icon' => 'bi-exclamation-triangle','color' => 'danger'],
+            ];
+            @endphp
 
+            <div class="row g-4 mb-4">
+                @foreach($metrics as $metric)
+                    <div class="col-12 col-sm-6 col-xl">
+                        <div class="metric-card-flat">
+                            <div class="metric-content">
+                                <div>
+                                    <span class="metric-label">{{ $metric['title'] }}</span>
+                                    <h2 id="{{ $metric['id'] }}">0</h2>
+                                </div>
 
-
-          <!-- Top Row: Role-aware Cards -->
-          <div class="dashboard-metrics-row row row-cols-1 row-cols-md-3 row-cols-xl-5 g-4 mb-4">
-              <div class="col">
-                  <div class="metric-card-modern">
-                      <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                              <p class="metric-title">Total Items</p>
-                              <h3 class="metric-value" id="totalItems">0</h3>
-                          </div>
-                          <div class="metric-icon-modern text-primary bg-primary bg-opacity-10">
-                              <i class="bi bi-box-seam"></i>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <div class="col">
-                  <div class="metric-card-modern">
-                      <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                              <p class="metric-title">Current Stock</p>
-                              <h3 class="metric-value" id="currentStock">0</h3>
-                          </div>
-                          <div class="metric-icon-modern text-teal-600 bg-teal-50">
-                              <i class="bi bi-boxes"></i>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <div class="col">
-                  <div class="metric-card-modern">
-                      <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                              <p class="metric-title">Total Stock In</p>
-                              <h3 class="metric-value" id="totalStockIn">0</h3>
-                          </div>
-                          <div class="metric-icon-modern text-emerald-500 bg-emerald-50">
-                              <i class="bi bi-box-arrow-in-down"></i>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <div class="col">
-                  <div class="metric-card-modern">
-                      <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                              <p class="metric-title">Total Stock Out</p>
-                              <h3 class="metric-value" id="totalStockOut">0</h3>
-                          </div>
-                          <div class="metric-icon-modern text-amber-500 bg-amber-50">
-                              <i class="bi bi-box-arrow-up"></i>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <div class="col">
-                  <div class="metric-card-modern">
-                      <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                              <p class="metric-title">Low Stock Items</p>
-                              <h3 class="metric-value" id="lowStockItems">0</h3>
-                          </div>
-                          <div class="metric-icon-modern text-success bg-success bg-opacity-10">
-                              <i class="bi bi-check-circle-fill"></i>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+                                <div class="metric-icon bg-{{ $metric['color'] }}-soft text-{{ $metric['color'] }}">
+                                    <i class="bi {{ $metric['icon'] }}"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
 
           <div class="dashboard-fit-grid">
               <div class="chart-card dashboard-trend-card d-flex flex-column">
                   <div class="dashboard-card-heading">
-                      <h5 class="fw-bold animated-text mb-1">Stock In vs Stock Out Trends</h5>
+                      <h5 class="fw-bold  mb-1">Stock In vs Stock Out Trends</h5>
                       <p class="text-muted small mb-0">Historical overview</p>
                   </div>
                   <div class="position-relative flex-grow-1 chart-area-trend">
@@ -126,7 +85,7 @@
 
               <div class="chart-card dashboard-distribution-card d-flex flex-column align-items-center">
                   <div class="dashboard-card-heading w-100 text-start">
-                      <h5 class="fw-bold animated-text mb-1">Inventory Distribution</h5>
+                      <h5 class="fw-bold  mb-1">Inventory Distribution</h5>
                       <p class="text-muted small mb-0">Current Stock vs Stock Out</p>
                   </div>
                   <div class="position-relative w-100 flex-grow-1 d-flex align-items-center justify-content-center chart-area-donut">
@@ -150,7 +109,7 @@
 
               <div class="chart-card p-0 overflow-hidden dashboard-low-stock-card d-flex flex-column">
                   <div class="dashboard-section-header border-bottom border-light bg-white d-flex justify-content-between align-items-center">
-                      <h5 class="fw-bold animated-text mb-0">Low Stock Alerts</h5>
+                      <h5 class="fw-bold  mb-0">Low Stock Alerts</h5>
                       <span class="badge bg-danger">{{ $lowStockAlertItems->count() }}</span>
                   </div>
                   <div class="list-group list-group-flush dashboard-scroll-list">
@@ -173,7 +132,7 @@
               <div class="chart-card p-0 overflow-hidden dashboard-audit-card d-flex flex-column">
                   <div class="dashboard-section-header border-bottom d-flex justify-content-between align-items-end" style="border-color:#f1f5f9!important;">
                       <div>
-                          <h5 class="fw-bold animated-text mb-1">Recent Audit Actions</h5>
+                          <h5 class="fw-bold  mb-1">Recent Audit Actions</h5>
                           <p class="text-muted small mb-0">Live operational ledger logs</p>
                       </div>
                       <a href="#" class="fw-semibold text-decoration-none small text-teal-600" data-page-link="audit-trails">View All</a>
@@ -235,7 +194,7 @@
                                   <td class="py-3">
                                       @if(str_contains(strtolower($log->action), 'in'))
                                           <span class="badge bg-emerald-50 text-emerald-500 border border-success border-opacity-25 px-2 py-1">
-                                              <i class="bi bi-arrow-down-right"></i> {{ $log->action }}
+                                              <span style="color:black;"><i class="bi bi-arrow-down-right"></i>  {{ $log->action }} </span>
                                           </span>
                                       @elseif(str_contains(strtolower($log->action), 'out'))
                                           <span class="badge bg-amber-50 text-amber-500 border border-warning border-opacity-25 px-2 py-1">

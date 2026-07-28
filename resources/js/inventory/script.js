@@ -289,7 +289,6 @@ function showPage(pageId, clickedItem) {
 }
 
 function confirmLogout() {
-  // Play sound immediately when the navbar icon is clicked
   const audio = new Audio('/sound/logout.mp3');
   audio.play().catch(function(e) { console.log("Audio play failed:", e); });
 

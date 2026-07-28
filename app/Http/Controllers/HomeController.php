@@ -10,6 +10,7 @@ use App\Models\ItemRequest;
 use App\Notifications\LowStockAlert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Services\ReportService;
 
 class HomeController extends Controller
 {
@@ -66,14 +67,14 @@ class HomeController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%")
-                  ->orWhere('category', 'like', "%{$search}%")
-                  ->orWhere('type', 'like', "%{$search}%")
-                  ->orWhere('unit', 'like', "%{$search}%")
-                  ->orWhere('stock_unit', 'like', "%{$search}%")
-                  ->orWhere('issue_unit', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%")
+                    ->orWhere('type', 'like', "%{$search}%")
+                    ->orWhere('unit', 'like', "%{$search}%")
+                    ->orWhere('stock_unit', 'like', "%{$search}%")
+                    ->orWhere('issue_unit', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
             });
         }
 
@@ -87,7 +88,7 @@ class HomeController extends Controller
 
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDir = $request->get('sort_dir', 'desc');
-        
+
         $allowedSorts = ['code', 'name', 'category', 'type', 'unit', 'stock_unit', 'issue_unit', 'location', 'stock', 'minimum', 'date_registered', 'created_at'];
 
         if (in_array($sortBy, $allowedSorts)) {
@@ -95,8 +96,22 @@ class HomeController extends Controller
         }
 
         $inventoryItems = $query->paginate(25);
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $inventoryItems */
-        $inventoryItems->withPath(route('dashboard', ['page' => 'inventory-registry']));
+
+
+        $inventoryItems = InventoryItem::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search');
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sortBy, $sortDir)
+            ->paginate(25);
+        $inventoryItems->withPath(
+            route('dashboard', ['page' => 'inventory-registry'])
+        );
         $allInventoryItems = InventoryItem::all(); // Needed for JS charts and edit modals
 
         $stockTransactions = StockTransaction::with('inventoryItem')->orderBy('created_at', 'desc')->take(500)->get();
@@ -105,7 +120,7 @@ class HomeController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(8, ['*'], 'request_page');
         $itemRequests->withPath(route('dashboard', ['page' => 'item-requests']))
-                      ->appends(request()->except('request_page'));
+            ->appends(request()->except('request_page'));
 
         $auditTrailsQuery = AuditTrail::with('user')->orderBy('created_at', 'desc');
 
@@ -114,7 +129,7 @@ class HomeController extends Controller
         $lowStockAlertItems = InventoryItem::whereColumn('stock', '<=', 'minimum')
             ->orderBy('name')
             ->get();
-        
+
         // Per-item stock-in totals (sum of all 'in' type transactions per item)
         $stockInTotals = StockTransaction::where('type', 'in')
             ->selectRaw('inventory_item_id, SUM(quantity) as total_in')
@@ -137,49 +152,54 @@ class HomeController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming data from the form
-        $validatedData = $request->validate([
-            'code' => 'required|unique:inventory_items',
-            'name' => 'required|string|max:255',
-            'category' => ['required', 'string', Rule::in(self::CATEGORIES)],
-            'type' => ['required', 'string', Rule::in(self::ITEM_TYPES)],
-            'stock_unit' => ['required', 'string', Rule::in(self::UNITS)],
-            'issue_unit' => ['required', 'string', Rule::in(self::UNITS)],
-            'units_per_stock_unit' => 'required|integer|min:1',
-            'stock' => 'required|numeric|min:0',
-            'minimum' => 'required|integer|min:0',
-            'date_registered' => 'required|date',
-            'description' => 'nullable|string',
-            'location' => 'nullable|string|max:255'
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'code'                  => 'required|unique:inventory_items,code',
+            'name'                  => 'required|string|max:255',
+            'category'              => ['required', 'string', Rule::in(self::CATEGORIES)],
+            'type'                  => ['required', 'string', Rule::in(self::ITEM_TYPES)],
+            'stock_unit'            => ['required', 'string', Rule::in(self::UNITS)],
+            'issue_unit'            => ['required', 'string', Rule::in(self::UNITS)],
+            'units_per_stock_unit'  => 'required|integer|min:1',
+            'stock'                 => 'required|numeric|min:0',
+            'minimum'               => 'required|integer|min:0',
+            'date_registered'       => 'required|date',
+            'description'           => 'nullable|string',
+            'location'              => 'nullable|string|max:255',
         ]);
 
-        $validatedData['unit'] = $validatedData['issue_unit'];
-        $validatedData['stock'] = (int) round(((float) $validatedData['stock']) * (int) $validatedData['units_per_stock_unit']);
-        $validatedData['minimum'] = (int) $validatedData['minimum'];
+        $validated['unit'] = $validated['issue_unit'];
+        $validated['stock'] = (int) round(
+            $validated['stock'] * $validated['units_per_stock_unit']
+        );
+        $validated['minimum'] = (int) $validated['minimum'];
 
-        // Save into Database
-        $item = InventoryItem::create($validatedData);
+        $item = InventoryItem::create($validated);
 
         AuditTrail::create([
-            'user_id' => Auth::id(),
-            'action' => 'Created Item',
-            'module' => 'Inventory Registry',
+            'user_id'        => $user->id,
+            'action'         => 'Created Item',
+            'module'         => 'Inventory Registry',
             'item_reference' => $item->code,
-            'old_value' => null,
-            'new_value' => 'Name: ' . $item->name . ', Stock: ' . $item->stock,
-            'remarks' => 'Item initialized.'
+            'old_value'      => null,
+            'new_value'      => "Name: {$item->name}, Stock: {$item->stock}",
+            'remarks'        => 'Item initialized.',
         ]);
 
-        \App\Services\ReportService::generateMonthlyReportJson();
+        ReportService::generateMonthlyReportJson();
 
-        // Redirect back to preserve pagination and filter state with success message
-        return back()->with('success', 'Inventory item added successfully.');
+        return back()->with(
+            'success',
+            'Inventory item added successfully.'
+        );
     }
 
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'code' => 'required|unique:inventory_items,code,'.$id,
+            'code' => 'required|unique:inventory_items,code,' . $id,
             'name' => 'required|string|max:255',
             'category' => ['required', 'string', Rule::in(self::CATEGORIES)],
             'type' => ['required', 'string', Rule::in(self::ITEM_TYPES)],
@@ -198,7 +218,7 @@ class HomeController extends Controller
         $validatedData['minimum'] = (int) $validatedData['minimum'];
 
         $item = InventoryItem::findOrFail($id);
-        
+
         $oldData = $item->toJson();
         $item->update($validatedData);
 
@@ -212,7 +232,7 @@ class HomeController extends Controller
             'remarks' => 'Item updated via Inventory Registry.'
         ]);
 
-        \App\Services\ReportService::generateMonthlyReportJson();
+        ReportService::generateMonthlyReportJson();
 
         return back()->with('success', 'Inventory item updated successfully.');
     }
@@ -234,7 +254,7 @@ class HomeController extends Controller
             'remarks' => 'Item deleted from Inventory Registry.'
         ]);
 
-        \App\Services\ReportService::generateMonthlyReportJson();
+        ReportService::generateMonthlyReportJson();
 
         return back()->with('success', 'Inventory item deleted successfully.');
     }

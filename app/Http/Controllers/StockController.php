@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Notifications\LowStockAlert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\ReportService;
+use Illuminate\Support\Facades\Notification;
 
 class StockController extends Controller
 {
@@ -20,32 +22,29 @@ class StockController extends Controller
 
     public function store(Request $request)
     {
-        /** @var User $user */
         $user = $request->user();
-        $validTypes = 'in,out,adjustment';
 
-        // Validate the batch items array
         $request->validate([
-            'items'                      => 'required|array|min:1',
-            'items.*.inventory_item_id'  => 'required|exists:inventory_items,id',
-            'items.*.type'               => 'required|in:' . $validTypes,
-            'items.*.quantity'           => 'required|integer|min:1',
-            'items.*.handled_by'         => 'required|string|max:255',
-            'items.*.reference'          => 'nullable|string|max:255',
-            'items.*.remarks'            => 'nullable|string',
+            'items'                     => 'required|array|min:1',
+            'items.*.inventory_item_id' => 'required|exists:inventory_items,id',
+            'items.*.type'              => 'required|in:in,out,adjustment',
+            'items.*.quantity'          => 'required|integer|min:1',
+            'items.*.handled_by'        => 'required|string|max:255',
+            'items.*.reference'         => 'nullable|string|max:255',
+            'items.*.remarks'           => 'nullable|string',
         ]);
-
-        $items = $request->input('items');
 
         $errors = [];
 
-        DB::transaction(function () use ($items, &$errors) {
-            foreach ($items as $index => $row) {
+        DB::transaction(function () use ($request, $user, &$errors) {
+
+            foreach ($request->items as $row) {
+
                 $item = InventoryItem::findOrFail($row['inventory_item_id']);
+
                 $type = strtolower($row['type']);
                 $qty  = (int) $row['quantity'];
 
-                // Check stock for 'out' transactions
                 if ($type === 'out' && $item->stock < $qty) {
                     $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
                     continue;
@@ -53,56 +52,58 @@ class StockController extends Controller
 
                 $oldStock = $item->stock;
 
-                $handledBy = $row['handled_by'];
-                $reference = $row['reference'] ?? null;
-                $remarks   = $row['remarks']   ?? null;
-
-                // Save transaction
                 StockTransaction::create([
                     'inventory_item_id' => $item->id,
                     'type'              => $type,
                     'quantity'          => $qty,
-                    'handled_by'        => $handledBy,
-                    'reference'         => $reference,
-                    'remarks'           => $remarks,
+                    'handled_by'        => $row['handled_by'],
+                    'reference'         => $row['reference'] ?? null,
+                    'remarks'           => $row['remarks'] ?? null,
                 ]);
 
-                // Update stock
-                if ($type === 'in') {
-                    $item->stock += $qty;
-                } elseif ($type === 'out') {
-                    $item->stock -= $qty;
-                } elseif ($type === 'adjustment') {
-                    $item->stock = $qty;
-                }
+                match ($type) {
+                    'in'         => $item->stock += $qty,
+                    'out'        => $item->stock -= $qty,
+                    'adjustment' => $item->stock = $qty,
+                };
+
                 $item->save();
 
-                // Low stock alert
-                if (in_array($type, ['out', 'adjustment'], true) && $item->stock <= $item->minimum) {
-                    User::where('role', 'admin')->get()->each->notify(new LowStockAlert($item));
+                if (
+                    in_array($type, ['out', 'adjustment'], true) &&
+                    $item->stock <= $item->minimum
+                ) {
+                    Notification::send(
+                        User::where('role', 'admin')->get(),
+                        new LowStockAlert($item)
+                    );
                 }
 
-                // Audit trail
                 AuditTrail::create([
-                    'user_id'        => Auth::id(),
+                    'user_id'        => $user->id,
                     'action'         => 'Stock ' . ucfirst($type),
                     'module'         => 'Stock Management',
                     'item_reference' => $item->code,
                     'old_value'      => "Stock: {$oldStock}",
                     'new_value'      => "Stock: {$item->display_stock} (Qty: {$qty} {$item->display_unit})",
-                    'remarks'        => trim("Handled by: {$handledBy}" . ($remarks ? " | {$remarks}" : '')),
+                    'remarks'        => trim(
+                        "Handled by: {$row['handled_by']}" .
+                            (!empty($row['remarks']) ? " | {$row['remarks']}" : '')
+                    ),
                 ]);
             }
         });
 
-        \App\Services\ReportService::generateMonthlyReportJson();
+        ReportService::generateMonthlyReportJson();
 
-        if (!empty($errors)) {
-            return redirect()->route('dashboard', ['page' => 'stock-management'])
+        if ($errors) {
+            return redirect()
+                ->route('dashboard', ['page' => 'stock-management'])
                 ->with('error', implode('<br>', $errors));
         }
 
-        return redirect()->route('dashboard', ['page' => 'stock-management'])
+        return redirect()
+            ->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Stock transaction(s) recorded successfully.');
     }
 
@@ -138,7 +139,7 @@ class StockController extends Controller
         }
 
         $tx->delete();
-        \App\Services\ReportService::generateMonthlyReportJson();
+        ReportService::generateMonthlyReportJson();
 
         return redirect()->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Transaction deleted and stock reversed successfully.');
@@ -148,7 +149,7 @@ class StockController extends Controller
     {
         $tx = StockTransaction::with('inventoryItem')->findOrFail($id);
         $item = $tx->inventoryItem;
-        
+
         $request->validate([
             'quantity' => 'required|integer|min:1',
             'handled_by' => 'required|string|max:255',
@@ -176,7 +177,7 @@ class StockController extends Controller
                 } elseif ($tx->type === 'out') {
                     $item->stock -= $newQty;
                 }
-                
+
                 $item->stock = max(0, $item->stock);
                 $item->save();
 
@@ -203,8 +204,8 @@ class StockController extends Controller
                 'remarks' => $request->input('remarks'),
             ]);
         });
-        
-        \App\Services\ReportService::generateMonthlyReportJson();
+
+        ReportService::generateMonthlyReportJson();
 
         return redirect()->route('dashboard', ['page' => 'stock-management'])
             ->with('success', 'Transaction updated successfully.');

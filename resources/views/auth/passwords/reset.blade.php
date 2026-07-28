@@ -158,9 +158,12 @@
         z-index: 9999;
     ">
         <small>
-            © 2026 <strong style="color:rgba(255,255,255,0.85);">PHRMDO Inventory System</strong>
-            &nbsp;·&nbsp;
-            Developed by OJT Team: <em>Tudtud Rianne Celone &amp; De La Cruz Romel Charles Nico</em>
+            © 2026 All Rights Reserved
+            <strong style="color:rgba(255,255,255,0.85);">
+                Provincial Human Resource Management and Development Office – StockWise
+            </strong>
+            &nbsp;&nbsp;
+            <span style="color:yellow;">CDB.HR_v1r_wojt</span>
         </small>
     </footer>
 </body>

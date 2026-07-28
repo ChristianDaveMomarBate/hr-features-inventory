@@ -676,7 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const si = document.getElementById('kioskSearch');
   const cf = document.getElementById('kioskCatFilter');
   let kioskCurrentPage = 1;
-  const kioskItemsPerPage = 14;
+  const kioskItemsPerPage = 20;
   
   window.kioskChangePage = function(delta) {
     kioskCurrentPage += delta;

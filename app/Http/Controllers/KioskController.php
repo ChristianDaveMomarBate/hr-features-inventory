@@ -9,6 +9,9 @@ use App\Models\AuditTrail;
 use App\Models\User;
 use App\Notifications\LowStockAlert;
 use Illuminate\Support\Facades\DB;
+use App\Models\ItemRequest;
+use App\Models\ItemRequestItem;
+use App\Notifications\NewItemRequest;
 
 class KioskController extends Controller
 {
@@ -50,35 +53,50 @@ class KioskController extends Controller
         $receiptItems = [];
         $itemRequest = null;
 
-        DB::transaction(function () use ($requesterName, $division, $requestItems, &$errors, &$receiptItems, &$itemRequest) {
-            // First check if items have enough stock (optional, but good for validation)
+        $itemRequest = DB::transaction(function () use (
+            $requesterName,
+            $division,
+            $requestItems,
+            &$errors,
+            &$receiptItems
+        ) {
+            // First check if items have enough stock
             foreach ($requestItems as $row) {
                 $item = InventoryItem::find($row['id']);
-                if (!$item) continue;
+
+                if (!$item) {
+                    continue;
+                }
 
                 $qty = (int) $row['quantity'];
+
                 if ($item->stock < $qty) {
                     $errors[] = "Insufficient stock for '{$item->name}'. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
                 }
             }
 
-            if (!empty($errors)) return; // abort transaction
+            if (!empty($errors)) {
+                return null;
+            }
 
             // Create Item Request
-            $itemRequest = \App\Models\ItemRequest::create([
+            $itemRequest = ItemRequest::create([
                 'requester_name' => $requesterName,
                 'department'     => $division, // Map division to department
-                'purpose'        => null, // Kiosk doesn't have purpose
+                'purpose'        => null,      // Kiosk doesn't have purpose
                 'status'         => 'Pending',
             ]);
 
             foreach ($requestItems as $row) {
                 $item = InventoryItem::find($row['id']);
-                if (!$item) continue;
+
+                if (!$item) {
+                    continue;
+                }
 
                 $qty = (int) $row['quantity'];
 
-                \App\Models\ItemRequestItem::create([
+                ItemRequestItem::create([
                     'item_request_id'    => $itemRequest->id,
                     'inventory_item_id'  => $item->id,
                     'requested_quantity' => $qty,
@@ -86,15 +104,17 @@ class KioskController extends Controller
 
                 // We don't deduct stock here anymore. It will be deducted on approval.
                 $receiptItems[] = [
-                    'id'              => $item->id,
-                    'name'            => $item->name,
-                    'quantity'        => $qty,
-                    'unit'            => $item->display_unit,
-                    'remaining_stock' => $item->stock, // Stock hasn't changed yet
+                    'id'                      => $item->id,
+                    'name'                    => $item->name,
+                    'quantity'                => $qty,
+                    'unit'                    => $item->display_unit,
+                    'remaining_stock'         => $item->stock,
                     'remaining_display_stock' => $item->display_stock,
-                    'bulk_equivalent' => $item->bulk_equivalent,
+                    'bulk_equivalent'         => $item->bulk_equivalent,
                 ];
             }
+
+            return $itemRequest;
         });
 
         if (!empty($errors)) {
@@ -107,13 +127,15 @@ class KioskController extends Controller
             return back()->with('kiosk_errors', $errors)->withInput();
         }
 
-        // Notify admins
         if ($itemRequest) {
             $admins = User::where('role', 'admin')->get();
+
             foreach ($admins as $admin) {
-                $admin->notify(new \App\Notifications\NewItemRequest($itemRequest));
+                $admin->notify(new NewItemRequest($itemRequest));
             }
         }
+
+
 
         $receipt = [
             'number'         => $itemRequest->control_number,

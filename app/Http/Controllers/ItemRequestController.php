@@ -4,47 +4,58 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Notifications\NewItemRequest;
+use App\Models\ItemRequest;
+use App\Models\ItemRequestItem;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Models\StockTransaction;
+use App\Services\ReportService;
+use Illuminate\Support\Facades\Notification;
 
 class ItemRequestController extends Controller
 {
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'requester_name'               => 'required|string|max:255',
-            'department'                   => 'required|string|max:255',
-            'purpose'                      => 'nullable|string',
-            'items'                        => 'required|array|min:1',
-            'items.*.item_id'              => 'required|exists:inventory_items,id',
-            'items.*.requested_quantity'   => 'required|integer|min:1',
+            'requester_name'             => 'required|string|max:255',
+            'department'                 => 'required|string|max:255',
+            'purpose'                    => 'nullable|string',
+            'items'                      => 'required|array|min:1',
+            'items.*.item_id'            => 'required|exists:inventory_items,id',
+            'items.*.requested_quantity' => 'required|integer|min:1',
         ]);
 
         $itemRequest = DB::transaction(function () use ($validated) {
-            $itemRequest = \App\Models\ItemRequest::create([
+
+            $itemRequest = ItemRequest::create([
                 'requester_name' => $validated['requester_name'],
                 'department'     => $validated['department'],
-                'purpose'        => $validated['purpose'],
+                'purpose'        => $validated['purpose'] ?? null,
                 'status'         => 'Pending',
             ]);
 
+            $requestItems = [];
+
             foreach ($validated['items'] as $item) {
-                \App\Models\ItemRequestItem::create([
+                $requestItems[] = [
                     'item_request_id'    => $itemRequest->id,
                     'inventory_item_id'  => $item['item_id'],
                     'requested_quantity' => $item['requested_quantity'],
-                ]);
+                    'created_at'          => now(),
+                    'updated_at'          => now(),
+                ];
             }
+
+            ItemRequestItem::insert($requestItems);
 
             return $itemRequest;
         });
 
-        // Notify admins about the new request using Laravel's notification system
-        $admins = \App\Models\User::where('role', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new NewItemRequest($itemRequest));
-        }
+        $admins = User::where('role', 'admin')->get();
 
-        return redirect()->back()
+        Notification::send($admins, new NewItemRequest($itemRequest));
+
+        return back()
             ->with('new_request_id', $itemRequest->id)
             ->with('show_receipt_modal', true)
             ->with('success', 'Your request has been submitted successfully!');
@@ -54,32 +65,53 @@ class ItemRequestController extends Controller
     {
         $searchTerm = trim($request->input('request_id'));
         $itemRequests = collect();
+
         if ($searchTerm) {
-            $query = \App\Models\ItemRequest::with(['item', 'approver', 'requestItems.item']);
-            
+
+            $query = ItemRequest::with([
+                'item',
+                'approver',
+                'requestItems.item'
+            ]);
+
             if (preg_match('/^CN\d{8}-(\d+)$/i', $searchTerm, $matches)) {
-                $query->where('id', (int) $matches[1]);
+
+                $query->whereKey((int) $matches[1]);
             } elseif (is_numeric($searchTerm)) {
-                $query->where('id', $searchTerm)->orWhere('requester_name', $searchTerm);
+
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->whereKey($searchTerm)
+                        ->orWhere('requester_name', $searchTerm);
+                });
             } else {
+
                 $query->where('requester_name', $searchTerm);
             }
-            
-            $itemRequests = $query->orderBy('created_at', 'desc')->get();
+
+            $itemRequests = $query
+                ->latest()
+                ->get();
         }
 
-        return view('auth.track-request', compact('itemRequests', 'searchTerm'));
+        return view('auth.track-request', compact(
+            'itemRequests',
+            'searchTerm'
+        ));
     }
 
     public function receipt($id)
     {
-        $itemRequest = \App\Models\ItemRequest::with(['item', 'requestItems.item'])->findOrFail($id);
+        $itemRequest = ItemRequest::with([
+            'item',
+            'requestItems.item',
+        ])->findOrFail($id);
+
         return view('auth.request-receipt', compact('itemRequest'));
     }
 
     public function updateStatus(Request $request, $id)
     {
-        $itemRequest = \App\Models\ItemRequest::findOrFail($id);
+        $itemRequest = ItemRequest::findOrFail($id);
 
         $validated = $request->validate([
             'status'            => 'required|in:Approved,Adjusted,Cancelled',
@@ -107,12 +139,12 @@ class ItemRequestController extends Controller
 
             if ($isMultiItem) {
                 try {
-                    \Illuminate\Support\Facades\DB::transaction(function () use ($itemRequest, $validated, $status) {
+                    DB::transaction(function () use ($itemRequest, $validated, $status) {
                         $items = $itemRequest->requestItems()->with('item')->get();
-                        
+
                         $approvedItemsIds = $validated['approve_items'] ?? [];
                         $itemQuantities = $validated['item_quantities'] ?? [];
-                        
+
                         // Check all stock first
                         foreach ($items as $reqItem) {
                             if (!in_array($reqItem->id, $approvedItemsIds)) continue;
@@ -122,14 +154,14 @@ class ItemRequestController extends Controller
                                 throw new \Exception('Cannot approve: Insufficient stock for ' . $reqItem->item->name . ' (Only ' . $reqItem->item->stock . ' available).');
                             }
                         }
-                        
+
                         // Deduct stock and log transactions
                         foreach ($items as $reqItem) {
                             if (!in_array($reqItem->id, $approvedItemsIds)) {
                                 $reqItem->update(['approved_quantity' => 0, 'remarks' => $validated['item_remarks'][$reqItem->id] ?? null]);
                                 continue;
                             }
-                            
+
                             $qty = $itemQuantities[$reqItem->id] ?? 0;
                             if ($qty <= 0) {
                                 $reqItem->update(['approved_quantity' => 0, 'remarks' => $validated['item_remarks'][$reqItem->id] ?? null]);
@@ -139,7 +171,7 @@ class ItemRequestController extends Controller
                             $inventoryItem = $reqItem->item;
                             $inventoryItem->stock -= $qty;
                             $inventoryItem->save();
-                            
+
                             $itemRemarks = $validated['item_remarks'][$reqItem->id] ?? null;
 
                             $reqItem->update([
@@ -147,7 +179,7 @@ class ItemRequestController extends Controller
                                 'remarks'           => $itemRemarks
                             ]);
 
-                            \App\Models\StockTransaction::create([
+                            StockTransaction::create([
                                 'inventory_item_id' => $inventoryItem->id,
                                 'user_id'           => auth()->id(),
                                 'type'              => 'out',
@@ -156,7 +188,7 @@ class ItemRequestController extends Controller
                                 'balance'           => $inventoryItem->stock,
                             ]);
                         }
-                        
+
                         $itemRequest->update([
                             'status'      => $status,
                             'admin_note'  => $validated['admin_note'] ?? null,
@@ -165,13 +197,12 @@ class ItemRequestController extends Controller
                         ]);
                     });
 
-                    \App\Services\ReportService::generateMonthlyReportJson();
-                    
+                    ReportService::generateMonthlyReportJson();
+
                     return redirect()->back()->with('success', 'Multi-item Request #' . $itemRequest->id . ' has been processed successfully.');
                 } catch (\Exception $e) {
                     return redirect()->back()->with('error', $e->getMessage());
                 }
-
             } else {
                 $approvedItemsIds = $validated['approve_items'] ?? [];
                 if (!in_array('single', $approvedItemsIds)) {
@@ -179,7 +210,7 @@ class ItemRequestController extends Controller
                 } else {
                     $approvedQty = $validated['approved_quantity'] ?? $itemRequest->requested_quantity;
                 }
-                
+
                 $inventoryItem = $itemRequest->item;
 
                 if ($approvedQty > $inventoryItem->stock) {
@@ -192,7 +223,7 @@ class ItemRequestController extends Controller
                     $inventoryItem->save();
 
                     // Record audit trail
-                    \App\Models\StockTransaction::create([
+                    StockTransaction::create([
                         'inventory_item_id' => $inventoryItem->id,
                         'user_id'           => auth()->id(),
                         'type'              => 'out',
@@ -216,7 +247,7 @@ class ItemRequestController extends Controller
                     'approved_at'       => now(),
                 ]);
 
-                \App\Services\ReportService::generateMonthlyReportJson();
+                ReportService::generateMonthlyReportJson();
 
                 return redirect()->back()->with('success', 'Request #' . $id . ' has been processed successfully.');
             }
@@ -227,7 +258,7 @@ class ItemRequestController extends Controller
 
     public function revert($id)
     {
-        $itemRequest = \App\Models\ItemRequest::findOrFail($id);
+        $itemRequest = ItemRequest::findOrFail($id);
 
         if (!in_array($itemRequest->status, ['Approved', 'Adjusted'])) {
             return redirect()->back()->with('error', 'Only Approved or Adjusted requests can be reverted.');
@@ -245,7 +276,7 @@ class ItemRequestController extends Controller
                         $reqItem->item->save();
 
                         // Log the reversal in audit trail
-                        \App\Models\StockTransaction::create([
+                        StockTransaction::create([
                             'inventory_item_id' => $reqItem->item->id,
                             'user_id'           => auth()->id(),
                             'type'              => 'in',
@@ -265,7 +296,7 @@ class ItemRequestController extends Controller
                     $inventoryItem->stock += $itemRequest->approved_quantity;
                     $inventoryItem->save();
 
-                    \App\Models\StockTransaction::create([
+                    StockTransaction::create([
                         'inventory_item_id' => $inventoryItem->id,
                         'user_id'           => auth()->id(),
                         'type'              => 'in',
@@ -286,16 +317,20 @@ class ItemRequestController extends Controller
             ]);
         });
 
-        \App\Services\ReportService::generateMonthlyReportJson();
+        ReportService::generateMonthlyReportJson();
 
         return redirect()->back()->with('success', 'Request #' . $id . ' has been reverted to Pending. Stock has been restored.');
     }
 
     public function destroy($id)
     {
-        $itemRequest = \App\Models\ItemRequest::findOrFail($id);
+        $itemRequest = ItemRequest::findOrFail($id);
+
         $itemRequest->delete();
 
-        return redirect()->back()->with('success', 'Request #' . $id . ' has been deleted successfully.');
+        return back()->with(
+            'success',
+            'Request #' . $itemRequest->id . ' has been deleted successfully.'
+        );
     }
 }

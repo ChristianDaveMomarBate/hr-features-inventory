@@ -13,7 +13,12 @@
         <div class="sidebar-logo">
             <img src="{{ asset('images/logo-hri.png') }}" alt="PHRMDO Logo">
         </div>
-        <h2>PHRMDO INVENTORY SYSTEM</h2>
+        <h2 class="sidebar-title">
+            eHR<br>
+            <span class="stock-logo">
+                <span class="stock-white">Stock</span><span class="stock-blue">Wise</span>
+            </span>
+        </h2>
     </div>
 
   <ul>
@@ -23,7 +28,7 @@
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'item-requests') ? 'active' : '' }}" data-page-target="item-requests">
         <i class="bi bi-hand-index-fill"></i>
-        <span>Item Requests</span>
+        <span>Item Request</span>
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'inventory-registry') ? 'active' : '' }}" data-page-target="inventory-registry">
         <i class="bi bi-clipboard-data-fill"></i>
@@ -60,10 +65,14 @@
       font-size: 0.68rem;
       line-height: 1.6;
   ">
-      <div style="font-weight: 600; color: rgba(255,255,255,0.75); margin-bottom: 2px;">© 2026 PHRMDO Inventory System</div>
-      <div>Developed by OJT Team:</div>
-      <div style="font-style: italic;">Tudtud Rianne Celone</div>
-      <div style="font-style: italic;">De La Cruz Romel Charlz Nico</div>
+    <small>
+        © 2026 All Rights Reserved
+        <strong style="color:rgba(255,255,255,0.85);">
+            Provincial Human Resource Management and Development Office – StockWise
+        </strong>
+        &nbsp;&nbsp;
+        <span style="color:yellow;">CDB.HR_v1r_wojt</span>
+    </small>
   </div>
 
 </div>

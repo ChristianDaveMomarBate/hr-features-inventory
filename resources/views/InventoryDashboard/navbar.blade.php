@@ -1,6 +1,4 @@
-{{-- Reusable top navbar: notification bell, date, logout, profile --}}
 @php
-    /** @var \App\Models\User $currentUser */
     $currentUser ??= auth()->user();
 @endphp
 
