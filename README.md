@@ -1,41 +1,44 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Provincial Human Resource Management and Development Office  
+# Stock & Inventory System (StockWise)
 
-<p align="justify">Quarantech</p>
-•   Author: <a href="https://www.facebook.com/mythsdev"> Christian Dave Momar Bate </a> <br>
-•   Twitter: <a href="https://twitter.com/ferrariBate"> @ferrariBate </a> <br>
-•   Linkedin: <a href="https://www.linkedin.com/in/christian-dave-bate-58b838246/"> Christian Dave Bate </a> <br>
-•   Instagram: <a href="https://www.instagram.com/pororo_panda/"> @pororo_panda </a> <br>
+## Overview
 
-## Objectives
-•   This is a laravel universal template that i personally created to prepare myself on the actual company job ♥<br>
+The **Provincial Human Resource Management and Development Office – Stock & Inventory System (StockWise)** is an internal inventory management solution developed to streamline the monitoring, tracking, and management of office supplies, equipment, and other inventory assets.
 
-## Requirement
-•   PHP Latest version
-•   NPN 
-•   Laravel 9
+StockWise provides a centralized platform for inventory control, stock movement monitoring, request management, and audit trail logging, ensuring transparency, accountability, and efficient resource utilization within the Provincial Human Resource Management and Development Office (PHRMDO).
 
-## Installation
-Setting up your development environment on your local machine:
-```
-git clone https://github.com/ChristianDaveMomarBate/Quarantech.git
-cd pgsdnHR
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan optimize
-php artisan serve
-npm run dev
-```
-## Before Starting
+> **Notice:** This repository is a private project intended solely for authorized personnel of the Provincial Human Resource Management and Development Office.
 
-Create Database and Set-up db credential on .env
-```
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=pgsdnHR
-DB_USERNAME={USERNAME}
-DB_PASSWORD={PASSWORD}
-```
+---
+
+## Features
+
+- Inventory Management
+- Stock Monitoring
+- Stock In & Stock Out Transactions
+- Item Request Management
+- Audit Trail Logging
+- User & Role Management
+- Dashboard & Reports
+
+---
+
+## Security Notice
+
+This repository contains confidential source code, documentation, and internal business processes of the Provincial Human Resource Management and Development Office.
+
+Access is restricted to authorized personnel only.
+
+Unauthorized access, copying, modification, distribution, disclosure, or use of any part of this repository is strictly prohibited.
+
+---
+
+## License
+
+**Private Repository**
+
+Copyright © 2026 Provincial Human Resource Management and Development Office (PHRMDO)
+
+All Rights Reserved.
+
+This software and its associated documentation are the exclusive property of the Provincial Human Resource Management and Development Office. It is intended solely for official government use and may not be reproduced, distributed, published, or used without prior written authorization from the Provincial Human Resource Management and Development Office.
