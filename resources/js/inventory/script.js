@@ -733,7 +733,7 @@ function updateBatchPagination() {
   if (!container) return;
   const cards = container.querySelectorAll('.stock-item-card');
   const totalCards = cards.length;
-  const BATCH_ITEMS_PER_PAGE = 5;
+  const BATCH_ITEMS_PER_PAGE = 12;
   const totalPages = Math.ceil(totalCards / BATCH_ITEMS_PER_PAGE) || 1;
 
   if (window.currentBatchPage > totalPages || !window.currentBatchPage) {
