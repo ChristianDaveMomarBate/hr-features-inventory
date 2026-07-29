@@ -5,10 +5,9 @@
     <title>PHRMDO Inventory Registry</title>
     <style>
         @page {
-            margin: 210px 20px 60px 20px;
+            margin: 20px 20px 60px 20px;
             size: a4 landscape;
         }
-
         body {
             font-family: Arial, sans-serif;
             color: #000;
@@ -16,24 +15,18 @@
             margin: 0;
             padding: 0;
         }
-
-        /* Fixed Header */
-        header {
-            position: fixed;
-            top: -210px;
-            left: -20px;
-            right: -20px;
-            height: auto;
-            text-align: center;
+        .first-page-header {
+            margin-top: -20px;
+            margin-left: -20px;
+            margin-right: -20px;
+            margin-bottom: -80px;
         }
-
-        header img {
-            width: 100%;
+        .first-page-header img {
+            width: calc(100% + 40px);
             height: auto;
-            max-height: 180px;
-            object-fit: contain;
+            display: block;
         }
-
+    
         /* Fixed Footer */
         footer {
             position: fixed;
@@ -67,7 +60,8 @@
             border-collapse: collapse;
         }
 
-        .data-table th, .data-table td {
+        .data-table th,
+        .data-table td {
             border: 1px solid #000;
             padding: 5px;
             text-align: left;
@@ -75,13 +69,14 @@
         }
 
         .data-table th {
-            background-color: #c8dff5; /* Light blue header */
+            background-color: #c8dff5;
+            /* Light blue header */
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
             font-size: 9px;
         }
-        
+
         .data-table td {
             font-size: 10px;
         }
@@ -95,19 +90,39 @@
 <body>
 
     <!-- Header will repeat on every page -->
-    <header>
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/GovMail Header.png'))) }}" alt="GovMail Header" style="width: 100%; height: auto; display: block; margin: 0 auto;">
-    </header>
+    <div class="first-page-header">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/GovMail Header Landscape.png'))) }}"
+            alt="GovMail Header">
+    </div>
+    <footer style="
+                width:100%;
+                padding-top:8px;
+                font-size:9px;
+                color:#555;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+            ">
 
-    <!-- Footer will repeat on every page -->
-    <footer>
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/footer.png'))) }}" alt="Footer" style="width:100%; height:auto; max-height:30px; object-fit:contain;">
+        <div>
+            <strong style="color:#00196d;">
+                PHRMDO -
+                <span style="color:#111827; position:relative;">
+                    <span style="
+                                border-bottom:2px solid #2563eb;
+                                padding-bottom:1px;
+                            ">Stock</span>
+                </span><span style="color:#2563eb;">Wise</span>
+            </strong>
+            <br>
+            Smart Stock & Inventory Management System v1 2026
+        </div>
     </footer>
 
     <!-- Main Content -->
     <main>
         <div class="report-title">
-            INVENTORY REGISTRY<br>
+            Stock List<br>
             <span style="font-size: 10px; font-weight: normal;">As of {{ \Carbon\Carbon::now()->format('F d, Y') }}</span>
         </div>
 
@@ -115,7 +130,7 @@
             <thead>
                 <tr>
                     <th style="width: 10%;">Item Code</th>
-                    <th style="width: 16%;">Item Name</th>
+                    <th style="width: 16%;">Item Description</th>
                     <th style="width: 12%;">Category</th>
                     <th style="width: 8%;">Type</th>
                     <th style="width: 6%;">Units</th>
@@ -144,6 +159,5 @@
             </tbody>
         </table>
     </main>
-
 </body>
 </html>

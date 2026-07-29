@@ -25,13 +25,14 @@
     <link href="{{ asset('vendor/tom-select/dist/css/tom-select.bootstrap5.min.css') }}" rel="stylesheet">
     <script src="{{ asset('vendor/chart.js/dist/chart.umd.js') }}"></script>
     <link href="{{ asset('design/dashboardstyle/index.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <div class="dashboard-mobile-bar">
     <button type="button" class="dashboard-menu-btn" data-action="toggle-sidebar" aria-label="Open navigation">
       <i class="bi bi-list"></i>
     </button>
-    <div class="dashboard-mobile-title">PHRMDO StockWise</div>
+    <div class="dashboard-mobile-title"> StockWise</div>
   </div>
   <div class="dashboard-container">
     @include('InventoryDashboard.sidebar')

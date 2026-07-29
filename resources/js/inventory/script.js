@@ -1024,20 +1024,20 @@ async function initMonthlyReport() {
 
   let items = [];
   let rawTx = [];
-  try {
-    const response = await fetch('/storage/reports/monthly_report.json');
-    if (response.ok) {
-        const data = await response.json();
-        items = data.items || [];
-        rawTx = data.transactions || [];
-    } else {
-        throw new Error("Failed to fetch JSON");
-    }
-  } catch (err) {
-    console.error("Using fallback data due to JSON fetch error:", err);
-    items = readJsonScript('inventory-data', []);
-    rawTx = readJsonScript('transactions-data', []);
-  }
+  // try {
+  //   // const response = await fetch('/storage/reports/monthly_report.json');
+  //   if (response.ok) {
+  //       const data = await response.json();
+  //       items = data.items || [];
+  //       rawTx = data.transactions || [];
+  //   } else {
+  //       throw new Error("Failed to fetch JSON");
+  //   }
+  // } catch (err) {
+  //   console.error("Using fallback data due to JSON fetch error:", err);
+  //   items = readJsonScript('inventory-data', []);
+  //   rawTx = readJsonScript('transactions-data', []);
+  // }
 
   function renderMonthlyReport() {
     let year, startMonth, endMonth, periodLabel;

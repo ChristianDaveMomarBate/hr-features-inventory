@@ -3346,3 +3346,227 @@ button,
     opacity: .6;
     margin: 0 4px;
 }
+
+.action-btn {
+    height: 38px;
+    min-width: 90px;
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .2s ease;
+    cursor: pointer;
+}
+
+/* Search */
+.action-btn:not(.action-pdf):not(.action-excel):not(.action-add) {
+    background: #eef4ff;
+    color: #2563eb;
+}
+
+.action-btn:not(.action-pdf):not(.action-excel):not(.action-add):hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* PDF */
+.action-pdf {
+    background: #fff1f2;
+    color: #dc2626;
+}
+
+.action-pdf:hover {
+    background: #dc2626;
+    color: white;
+}
+
+/* Excel */
+.action-excel {
+    background: #ecfdf5;
+    color: #16a34a;
+}
+
+.action-excel:hover {
+    background: #16a34a;
+    color: white;
+}
+
+/* Add */
+.action-add {
+    max-width: 90px;
+    background: #00196d;
+    color: white;
+}
+
+.action-add:hover {
+    background: #0033b8;
+}
+
+
+
+
+/* ================================
+   Inventory Modal - Flat UI
+================================ */
+
+.inventory-modal {
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Header */
+.inventory-header {
+    padding: 16px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.inventory-header .modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.inventory-header .modal-title i {
+    color: #2563eb;
+}
+
+.modal-subtitle {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #8a94a6;
+}
+
+/* Body */
+.inventory-body {
+    padding: 18px 20px 20px;
+    background: #f8fafc;
+}
+
+/* Section Titles */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.section-title i {
+    color: #2563eb;
+    font-size: 14px;
+}
+
+.section-divider {
+    padding-top: 16px;
+    margin-top: 18px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Labels */
+.form-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+/* Inputs */
+.inventory-body .form-control,
+.inventory-body .form-select {
+    height: 40px;
+
+    padding: 7px 11px;
+
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    font-size: 13px;
+    color: #374151;
+
+    box-shadow: none;
+
+    transition: all .15s ease;
+}
+
+.inventory-body .form-control::placeholder {
+    color: #adb5bd;
+}
+
+.inventory-body .form-control:focus,
+.inventory-body .form-select:focus {
+    border-color: #7aa7f7;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+}
+
+/* Small description */
+.form-hint {
+    margin-top: 4px;
+
+    font-size: 10.5px;
+    color: #9aa3af;
+}
+
+/* Footer */
+.inventory-footer {
+    padding: 12px 20px;
+
+    background: #ffffff;
+    border-top: 1px solid #edf0f4;
+}
+
+/* Buttons */
+.inventory-footer .btn {
+    height: 38px;
+
+    padding: 0 16px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.inventory-cancel {
+    border: 1px solid #e1e5ea;
+    color: #6b7280;
+    background: #ffffff;
+}
+
+.inventory-cancel:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.inventory-save {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.inventory-save:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+

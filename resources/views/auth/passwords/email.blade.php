@@ -169,7 +169,7 @@
         z-index: 9999;
     ">
         <small>
-            © 2026 All Rights Reserved
+            © 2026 All Rights Reserved </br>
             <strong style="color:rgba(255,255,255,0.85);">
                 Provincial Human Resource Management and Development Office – StockWise
             </strong>

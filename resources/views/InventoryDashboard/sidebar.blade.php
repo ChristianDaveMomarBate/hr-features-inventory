@@ -14,7 +14,7 @@
             <img src="{{ asset('images/logo-hri.png') }}" alt="PHRMDO Logo">
         </div>
         <h2 class="sidebar-title">
-            eHR<br>
+            PHRMDO<br>
             <span class="stock-logo">
                 <span class="stock-white">Stock</span><span class="stock-blue">Wise</span>
             </span>
@@ -28,7 +28,7 @@
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'item-requests') ? 'active' : '' }}" data-page-target="item-requests">
         <i class="bi bi-hand-index-fill"></i>
-        <span>Item Request</span>
+        <span>Manage Request</span>
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'inventory-registry') ? 'active' : '' }}" data-page-target="inventory-registry">
         <i class="bi bi-clipboard-data-fill"></i>
@@ -40,15 +40,15 @@
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'analytics') ? 'active' : '' }}" data-page-target="analytics">
         <i class="bi bi-bar-chart-fill"></i>
-        <span>Analytics</span>
+        <span>Data Analytics</span>
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'reports') ? 'active' : '' }}" data-page-target="reports">
         <i class="bi bi-file-earmark-bar-graph-fill"></i>
-        <span>Reports</span>
+        <span>Manage Reports</span>
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'audit-trails') ? 'active' : '' }}" data-page-target="audit-trails">
         <i class="bi bi-clock-history"></i>
-        <span>Audit Trails</span>
+        <span>Activity Logs</span>
     </li>
     <li class="{{ (isset($activePageId) && $activePageId === 'users') ? 'active' : '' }}" data-navigate-url="{{ route('users.index') }}">
         <i class="bi bi-people-fill"></i>
@@ -66,7 +66,7 @@
       line-height: 1.6;
   ">
     <small>
-        © 2026 All Rights Reserved
+        © 2026 All Rights Reserved </br>
         <strong style="color:rgba(255,255,255,0.85);">
             Provincial Human Resource Management and Development Office – StockWise
         </strong>
