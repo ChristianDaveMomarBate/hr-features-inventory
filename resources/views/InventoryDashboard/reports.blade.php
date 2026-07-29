@@ -1,8 +1,9 @@
 <div id="reports" class="page {{ (isset($activePageId) && $activePageId === 'reports') ? 'active-page' : '' }}">
     <div class="analytics-header d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
-            <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">REPORTS</h1>
-            <p class="text-muted mb-0">Monthly and Quarterly Item Activity Reports.</p>
+            <h1 class="dashboard-title mb-0">
+                <span class="dashboard-title-badge">StockWise - Reports</span>
+            </h1>
         </div>
         @include('InventoryDashboard.navbar')
     </div>
@@ -74,30 +75,42 @@
                         </div>
                     </div>
 
-                    {{-- ===== TABLE ===== --}}
-                    <div class="table-responsive analytics-table-wrap" style="max-height: 400px; overflow-y: auto;">
-                        <table id="reportTable" style="width:100%; border-collapse:collapse; table-layout:fixed;">
-                            <thead>
-                                <tr>
-                                    <th colspan="3" style="background-color:#a9d08e; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock In</th>
-                                    <th colspan="3" style="background-color:#f4b084; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Out</th>
-                                    <th colspan="2" style="background-color:#9bc2e6; color:#000; border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; padding:4px;">Stock Balance</th>
-                                </tr>
-                                <tr>
-                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Date</th>
-                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
-                                    <th style="background-color:#c6e0b4; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">In Quantity</th>
-                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:9%;">Date</th>
-                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Item Name</th>
-                                    <th style="background-color:#f8cbad; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:13%;">Out Quantity</th>
-                                    <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Item Name</th>
-                                    <th style="background-color:#bdd7ee; color:#000; border:1px solid #000; text-align:center; font-size:10px; padding:3px; width:15%;">Balance Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportTableBody">
-                                <!-- Populated by JS -->
-                            </tbody>
-                        </table>
+                    {{-- ===== MODERN TABLE ===== --}}
+                    <div class="analytics-table-card">
+                        <div class="table-responsive analytics-table-wrap">
+                            <table id="reportTable" class="modern-report-table">
+                                <thead>
+                                    <tr class="group-header">
+                                        <th colspan="3" class="stock-in-header">
+                                            <i class="bi bi-arrow-down-circle-fill"></i> Stock In
+                                        </th>
+                                        <th colspan="3" class="stock-out-header">
+                                            <i class="bi bi-arrow-up-circle-fill"></i> Stock Out
+                                        </th>
+                                        <th colspan="2" class="balance-header">
+                                            <i class="bi bi-box-seam-fill"></i> Stock Balance
+                                        </th>
+                                    </tr>
+
+                                    <tr class="column-header">
+                                        <th>Date</th>
+                                        <th>Item Name</th>
+                                        <th>In Quantity</th>
+
+                                        <th>Date</th>
+                                        <th>Item Name</th>
+                                        <th>Out Quantity</th>
+
+                                        <th>Item Name</th>
+                                        <th>Balance Qty</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="reportTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     {{-- ===== SIGNATURES UI (Screen only, for print injection) ===== --}}

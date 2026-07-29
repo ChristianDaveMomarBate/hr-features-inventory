@@ -763,9 +763,8 @@ body.sidebar-collapsed .sidebar> :not(.sidebar-toggle-btn) {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60%;
+  width: 100%;
   height: 60%;
-  background-image: url('/images/logo-hri.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -3570,3 +3569,179 @@ button,
     border-color: #1d4ed8;
 }
 
+.analytics-table-card{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 8px 30px rgba(15,23,42,.08);
+    border:1px solid #eef2f7;
+    overflow:hidden;
+}
+
+.analytics-table-wrap{
+    max-height:725px;
+    overflow:auto;
+}
+
+.modern-report-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout:fixed;
+    min-width:1200px;
+}
+
+/* Top Group Header */
+.modern-report-table .group-header th{
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    padding:14px;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+
+.stock-in-header{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
+.stock-out-header{
+    background:linear-gradient(135deg,#f97316,#ea580c);
+}
+
+.balance-header{
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+}
+
+/* Column Header */
+.modern-report-table .column-header th{
+    background:#f8fafc;
+    color:#475569;
+    font-size:12px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    padding:12px;
+    border-bottom:1px solid #e5e7eb;
+    position:sticky;
+    top:48px;
+    z-index:15;
+}
+
+/* Body */
+.modern-report-table tbody td{
+    padding:12px;
+    font-size:13px;
+    color:#334155;
+    border-bottom:1px solid #f1f5f9;
+    background:#fff;
+    transition:.2s;
+    word-wrap:break-word;
+}
+
+.modern-report-table tbody tr:nth-child(even) td{
+    background:#fafcff;
+}
+
+.modern-report-table tbody tr:hover td{
+    background:#eff6ff;
+}
+
+/* Vertical Section Divider */
+.modern-report-table th:nth-child(3),
+.modern-report-table td:nth-child(3),
+.modern-report-table th:nth-child(6),
+.modern-report-table td:nth-child(6){
+    border-right:3px solid #e2e8f0;
+}
+
+/* Alignment */
+.modern-report-table td:nth-child(3),
+.modern-report-table td:nth-child(6),
+.modern-report-table td:nth-child(8){
+    text-align:center;
+    font-weight:700;
+}
+
+.modern-report-table td:nth-child(1),
+.modern-report-table td:nth-child(4){
+    text-align:center;
+    color:#64748b;
+    white-space:nowrap;
+}
+
+/* Rounded Corners */
+.group-header th:first-child{
+    border-top-left-radius:18px;
+}
+
+.group-header th:last-child{
+    border-top-right-radius:18px;
+}
+
+/* Scrollbar */
+.analytics-table-wrap::-webkit-scrollbar{
+    width:10px;
+    height:10px;
+}
+
+.analytics-table-wrap::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
+    border-radius:20px;
+}
+
+.analytics-table-wrap::-webkit-scrollbar-thumb:hover{
+    background:#94a3b8;
+}
+.audit-pagination-wrapper{
+    display:flex;
+    justify-content:center;
+    margin-top:1.5rem;
+    margin-bottom: 15px;
+}
+
+.audit-pagination-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:.65rem 1rem;
+    box-shadow:0 4px 12px rgba(15,23,42,.06);
+}
+
+.audit-pagination-card .pagination{
+    margin:0;
+    gap:.35rem;
+}
+
+.audit-pagination-card .page-link{
+    padding:20px;
+    border:none;
+    border-radius:10px;
+    color:#475569;
+    font-weight:600;
+    background:#f8fafc;
+    transition:.2s ease;
+}
+
+.audit-pagination-card .page-link:hover{
+    background:#2563eb;
+    color:#fff;
+    transform:translateY(-2px);
+}
+
+.audit-pagination-card .page-item.active .page-link{
+    background:#2563eb;
+    color:#fff;
+    box-shadow:0 4px 10px rgba(37,99,235,.25);
+}
+
+.audit-pagination-card .page-item.disabled .page-link{
+    background:#f1f5f9;
+    color:#94a3b8;
+    cursor:not-allowed;
+}
+
+.audit-pagination-card .page-link:focus{
+    box-shadow:none;
+}

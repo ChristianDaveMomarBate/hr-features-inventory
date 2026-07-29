@@ -16,7 +16,7 @@
             <div class="kiosk-hero-icon-wrap">
                 <i class="fas fa-box-open"></i>
             </div>
-            <h1 class="kiosk-hero-title">Provincial Human Resource Management & Development Office - Inventory System</h1>
+            <h1 class="kiosk-hero-title">Provincial Human Resource Management & Development Office - Stock & Inventory System</h1>
             <p class="kiosk-hero-sub">Select items, set quantities, enter your name and division, then submit your stock-out.</p>
 
             <div class="kiosk-hero-fullscreen-brand" aria-label="PHRMDO Surigao City Surigao del Norte">

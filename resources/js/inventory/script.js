@@ -131,18 +131,46 @@ function initHourlyBibleVerse() {
   if (verseElements.length === 0) return;
 
   const verses = [
-    'Psalm 23:1 - The Lord is my shepherd.I shall not want.',
-    'Philippians 4:13 - I can do all things through Christ who Strengthen me.',
-    'Proverbs 3:5 - Trust in the Lord with all thine heart.',
-    'Isaiah 41:10 - Fear thou not; for I am with thee.',
-    'Psalm 46:10 - Be still, and know that I am God.',
-    'Matthew 5:16 - Let your light so shine before men.',
-    'Romans 8:28 - All things work together for good.',
-    'Joshua 1:9 - Be strong and of a good courage.',
-    'Psalm 118:24 - This is the day which the Lord hath made.',
-    'John 14:27 - Peace I leave with you.',
-    '1 Peter 5:7 - Casting all your care upon him.',
-    'Psalm 119:105 - Thy word is a lamp unto my feet.',
+      'Psalm 23:1 - The Lord is my shepherd; I shall not want.',
+      'Philippians 4:13 - I can do all things through Christ who strengthens me.',
+      'Proverbs 3:5 - Trust in the Lord with all thine heart; and lean not unto thine own understanding.',
+      'Isaiah 41:10 - Fear thou not; for I am with thee.',
+      'Psalm 46:10 - Be still, and know that I am God.',
+      'Matthew 5:16 - Let your light so shine before men.',
+      'Romans 8:28 - And we know that all things work together for good to them that love God.',
+      'Joshua 1:9 - Be strong and of a good courage; be not afraid.',
+      'Psalm 118:24 - This is the day which the Lord hath made; we will rejoice and be glad in it.',
+      'John 14:27 - Peace I leave with you, my peace I give unto you.',
+      '1 Peter 5:7 - Casting all your care upon him; for he careth for you.',
+      'Psalm 119:105 - Thy word is a lamp unto my feet, and a light unto my path.',
+      'Jeremiah 29:11 - For I know the plans I have for you, saith the Lord.',
+      'John 3:16 - For God so loved the world, that he gave his only begotten Son.',
+      'Romans 12:12 - Rejoicing in hope; patient in tribulation; continuing instant in prayer.',
+      'Psalm 27:1 - The Lord is my light and my salvation; whom shall I fear?',
+      'Isaiah 40:31 - They that wait upon the Lord shall renew their strength.',
+      'Matthew 11:28 - Come unto me, all ye that labour and are heavy laden, and I will give you rest.',
+      '2 Timothy 1:7 - For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.',
+      'Hebrews 11:1 - Now faith is the substance of things hoped for, the evidence of things not seen.',
+      'Psalm 34:8 - O taste and see that the Lord is good.',
+      'Lamentations 3:22-23 - His compassions fail not. They are new every morning.',
+      'Romans 15:13 - Now the God of hope fill you with all joy and peace in believing.',
+      'James 1:5 - If any of you lack wisdom, let him ask of God.',
+      'Ephesians 2:8 - For by grace are ye saved through faith.',
+      'Colossians 3:23 - And whatsoever ye do, do it heartily, as to the Lord.',
+      'Psalm 37:4 - Delight thyself also in the Lord; and he shall give thee the desires of thine heart.',
+      'Nahum 1:7 - The Lord is good, a strong hold in the day of trouble.',
+      '1 Thessalonians 5:16-18 - Rejoice evermore. Pray without ceasing. In every thing give thanks.',
+      'Micah 6:8 - What doth the Lord require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?',
+      'Deuteronomy 31:6 - Be strong and of a good courage; fear not, nor be afraid.',
+      'Psalm 91:1 - He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty.',
+      'Galatians 5:22-23 - The fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, meekness, temperance.',
+      'John 16:33 - In the world ye shall have tribulation: but be of good cheer; I have overcome the world.',
+      'Psalm 121:1-2 - I will lift up mine eyes unto the hills, from whence cometh my help.',
+      'Romans 10:9 - If thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved.',
+      'Proverbs 16:3 - Commit thy works unto the Lord, and thy thoughts shall be established.',
+      'Psalm 100:5 - For the Lord is good; his mercy is everlasting.',
+      'Isaiah 26:3 - Thou wilt keep him in perfect peace, whose mind is stayed on thee.',
+      'Hebrews 13:8 - Jesus Christ the same yesterday, and to day, and for ever.'
   ];
 
   function updateVerse() {
@@ -1024,20 +1052,19 @@ async function initMonthlyReport() {
 
   let items = [];
   let rawTx = [];
-  // try {
-  //   // const response = await fetch('/storage/reports/monthly_report.json');
-  //   if (response.ok) {
-  //       const data = await response.json();
-  //       items = data.items || [];
-  //       rawTx = data.transactions || [];
-  //   } else {
-  //       throw new Error("Failed to fetch JSON");
-  //   }
-  // } catch (err) {
-  //   console.error("Using fallback data due to JSON fetch error:", err);
-  //   items = readJsonScript('inventory-data', []);
-  //   rawTx = readJsonScript('transactions-data', []);
-  // }
+  try {
+    // const response = await fetch('/storage/reports/monthly_report.json');
+    if (response.ok) {
+        const data = await response.json();
+        items = data.items || [];
+        rawTx = data.transactions || [];
+    } else {
+        throw new Error("Failed to fetch JSON");
+    }
+  } catch (err) {
+    items = readJsonScript('inventory-data', []);
+    rawTx = readJsonScript('transactions-data', []);
+  }
 
   function renderMonthlyReport() {
     let year, startMonth, endMonth, periodLabel;

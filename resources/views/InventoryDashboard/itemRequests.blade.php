@@ -1,7 +1,7 @@
 <div id="item-requests" class="page {{ $activePageId === 'item-requests' ? 'active-page' : '' }}">
     <div class="dashboard-main-header d-flex justify-content-between align-items-center mb-4">
         <h1 class="dashboard-title mb-0">
-            <span class="dashboard-title-badge">StockWise Item Requested</span>
+            <span class="dashboard-title-badge">StockWise - Item Requested Manage</span>
         </h1>
         @include('InventoryDashboard.navbar')
     </div>

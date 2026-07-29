@@ -1,17 +1,16 @@
 <div id="audit-trails" class="page {{ (isset($activePageId) && $activePageId === 'audit-trails') ? 'active-page' : '' }}">
     <div class="audit-header d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">AUDIT TRAILS</h1>
-            <p class="text-muted mb-0">Track all user activities and system changes.</p>
+            <h1 class="dashboard-title mb-0">
+                <span class="dashboard-title-badge">StockWise - Activity Logs</span>
+            </h1>
         </div>
         @include('InventoryDashboard.navbar')
     </div>
 
     <div class="chart-card p-0 overflow-hidden audit-fit-card">
-        <div class="p-4 border-bottom border-light bg-white">
-            <h5 class="fw-bold text-dark mb-0">System Activity Logs</h5>
-        </div>
         <div class="table-responsive bg-white audit-table-wrap">
+        
             <table class="table table-hover table-modern align-middle mb-0 border-0">
                 <thead class="table-light">
                     <tr>
@@ -175,8 +174,10 @@
                 </table>
             </div>
             
-            <div class="audit-pagination mt-4">
-                {{ $auditTrails->appends(request()->query())->links('pagination::bootstrap-5') }}
-            </div>
+<div class="audit-pagination-wrapper mt-4">
+    <div class="audit-pagination-card">
+        {{ $auditTrails->appends(request()->query())->links('pagination::bootstrap-5') }}
+    </div>
+</div>
         </div>
     </div>

@@ -37,8 +37,9 @@
 <div id="analytics" class="page {{ (isset($activePageId) && $activePageId === 'analytics') ? 'active-page' : '' }}">
     <div class="analytics-header d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
-            <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">ANALYTICS</h1>
-            <p class="text-muted mb-0">Insights and reports on your inventory data.</p>
+            <h1 class="dashboard-title mb-0">
+                <span class="dashboard-title-badge">StockWise - Analytics</span>
+            </h1>
         </div>
         @include('InventoryDashboard.navbar')
     </div>

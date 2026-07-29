@@ -174,7 +174,7 @@
                     <p class="lp-no-account">
                         Account creation is disabled for normal users.
                         <a href="mailto:christian.pgsdn.hr@gmail.com" class="disabled-link">
-                            Contact the Super Administrator
+                            Contact the  Administrator
                         </a>
                     </p>
                 </div>

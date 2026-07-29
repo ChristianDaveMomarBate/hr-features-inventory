@@ -40,7 +40,7 @@
     <div class="dashboard-main-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="dashboard-title mb-0">
-                <span class="dashboard-title-badge">StockWise Inventory Registery</span>
+                <span class="dashboard-title-badge">StockWise - Inventory Registery</span>
             </h1>
         </div>
         @include('InventoryDashboard.navbar')
