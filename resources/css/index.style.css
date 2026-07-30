@@ -3979,3 +3979,37 @@ button,
     background: #f8fafc;
     color: #374151;
 }
+
+/* =========================================================
+   SIDEBAR SECTION DIVIDER
+   ========================================================= */
+
+.sidebar-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 18px 6px;
+    color: rgba(255, 255, 255, 0.38);
+}
+
+.sidebar-section-divider::before,
+.sidebar-section-divider::after {
+    content: "";
+    height: 1px;
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.sidebar-section-divider::before {
+    width: 12px;
+}
+
+.sidebar-section-divider::after {
+    flex: 1;
+}
+
+.sidebar-section-divider span {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.9px;
+    white-space: nowrap;
+}

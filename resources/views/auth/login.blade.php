@@ -7,7 +7,7 @@
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="max-age=604800" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>PHRMDO Stock Wise</title>
+    <title>PHRMDO StockWise</title>
     <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <script src="js/jquery-2.0.0.min.js" type="text/javascript"></script>
     <script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
@@ -29,7 +29,7 @@
         <div class="container-fluid px-4 px-md-5">
             <a class="navbar-brand d-flex align-items-center nav-tab-btn" href="#home" data-target="home">
                 <img src="images/logo2.webp" alt="PHRMDO Logo" height="35" class="d-inline-block align-top mr-2" style="margin-right: 8px;">
-                <span>Stock Wise</span>
+                <span>StockWise</span>
             </a>
             <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
