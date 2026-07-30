@@ -1980,513 +1980,375 @@ window.initOrUpdateCharts = initOrUpdateCharts;
 window.showToast = showToast;
 window.removeToast = removeToast;
 
-function openDeleteModal(actionUrl, controlNumber) {
-        document.getElementById('deleteRequestForm').action = actionUrl;
-        document.getElementById('deleteRequestLabel').textContent = controlNumber;
-        var modal = new bootstrap.Modal(document.getElementById('deleteRequestModal'));
-        modal.show();
-    }
+document.addEventListener('DOMContentLoaded', function () {
+
+    const table = document.getElementById('itemRequestsTable');
+    const searchInput = document.getElementById('requestSearch');
+    const statusFilter = document.getElementById('requestStatusFilter');
+    const divisionFilter = document.getElementById('requestDivisionFilter');
+    const sortSelect = document.getElementById('requestSort');
+    const resetButton = document.getElementById('resetRequestFilters');
+
+    if (!table) return;
+
+    const tbody = table.querySelector('tbody');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get actual data rows
+    |--------------------------------------------------------------------------
+    */
+
+    let rows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
+        return !row.querySelector('td[colspan]');
+    });
 
 
-    document.addEventListener('DOMContentLoaded', function() {
+    /*
+    |--------------------------------------------------------------------------
+    | Populate Division Filter
+    |--------------------------------------------------------------------------
+    */
 
-        const table = document.getElementById('itemRequestsTable');
-        const searchInput = document.getElementById('requestSearch');
-        const statusFilter = document.getElementById('requestStatusFilter');
-        const divisionFilter = document.getElementById('requestDivisionFilter');
-        const sortSelect = document.getElementById('requestSort');
-        const resetButton = document.getElementById('resetRequestFilters');
+    const divisions = new Set();
 
-        if (!table) return;
+    rows.forEach(row => {
 
-        const tbody = table.querySelector('tbody');
+        const divisionCell = row.cells[2];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get actual data rows
-        |--------------------------------------------------------------------------
-        */
+        if (divisionCell) {
+            const division = divisionCell.textContent.trim();
 
-        let rows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
-            return !row.querySelector('td[colspan]');
+            if (division) {
+                divisions.add(division);
+            }
+        }
+
+    });
+
+    Array.from(divisions)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(division => {
+
+            const option = document.createElement('option');
+
+            option.value = division;
+            option.textContent = division;
+
+            divisionFilter.appendChild(option);
+
         });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Populate Division Filter
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Apply Filters
+    |--------------------------------------------------------------------------
+    */
 
-        const divisions = new Set();
+    function applyFilters() {
+
+        const searchValue = searchInput.value
+            .toLowerCase()
+            .trim();
+
+        const selectedStatus = statusFilter.value;
+        const selectedDivision = divisionFilter.value;
 
         rows.forEach(row => {
 
-            const divisionCell = row.cells[2];
-
-            if (divisionCell) {
-                const division = divisionCell.textContent.trim();
-
-                if (division) {
-                    divisions.add(division);
-                }
-            }
-
-        });
-
-        Array.from(divisions)
-            .sort((a, b) => a.localeCompare(b))
-            .forEach(division => {
-
-                const option = document.createElement('option');
-
-                option.value = division;
-                option.textContent = division;
-
-                divisionFilter.appendChild(option);
-
-            });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Apply Filters
-        |--------------------------------------------------------------------------
-        */
-
-        function applyFilters() {
-
-            const searchValue = searchInput.value
+            const rowText = row.textContent
                 .toLowerCase()
                 .trim();
 
-            const selectedStatus = statusFilter.value;
-            const selectedDivision = divisionFilter.value;
+            /*
+            | Requester
+            | Division
+            | Item
+            | Purpose
+            | Status
+            | Date
+            */
 
-            rows.forEach(row => {
-
-                const rowText = row.textContent
-                    .toLowerCase()
-                    .trim();
-
-                /*
-                | Requester
-                | Division
-                | Item
-                | Purpose
-                | Status
-                | Date
-                */
-
-                const matchesSearch =
-                    searchValue === '' ||
-                    rowText.includes(searchValue);
+            const matchesSearch =
+                searchValue === '' ||
+                rowText.includes(searchValue);
 
 
-                /*
-                | Status
-                */
+            /*
+            | Status
+            */
 
-                let matchesStatus = true;
+            let matchesStatus = true;
 
-                if (selectedStatus !== '') {
+            if (selectedStatus !== '') {
 
-                    const statusCell = row.cells[6];
+                const statusCell = row.cells[6];
 
-                    const statusText = statusCell ?
-                        statusCell.textContent.trim() :
-                        '';
+                const statusText = statusCell
+                    ? statusCell.textContent.trim()
+                    : '';
 
-                    matchesStatus =
-                        statusText === selectedStatus;
-                }
-
-
-                /*
-                | Division
-                */
-
-                let matchesDivision = true;
-
-                if (selectedDivision !== '') {
-
-                    const divisionCell = row.cells[2];
-
-                    const divisionText = divisionCell ?
-                        divisionCell.textContent.trim() :
-                        '';
-
-                    matchesDivision =
-                        divisionText === selectedDivision;
-                }
+                matchesStatus =
+                    statusText === selectedStatus;
+            }
 
 
-                /*
-                | Show / Hide
-                */
+            /*
+            | Division
+            */
 
-                row.style.display =
-                    matchesSearch &&
-                    matchesStatus &&
-                    matchesDivision ?
-                    '' :
-                    'none';
+            let matchesDivision = true;
 
-            });
+            if (selectedDivision !== '') {
 
-            updateNoResultsMessage();
+                const divisionCell = row.cells[2];
 
-        }
+                const divisionText = divisionCell
+                    ? divisionCell.textContent.trim()
+                    : '';
+
+                matchesDivision =
+                    divisionText === selectedDivision;
+            }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | No Results Message
-        |--------------------------------------------------------------------------
-        */
+            /*
+            | Show / Hide
+            */
 
-        function updateNoResultsMessage() {
+            row.style.display =
+                matchesSearch &&
+                matchesStatus &&
+                matchesDivision
+                    ? ''
+                    : 'none';
 
-            let visibleRows = rows.filter(row => {
-                return row.style.display !== 'none';
-            });
+        });
 
-            let noResultsRow = tbody.querySelector('.request-no-results');
+        updateNoResultsMessage();
 
-            if (visibleRows.length === 0) {
+    }
 
-                if (!noResultsRow) {
 
-                    noResultsRow = document.createElement('tr');
+    /*
+    |--------------------------------------------------------------------------
+    | No Results Message
+    |--------------------------------------------------------------------------
+    */
 
-                    noResultsRow.className = 'request-no-results';
+    function updateNoResultsMessage() {
 
-                    noResultsRow.innerHTML = `
+        let visibleRows = rows.filter(row => {
+            return row.style.display !== 'none';
+        });
+
+        let noResultsRow = tbody.querySelector('.request-no-results');
+
+        if (visibleRows.length === 0) {
+
+            if (!noResultsRow) {
+
+                noResultsRow = document.createElement('tr');
+
+                noResultsRow.className = 'request-no-results';
+
+                noResultsRow.innerHTML = `
                     <td colspan="9" class="text-center py-5 text-muted">
                         <i class="bi bi-search fs-3 d-block mb-2"></i>
                         No matching requests found.
                     </td>
                 `;
 
-                    tbody.appendChild(noResultsRow);
-                }
-
-            } else {
-
-                if (noResultsRow) {
-                    noResultsRow.remove();
-                }
-
+                tbody.appendChild(noResultsRow);
             }
 
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sorting
-        |--------------------------------------------------------------------------
-        */
-
-        sortSelect.addEventListener('change', function() {
-
-            const sortValue = this.value;
-
-            if (!sortValue) return;
-
-
-            rows.sort(function(a, b) {
-
-                let valueA;
-                let valueB;
-
-
-                /*
-                | ID
-                */
-
-                if (sortValue === 'id_asc' || sortValue === 'id_desc') {
-
-                    valueA = parseInt(
-                        a.cells[0].textContent.replace(/\D/g, '')
-                    ) || 0;
-
-                    valueB = parseInt(
-                        b.cells[0].textContent.replace(/\D/g, '')
-                    ) || 0;
-
-                    return sortValue === 'id_asc' ?
-                        valueA - valueB :
-                        valueB - valueA;
-                }
-
-
-                /*
-                | Requester
-                */
-
-                if (
-                    sortValue === 'requester_asc' ||
-                    sortValue === 'requester_desc'
-                ) {
-
-                    valueA = a.cells[1].textContent
-                        .trim()
-                        .toLowerCase();
-
-                    valueB = b.cells[1].textContent
-                        .trim()
-                        .toLowerCase();
-
-                    return sortValue === 'requester_asc' ?
-                        valueA.localeCompare(valueB) :
-                        valueB.localeCompare(valueA);
-                }
-
-
-                /*
-                | Date
-                */
-
-                if (
-                    sortValue === 'date_newest' ||
-                    sortValue === 'date_oldest'
-                ) {
-
-                    valueA = new Date(
-                        a.cells[7].textContent.trim()
-                    );
-
-                    valueB = new Date(
-                        b.cells[7].textContent.trim()
-                    );
-
-                    return sortValue === 'date_newest' ?
-                        valueB - valueA :
-                        valueA - valueB;
-                }
-
-                return 0;
-
-            });
-
-
-            /*
-            | Rebuild table
-            */
-
-            rows.forEach(row => {
-                tbody.appendChild(row);
-            });
-
-            applyFilters();
-
-        });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Search
-        |--------------------------------------------------------------------------
-        */
-
-        searchInput.addEventListener('input', applyFilters);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Status Filter
-        |--------------------------------------------------------------------------
-        */
-
-        statusFilter.addEventListener('change', applyFilters);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Division Filter
-        |--------------------------------------------------------------------------
-        */
-
-        divisionFilter.addEventListener('change', applyFilters);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Reset
-        |--------------------------------------------------------------------------
-        */
-
-        resetButton.addEventListener('click', function() {
-
-            searchInput.value = '';
-            statusFilter.value = '';
-            divisionFilter.value = '';
-            sortSelect.value = '';
-
-            rows.forEach(row => {
-                row.style.display = '';
-            });
-
-            const noResultsRow =
-                tbody.querySelector('.request-no-results');
+        } else {
 
             if (noResultsRow) {
                 noResultsRow.remove();
             }
 
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sorting
+    |--------------------------------------------------------------------------
+    */
+
+    sortSelect.addEventListener('change', function () {
+
+        const sortValue = this.value;
+
+        if (!sortValue) return;
+
+
+        rows.sort(function (a, b) {
+
+            let valueA;
+            let valueB;
+
+
             /*
-            | Restore original order
+            | ID
             */
 
-            rows.sort((a, b) => {
+            if (sortValue === 'id_asc' || sortValue === 'id_desc') {
 
-                const idA = parseInt(
+                valueA = parseInt(
                     a.cells[0].textContent.replace(/\D/g, '')
                 ) || 0;
 
-                const idB = parseInt(
+                valueB = parseInt(
                     b.cells[0].textContent.replace(/\D/g, '')
                 ) || 0;
 
-                return idA - idB;
+                return sortValue === 'id_asc'
+                    ? valueA - valueB
+                    : valueB - valueA;
+            }
 
-            });
 
-            rows.forEach(row => {
-                tbody.appendChild(row);
-            });
+            /*
+            | Requester
+            */
 
+            if (
+                sortValue === 'requester_asc' ||
+                sortValue === 'requester_desc'
+            ) {
+
+                valueA = a.cells[1].textContent
+                    .trim()
+                    .toLowerCase();
+
+                valueB = b.cells[1].textContent
+                    .trim()
+                    .toLowerCase();
+
+                return sortValue === 'requester_asc'
+                    ? valueA.localeCompare(valueB)
+                    : valueB.localeCompare(valueA);
+            }
+
+
+            /*
+            | Date
+            */
+
+            if (
+                sortValue === 'date_newest' ||
+                sortValue === 'date_oldest'
+            ) {
+
+                valueA = new Date(
+                    a.cells[7].textContent.trim()
+                );
+
+                valueB = new Date(
+                    b.cells[7].textContent.trim()
+                );
+
+                return sortValue === 'date_newest'
+                    ? valueB - valueA
+                    : valueA - valueB;
+            }
+
+            return 0;
+
+        });
+
+
+        /*
+        | Rebuild table
+        */
+
+        rows.forEach(row => {
+            tbody.appendChild(row);
+        });
+
+        applyFilters();
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    */
+
+    searchInput.addEventListener('input', applyFilters);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status Filter
+    |--------------------------------------------------------------------------
+    */
+
+    statusFilter.addEventListener('change', applyFilters);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Division Filter
+    |--------------------------------------------------------------------------
+    */
+
+    divisionFilter.addEventListener('change', applyFilters);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reset
+    |--------------------------------------------------------------------------
+    */
+
+    resetButton.addEventListener('click', function () {
+
+        searchInput.value = '';
+        statusFilter.value = '';
+        divisionFilter.value = '';
+        sortSelect.value = '';
+
+        rows.forEach(row => {
+            row.style.display = '';
+        });
+
+        const noResultsRow =
+            tbody.querySelector('.request-no-results');
+
+        if (noResultsRow) {
+            noResultsRow.remove();
+        }
+
+        /*
+        | Restore original order
+        */
+
+        rows.sort((a, b) => {
+
+            const idA = parseInt(
+                a.cells[0].textContent.replace(/\D/g, '')
+            ) || 0;
+
+            const idB = parseInt(
+                b.cells[0].textContent.replace(/\D/g, '')
+            ) || 0;
+
+            return idA - idB;
+
+        });
+
+        rows.forEach(row => {
+            tbody.appendChild(row);
         });
 
     });
 
-        function toggleQtyInput(selectElement) {
-        const requestId = selectElement.dataset.requestId;
-        const requestedQuantity = selectElement.dataset.requestedQuantity;
-        const wrapper = document.getElementById(`qtyInputWrapper${requestId}`);
-        const input = document.getElementById(`approvedQtyInput${requestId}`);
-
-        if (!wrapper || !input) return;
-
-        if (selectElement.value === 'Adjusted') {
-            wrapper.style.display = 'block';
-            input.required = true;
-            return;
-        }
-
-        wrapper.style.display = 'none';
-        input.required = false;
-
-        if (selectElement.value === 'Approved') {
-            input.value = requestedQuantity;
-        }
-    }
-
-    function printRequest(url, reqId = null) {
-        if (reqId) {
-            const form = document.querySelector(`#reviewRequestModal${reqId} form`);
-            if (form) {
-                const checkboxes = form.querySelectorAll('input.item-approve-check:checked');
-                let previewItems = [];
-                checkboxes.forEach(cb => {
-                    const itemId = cb.value;
-                    const row = document.getElementById(`req-row-${reqId}-${itemId}`);
-                    if (row) {
-                        let desc = row.cells[2].innerText.split('\n')[0].trim();
-                        if (desc.includes('Low Stock')) {
-                            desc = desc.replace('Low Stock', '').trim();
-                        }
-                        const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
-                        const remarksInput = row.querySelector(`input[name^="item_remarks"]`);
-
-                        let unit = '';
-                        if (qtyInput && qtyInput.nextElementSibling) {
-                            unit = qtyInput.nextElementSibling.innerText.trim();
-                        }
-
-                        let qtyValue = qtyInput ? qtyInput.value : '';
-                        if (qtyValue && unit) {
-                            qtyValue += ' ' + unit;
-                        }
-
-                        previewItems.push({
-                            desc: desc
-                            , qty: qtyValue
-                            , remarks: remarksInput ? remarksInput.value : ''
-                        });
-                    }
-                });
-
-                if (previewItems.length > 0) {
-                    const previewJson = encodeURIComponent(JSON.stringify(previewItems));
-                    const separator = url.includes('?') ? '&' : '?';
-                    url = url + separator + 'preview_data=' + previewJson;
-                }
-            }
-        }
-
-        // Use a hidden iframe to print without opening a new tab
-        let iframe = document.getElementById('print-iframe');
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.id = 'print-iframe';
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-        }
-
-        iframe.onload = function() {
-            setTimeout(() => {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            }, 500);
-        };
-        iframe.src = url;
-    }
-
-    /**
-     * When a checkbox is unchecked, dim the row and zero out the quantity.
-     * When re-checked, restore the row and quantity.
-     */
-    function toggleItemRow(checkbox, reqId, itemId) {
-        const row = document.getElementById(`req-row-${reqId}-${itemId}`);
-        const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
-        if (!row) return;
-
-        if (checkbox.checked) {
-            // Restore row
-            row.style.opacity = '1';
-            row.style.background = '';
-            if (qtyInput) {
-                qtyInput.disabled = false;
-                // Restore previous value from data attribute
-                if (qtyInput.dataset.prevVal) {
-                    qtyInput.value = qtyInput.dataset.prevVal;
-                }
-            }
-            // Re-enable remarks input
-            const remarksInput = row.querySelector('input[name^="item_remarks"]');
-            if (remarksInput) remarksInput.disabled = false;
-        } else {
-            // Dim row
-            row.style.opacity = '0.4';
-            row.style.background = '#f8f8f8';
-            if (qtyInput) {
-                // Save current value before zeroing
-                qtyInput.dataset.prevVal = qtyInput.value;
-                qtyInput.value = 0;
-                qtyInput.disabled = true;
-            }
-            // Disable remarks input
-            const remarksInput = row.querySelector('input[name^="item_remarks"]');
-            if (remarksInput) remarksInput.disabled = true;
-        }
-    }
-
-    /* ===== Modern Revert Confirmation Modal ===== */
-    function openRevertConfirm(requestId, actionUrl) {
-        document.getElementById('revertRequestId').textContent = '#' + requestId;
-        document.getElementById('revertConfirmForm').action = actionUrl;
-        const modal = new bootstrap.Modal(document.getElementById('revertConfirmModal'));
-        modal.show();
-    }
+});
