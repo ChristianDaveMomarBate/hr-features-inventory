@@ -3745,3 +3745,237 @@ button,
 .audit-pagination-card .page-link:focus{
     box-shadow:none;
 }
+/* ==========================================
+   GOVERNMENT REPORT TABLE
+   ========================================== */
+
+.government-report-table {
+    background: #fff;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.government-report-table .analytics-table-wrap {
+    overflow-x: auto;
+    background: #fff;
+}
+
+/* Main table */
+.government-report-table .modern-report-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+/* All cells */
+.government-report-table .modern-report-table th,
+.government-report-table .modern-report-table td {
+    border: 1px solid #000;
+    padding: 7px 8px;
+    vertical-align: middle;
+}
+
+/* ==========================================
+   GROUP HEADER
+   ========================================== */
+
+.government-report-table .group-header th {
+    background: #fff;
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    padding: 8px 6px;
+    border: 1px solid #000;
+}
+
+/* Remove old colored header classes */
+.government-report-table .stock-in-header,
+.government-report-table .stock-out-header,
+.government-report-table .balance-header {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+/* ==========================================
+   COLUMN HEADER
+   ========================================== */
+
+.government-report-table .column-header th {
+    background: #f2f2f2;
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 7px 6px;
+    border: 1px solid #000;
+}
+
+/* ==========================================
+   TABLE BODY
+   ========================================== */
+
+.government-report-table .modern-report-table tbody td {
+    background: #fff;
+    color: #000;
+    font-size: 11px;
+    padding: 7px 8px;
+    border: 1px solid #000;
+}
+
+/* No dashboard-style hover */
+.government-report-table .modern-report-table tbody tr:hover td {
+    background: #fff;
+}
+
+/* ==========================================
+   COLUMN ALIGNMENT
+   ========================================== */
+
+/* Dates */
+.government-report-table .modern-report-table tbody td:nth-child(1),
+.government-report-table .modern-report-table tbody td:nth-child(4) {
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Quantities */
+.government-report-table .modern-report-table tbody td:nth-child(3),
+.government-report-table .modern-report-table tbody td:nth-child(6),
+.government-report-table .modern-report-table tbody td:nth-child(8) {
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Item names */
+.government-report-table .modern-report-table tbody td:nth-child(2),
+.government-report-table .modern-report-table tbody td:nth-child(5),
+.government-report-table .modern-report-table tbody td:nth-child(7) {
+    text-align: left;
+}
+
+/* ==========================================
+   EMPTY TABLE
+   ========================================== */
+
+.government-report-table .modern-report-table tbody .no-data {
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
+}
+
+/* ==========================================
+   PRINT VERSION
+   ========================================== */
+
+@media print {
+
+    .government-report-table {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .government-report-table .modern-report-table {
+        width: 100%;
+        font-size: 9px;
+    }
+
+    .government-report-table .modern-report-table th,
+    .government-report-table .modern-report-table td {
+        border: 1px solid #000 !important;
+        padding: 5px 4px;
+    }
+
+    .government-report-table .group-header th {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 9px;
+        padding: 6px 4px;
+    }
+
+    .government-report-table .column-header th {
+        background: #f2f2f2 !important;
+        color: #000 !important;
+        font-size: 8px;
+        padding: 5px 4px;
+    }
+
+    .government-report-table .modern-report-table tbody td {
+        font-size: 8px;
+        padding: 5px 4px;
+        background: #fff !important;
+    }
+
+    .government-report-table .modern-report-table tbody tr:hover td {
+        background: #fff !important;
+    }
+}
+
+.stockwise-filter-search {
+    position: relative;
+}
+
+.stockwise-filter-search i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+    z-index: 2;
+}
+
+.stockwise-filter-search .form-control {
+    height: 40px;
+    padding-left: 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    background: #f8fafc;
+    font-size: 13px;
+    box-shadow: none;
+}
+
+.stockwise-filter-search .form-control:focus {
+    background: #fff;
+    border-color: #8fb9ed;
+    box-shadow: 0 0 0 3px rgba(73, 137, 214, 0.08);
+}
+
+.stockwise-filter {
+    height: 40px;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    background-color: #fff;
+    font-size: 13px;
+    color: #374151;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.stockwise-filter:focus {
+    border-color: #8fb9ed;
+    box-shadow: 0 0 0 3px rgba(73, 137, 214, 0.08);
+}
+
+.stockwise-reset-btn {
+    height: 40px;
+    border-radius: 9px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.stockwise-reset-btn:hover {
+    background: #f8fafc;
+    color: #374151;
+}

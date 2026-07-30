@@ -29,8 +29,9 @@
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="mb-1 fw-bold animated-text" style="font-size: 32px;">USER MANAGEMENT</h1>
-                    <p class="text-muted mb-0">Manage registered admin account access.</p>
+                    <h1 class="dashboard-title mb-0">
+                        <span class="dashboard-title-badge">StockWise - User Management</span>
+                    </h1>
                 </div>
                 @include('InventoryDashboard.navbar')
             </div>

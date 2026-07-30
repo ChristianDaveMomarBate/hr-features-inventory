@@ -1,15 +1,69 @@
 <div id="item-requests" class="page {{ $activePageId === 'item-requests' ? 'active-page' : '' }}">
     <div class="dashboard-main-header d-flex justify-content-between align-items-center mb-4">
         <h1 class="dashboard-title mb-0">
-            <span class="dashboard-title-badge">StockWise - Item Requested Manage</span>
+            <span class="dashboard-title-badge">StockWise - Item Request Manage</span>
         </h1>
         @include('InventoryDashboard.navbar')
     </div>
 
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-0">
+
+            <div class="px-4 py-3 border-bottom bg-white">
+                <div class="row g-2 align-items-center">
+
+                    <!-- Search -->
+                    <div class="col-lg-4">
+                        <div class="stockwise-filter-search">
+                            <i class="bi bi-search"></i>
+                            <input type="text" id="requestSearch" class="form-control" placeholder="Search requests..." autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-lg-2 col-md-4">
+                        <select id="requestStatusFilter" class="form-select stockwise-filter">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Adjusted">Adjusted</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <!-- Division -->
+                    <div class="col-lg-2 col-md-4">
+                        <select id="requestDivisionFilter" class="form-select stockwise-filter">
+                            <option value="">All Divisions</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="col-lg-2 col-md-4">
+                        <select id="requestSort" class="form-select stockwise-filter">
+                            <option value="">Sort By</option>
+                            <option value="id_asc">ID: Low to High</option>
+                            <option value="id_desc">ID: High to Low</option>
+                            <option value="requester_asc">Requester: A-Z</option>
+                            <option value="requester_desc">Requester: Z-A</option>
+                            <option value="date_newest">Date: Newest</option>
+                            <option value="date_oldest">Date: Oldest</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset -->
+                    <div class="col-lg-2">
+                        <button type="button" id="resetRequestFilters" class="btn btn-light border w-100 stockwise-reset-btn">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>
+                            Reset
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
             <div class="table-responsive">
-                <table class="table stockwise-table align-middle mb-0">
+                <table id="itemRequestsTable" class="table stockwise-table align-middle mb-0">
                     <thead>
                         <tr>
                             <th class="ps-4 py-3 text-secondary fw-semibold">ID</th>
@@ -108,7 +162,7 @@
                 <div class="d-flex justify-content-between align-items-center mt-3">
 
                     <div class="text-muted small">
-                        Showing 
+                        Showing
                         <strong>{{ $itemRequests->firstItem() ?? 0 }}</strong>
                         -
                         <strong>{{ $itemRequests->lastItem() ?? 0 }}</strong>
@@ -119,8 +173,7 @@
 
                     <div class="d-flex align-items-center gap-2">
 
-                        <a href="{{ $itemRequests->previousPageUrl() ?? '#' }}"
-                        class="pagination-btn {{ $itemRequests->onFirstPage() ? 'disabled' : '' }}">
+                        <a href="{{ $itemRequests->previousPageUrl() ?? '#' }}" class="pagination-btn {{ $itemRequests->onFirstPage() ? 'disabled' : '' }}">
                             <i class="bi bi-chevron-left"></i>
                             Previous
                         </a>
@@ -131,8 +184,7 @@
                             {{ $itemRequests->lastPage() }}
                         </div>
 
-                        <a href="{{ $itemRequests->nextPageUrl() ?? '#' }}"
-                        class="pagination-btn {{ !$itemRequests->hasMorePages() ? 'disabled' : '' }}">
+                        <a href="{{ $itemRequests->nextPageUrl() ?? '#' }}" class="pagination-btn {{ !$itemRequests->hasMorePages() ? 'disabled' : '' }}">
                             Next
                             <i class="bi bi-chevron-right"></i>
                         </a>
@@ -421,141 +473,6 @@
         </div>
     </div>
 </div>
-@endif
-@endforeach
-
-<script>
-    function toggleQtyInput(selectElement) {
-        const requestId = selectElement.dataset.requestId;
-        const requestedQuantity = selectElement.dataset.requestedQuantity;
-        const wrapper = document.getElementById(`qtyInputWrapper${requestId}`);
-        const input = document.getElementById(`approvedQtyInput${requestId}`);
-
-        if (!wrapper || !input) return;
-
-        if (selectElement.value === 'Adjusted') {
-            wrapper.style.display = 'block';
-            input.required = true;
-            return;
-        }
-
-        wrapper.style.display = 'none';
-        input.required = false;
-
-        if (selectElement.value === 'Approved') {
-            input.value = requestedQuantity;
-        }
-    }
-
-    function printRequest(url, reqId = null) {
-        if (reqId) {
-            const form = document.querySelector(`#reviewRequestModal${reqId} form`);
-            if (form) {
-                const checkboxes = form.querySelectorAll('input.item-approve-check:checked');
-                let previewItems = [];
-                checkboxes.forEach(cb => {
-                    const itemId = cb.value;
-                    const row = document.getElementById(`req-row-${reqId}-${itemId}`);
-                    if (row) {
-                        let desc = row.cells[2].innerText.split('\n')[0].trim();
-                        if (desc.includes('Low Stock')) {
-                            desc = desc.replace('Low Stock', '').trim();
-                        }
-                        const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
-                        const remarksInput = row.querySelector(`input[name^="item_remarks"]`);
-
-                        let unit = '';
-                        if (qtyInput && qtyInput.nextElementSibling) {
-                            unit = qtyInput.nextElementSibling.innerText.trim();
-                        }
-
-                        let qtyValue = qtyInput ? qtyInput.value : '';
-                        if (qtyValue && unit) {
-                            qtyValue += ' ' + unit;
-                        }
-
-                        previewItems.push({
-                            desc: desc
-                            , qty: qtyValue
-                            , remarks: remarksInput ? remarksInput.value : ''
-                        });
-                    }
-                });
-
-                if (previewItems.length > 0) {
-                    const previewJson = encodeURIComponent(JSON.stringify(previewItems));
-                    const separator = url.includes('?') ? '&' : '?';
-                    url = url + separator + 'preview_data=' + previewJson;
-                }
-            }
-        }
-
-        // Use a hidden iframe to print without opening a new tab
-        let iframe = document.getElementById('print-iframe');
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.id = 'print-iframe';
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-        }
-
-        iframe.onload = function() {
-            setTimeout(() => {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            }, 500);
-        };
-        iframe.src = url;
-    }
-
-    /**
-     * When a checkbox is unchecked, dim the row and zero out the quantity.
-     * When re-checked, restore the row and quantity.
-     */
-    function toggleItemRow(checkbox, reqId, itemId) {
-        const row = document.getElementById(`req-row-${reqId}-${itemId}`);
-        const qtyInput = document.getElementById(`qty-${reqId}-${itemId}`);
-        if (!row) return;
-
-        if (checkbox.checked) {
-            // Restore row
-            row.style.opacity = '1';
-            row.style.background = '';
-            if (qtyInput) {
-                qtyInput.disabled = false;
-                // Restore previous value from data attribute
-                if (qtyInput.dataset.prevVal) {
-                    qtyInput.value = qtyInput.dataset.prevVal;
-                }
-            }
-            // Re-enable remarks input
-            const remarksInput = row.querySelector('input[name^="item_remarks"]');
-            if (remarksInput) remarksInput.disabled = false;
-        } else {
-            // Dim row
-            row.style.opacity = '0.4';
-            row.style.background = '#f8f8f8';
-            if (qtyInput) {
-                // Save current value before zeroing
-                qtyInput.dataset.prevVal = qtyInput.value;
-                qtyInput.value = 0;
-                qtyInput.disabled = true;
-            }
-            // Disable remarks input
-            const remarksInput = row.querySelector('input[name^="item_remarks"]');
-            if (remarksInput) remarksInput.disabled = true;
-        }
-    }
-
-    /* ===== Modern Revert Confirmation Modal ===== */
-    function openRevertConfirm(requestId, actionUrl) {
-        document.getElementById('revertRequestId').textContent = '#' + requestId;
-        document.getElementById('revertConfirmForm').action = actionUrl;
-        const modal = new bootstrap.Modal(document.getElementById('revertConfirmModal'));
-        modal.show();
-    }
-
-</script>
 
 {{-- ===== Modern Revert Confirmation Modal ===== --}}
 <div class="modal fade" id="revertConfirmModal" tabindex="-1" aria-hidden="true">
@@ -646,12 +563,6 @@
     </div>
 </div>
 
-<script>
-    function openDeleteModal(actionUrl, controlNumber) {
-        document.getElementById('deleteRequestForm').action = actionUrl;
-        document.getElementById('deleteRequestLabel').textContent = controlNumber;
-        var modal = new bootstrap.Modal(document.getElementById('deleteRequestModal'));
-        modal.show();
-    }
 
-</script>
+@endif
+@endforeach

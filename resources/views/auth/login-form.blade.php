@@ -116,7 +116,7 @@
                         <span class="lp-lock-badge"><i class="fas fa-lock"></i></span>
                     </div>
                     <h2 class="lp-card-title">LOGIN </h2>
-                    <p class="lp-card-sub"> STOCK & INVENTORY MANAGEMENT SYSTEM</p>
+                    <p class="lp-card-sub"> Smart Stock & Inventory Management System v1 2026</p>
                     <div class="lp-card-divider"></div>
                 </div>
 

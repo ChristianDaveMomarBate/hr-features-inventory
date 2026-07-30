@@ -318,14 +318,13 @@
                             <div class="sign-title">OIC - PHRMDO</div>
                         </div>
                     </div>
+                    </br>
                 </div>
             </div>
-
             {{-- <img src="{{ asset('images/footer.png') }}" class="footer-img" alt="Footer"> --}}
         </div>
         @endfor
     </div>
     @endforeach
-
 </body>
 </html>

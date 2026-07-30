@@ -118,7 +118,7 @@
                         <div class="col-md-4">
                             <label class="fw-bold mb-1 text-secondary" style="font-size:12px;">Noted by:</label>
                             <input type="text" id="sigNotedName" class="form-control form-control-sm mb-1 fw-bold text-center" value="MAMARETO B. GESTA JR." placeholder="Name">
-                            <input type="text" id="sigNotedPos" class="form-control form-control-sm text-center" value="Admin. Officer IV" placeholder="Position">
+                            <input type="text" id="sigNotedPos" class="form-control form-control-sm text-center" value="Administrative Officer IV" placeholder="Position">
                         </div>
                         <div class="col-md-4">
                             <label class="fw-bold mb-1 text-secondary" style="font-size:12px;">Prepared by:</label>
