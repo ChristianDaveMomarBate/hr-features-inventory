@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\InventoryItem;
+use App\Models\ItemRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\InventoryItem;
 
 class LoginController extends Controller
 {
@@ -58,7 +59,7 @@ class LoginController extends Controller
 
         $submittedRequest = null;
         if (session('show_receipt_modal') && session('new_request_id')) {
-            $submittedRequest = \App\Models\ItemRequest::with('item')->find(session('new_request_id'));
+            $submittedRequest = ItemRequest::with('item')->find(session('new_request_id'));
         }
 
         return view('auth.login', compact('items', 'divisions', 'request_items', 'submittedRequest'));

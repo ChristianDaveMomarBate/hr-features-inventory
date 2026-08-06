@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\AuditTrail;
 use App\Models\InventoryItem;
 use App\Models\StockTransaction;
-use App\Models\AuditTrail;
 use App\Models\User;
 use App\Notifications\LowStockAlert;
+use App\Services\ReportService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\ReportService;
 use Illuminate\Support\Facades\Notification;
 
 class StockController extends Controller
@@ -25,13 +25,13 @@ class StockController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'items'                     => 'required|array|min:1',
+            'items' => 'required|array|min:1',
             'items.*.inventory_item_id' => 'required|exists:inventory_items,id',
-            'items.*.type'              => 'required|in:in,out,adjustment',
-            'items.*.quantity'          => 'required|integer|min:1',
-            'items.*.handled_by'        => 'required|string|max:255',
-            'items.*.reference'         => 'nullable|string|max:255',
-            'items.*.remarks'           => 'nullable|string',
+            'items.*.type' => 'required|in:in,out,adjustment',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.handled_by' => 'required|string|max:255',
+            'items.*.reference' => 'nullable|string|max:255',
+            'items.*.remarks' => 'nullable|string',
         ]);
 
         $errors = [];
@@ -43,10 +43,11 @@ class StockController extends Controller
                 $item = InventoryItem::findOrFail($row['inventory_item_id']);
 
                 $type = strtolower($row['type']);
-                $qty  = (int) $row['quantity'];
+                $qty = (int) $row['quantity'];
 
                 if ($type === 'out' && $item->stock < $qty) {
                     $errors[] = "Insufficient stock for <strong>{$item->name}</strong>. Available: {$item->display_stock}, Requested: {$qty} {$item->display_unit}.";
+
                     continue;
                 }
 
@@ -54,16 +55,16 @@ class StockController extends Controller
 
                 StockTransaction::create([
                     'inventory_item_id' => $item->id,
-                    'type'              => $type,
-                    'quantity'          => $qty,
-                    'handled_by'        => $row['handled_by'],
-                    'reference'         => $row['reference'] ?? null,
-                    'remarks'           => $row['remarks'] ?? null,
+                    'type' => $type,
+                    'quantity' => $qty,
+                    'handled_by' => $row['handled_by'],
+                    'reference' => $row['reference'] ?? null,
+                    'remarks' => $row['remarks'] ?? null,
                 ]);
 
                 match ($type) {
-                    'in'         => $item->stock += $qty,
-                    'out'        => $item->stock -= $qty,
+                    'in' => $item->stock += $qty,
+                    'out' => $item->stock -= $qty,
                     'adjustment' => $item->stock = $qty,
                 };
 
@@ -80,15 +81,15 @@ class StockController extends Controller
                 }
 
                 AuditTrail::create([
-                    'user_id'        => $user->id,
-                    'action'         => 'Stock ' . ucfirst($type),
-                    'module'         => 'Stock Management',
+                    'user_id' => $user->id,
+                    'action' => 'Stock '.ucfirst($type),
+                    'module' => 'Stock Management',
                     'item_reference' => $item->code,
-                    'old_value'      => "Stock: {$oldStock}",
-                    'new_value'      => "Stock: {$item->display_stock} (Qty: {$qty} {$item->display_unit})",
-                    'remarks'        => trim(
-                        "Handled by: {$row['handled_by']}" .
-                            (!empty($row['remarks']) ? " | {$row['remarks']}" : '')
+                    'old_value' => "Stock: {$oldStock}",
+                    'new_value' => "Stock: {$item->display_stock} (Qty: {$qty} {$item->display_unit})",
+                    'remarks' => trim(
+                        "Handled by: {$row['handled_by']}".
+                            (! empty($row['remarks']) ? " | {$row['remarks']}" : '')
                     ),
                 ]);
             }
@@ -128,13 +129,13 @@ class StockController extends Controller
             $item->save();
 
             AuditTrail::create([
-                'user_id'        => Auth::id(),
-                'action'         => 'Deleted Transaction',
-                'module'         => 'Stock Management',
+                'user_id' => Auth::id(),
+                'action' => 'Deleted Transaction',
+                'module' => 'Stock Management',
                 'item_reference' => $item->code,
-                'old_value'      => "Stock: {$oldStock} | Tx Type: {$tx->type}, Qty: {$tx->quantity}",
-                'new_value'      => "Stock: {$item->stock} (transaction deleted)",
-                'remarks'        => 'Transaction deleted by admin.',
+                'old_value' => "Stock: {$oldStock} | Tx Type: {$tx->type}, Qty: {$tx->quantity}",
+                'new_value' => "Stock: {$item->stock} (transaction deleted)",
+                'remarks' => 'Transaction deleted by admin.',
             ]);
         }
 
@@ -187,13 +188,13 @@ class StockController extends Controller
                 }
 
                 AuditTrail::create([
-                    'user_id'        => Auth::id(),
-                    'action'         => 'Updated Transaction',
-                    'module'         => 'Stock Management',
+                    'user_id' => Auth::id(),
+                    'action' => 'Updated Transaction',
+                    'module' => 'Stock Management',
                     'item_reference' => $item->code,
-                    'old_value'      => "Stock: {$oldStock} | Qty: {$oldQty}",
-                    'new_value'      => "Stock: {$item->stock} | Qty: {$newQty}",
-                    'remarks'        => 'Transaction updated by admin.',
+                    'old_value' => "Stock: {$oldStock} | Qty: {$oldQty}",
+                    'new_value' => "Stock: {$item->stock} | Qty: {$newQty}",
+                    'remarks' => 'Transaction updated by admin.',
                 ]);
             }
 

@@ -46,6 +46,6 @@ class ItemRequest extends Model
 
     public function getControlNumberAttribute()
     {
-        return 'CN' . $this->created_at->format('mdY') . '-' . str_pad($this->id, 2, '0', STR_PAD_LEFT);
+        return 'CN'.$this->created_at->format('mdY').'-'.str_pad($this->id, 2, '0', STR_PAD_LEFT);
     }
 }

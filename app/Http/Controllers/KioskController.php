@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\InventoryItem;
-use App\Models\StockTransaction;
-use App\Models\AuditTrail;
-use App\Models\User;
-use App\Notifications\LowStockAlert;
-use Illuminate\Support\Facades\DB;
 use App\Models\ItemRequest;
 use App\Models\ItemRequestItem;
+use App\Models\User;
 use App\Notifications\NewItemRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class KioskController extends Controller
 {
@@ -38,16 +35,16 @@ class KioskController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'requester_name'   => 'required|string|max:255',
-            'division'         => 'required|string|in:' . implode(',', self::DIVISIONS),
-            'items'            => 'required|array|min:1',
-            'items.*.id'       => 'required|exists:inventory_items,id',
+            'requester_name' => 'required|string|max:255',
+            'division' => 'required|string|in:'.implode(',', self::DIVISIONS),
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|exists:inventory_items,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
         $requesterName = trim($request->input('requester_name'));
-        $division      = $request->input('division');
-        $requestItems  = $request->input('items');
+        $division = $request->input('division');
+        $requestItems = $request->input('items');
 
         $errors = [];
         $receiptItems = [];
@@ -64,7 +61,7 @@ class KioskController extends Controller
             foreach ($requestItems as $row) {
                 $item = InventoryItem::find($row['id']);
 
-                if (!$item) {
+                if (! $item) {
                     continue;
                 }
 
@@ -75,55 +72,56 @@ class KioskController extends Controller
                 }
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return null;
             }
 
             // Create Item Request
             $itemRequest = ItemRequest::create([
                 'requester_name' => $requesterName,
-                'department'     => $division, // Map division to department
-                'purpose'        => null,      // Kiosk doesn't have purpose
-                'status'         => 'Pending',
+                'department' => $division, // Map division to department
+                'purpose' => null,      // Kiosk doesn't have purpose
+                'status' => 'Pending',
             ]);
 
             foreach ($requestItems as $row) {
                 $item = InventoryItem::find($row['id']);
 
-                if (!$item) {
+                if (! $item) {
                     continue;
                 }
 
                 $qty = (int) $row['quantity'];
 
                 ItemRequestItem::create([
-                    'item_request_id'    => $itemRequest->id,
-                    'inventory_item_id'  => $item->id,
+                    'item_request_id' => $itemRequest->id,
+                    'inventory_item_id' => $item->id,
                     'requested_quantity' => $qty,
                 ]);
 
                 // We don't deduct stock here anymore. It will be deducted on approval.
                 $receiptItems[] = [
-                    'id'                      => $item->id,
-                    'name'                    => $item->name,
-                    'quantity'                => $qty,
-                    'unit'                    => $item->display_unit,
-                    'remaining_stock'         => $item->stock,
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'quantity' => $qty,
+                    'unit' => $item->display_unit,
+                    'remaining_stock' => $item->stock,
                     'remaining_display_stock' => $item->display_stock,
-                    'bulk_equivalent'         => $item->bulk_equivalent,
+                    'bulk_equivalent' => $item->bulk_equivalent,
                 ];
             }
 
             return $itemRequest;
         });
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             if ($request->expectsJson()) {
                 return response()->json([
-                    'ok'     => false,
+                    'ok' => false,
                     'errors' => $errors,
                 ], 422);
             }
+
             return back()->with('kiosk_errors', $errors)->withInput();
         }
 
@@ -135,20 +133,18 @@ class KioskController extends Controller
             }
         }
 
-
-
         $receipt = [
-            'number'         => $itemRequest->control_number,
+            'number' => $itemRequest->control_number,
             'requester_name' => $requesterName,
-            'division'       => $division,
-            'submitted_at'   => now()->format('M d, Y h:i A'),
-            'items'          => $receiptItems,
+            'division' => $division,
+            'submitted_at' => now()->format('M d, Y h:i A'),
+            'items' => $receiptItems,
             'total_quantity' => collect($receiptItems)->sum('quantity'),
         ];
 
         if ($request->expectsJson()) {
             return response()->json([
-                'ok'      => true,
+                'ok' => true,
                 'receipt' => $receipt,
             ]);
         }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class employeeData extends Model
 {
     use HasFactory;
+
     protected $table = 'employeeData';
 
     protected $fillable = [
@@ -21,11 +22,10 @@ class employeeData extends Model
         'permanentAdd',
         'mobile',
         'positionID',
-        'plantillaNo',  
+        'plantillaNo',
         'empStatusID',
         'dateEmployed',
         'last_appointment',
         'officeID',
     ];
-
 }

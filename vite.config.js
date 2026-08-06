@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/sass/app.scss',
+                'resources/css/bootstrap-app.css',
                 'resources/css/index.style.css',
                 'resources/css/kiosk.css',
                 'resources/css/request.css',
