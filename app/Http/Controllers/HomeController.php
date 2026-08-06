@@ -54,7 +54,7 @@ class HomeController extends Controller
     public function index(Request $request, ?string $page = null)
     {
         $user = $request->user();
-        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails', 'reports'];
+        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails', 'reports', 'property-management'];
 
         if ($page && ! in_array($page, $allowedPages, true)) {
             abort(403, 'Unauthorized dashboard page.');
@@ -152,7 +152,6 @@ class HomeController extends Controller
 
     public function store(Request $request)
     {
-        /** @var \App\Models\User $user */
         $user = $request->user();
 
         $validated = $request->validate([

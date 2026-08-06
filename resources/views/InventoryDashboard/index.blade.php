@@ -6,7 +6,8 @@
         'item-requests',
         'analytics',
         'audit-trails',
-        'reports'
+        'reports',
+        'property-management'
     ];
     $lastSegment = request()->segment(count(request()->segments()));
     $activePageId = in_array($lastSegment, $validDashboardPages) ? $lastSegment : 'dashboard';
@@ -228,6 +229,7 @@
     @include('InventoryDashboard.analytics')
     @include('InventoryDashboard.auditTrails')
     @include('InventoryDashboard.reports')
+    @include('InventoryDashboard.propertymanagement')
     
     </div>
   </div>

@@ -146,96 +146,96 @@
                                 <td>{{ $item->minimum }}</td>
                                 <td>{{ $item->date_registered ? \Carbon\Carbon::parse($item->date_registered)->format('M d, Y') : '' }}</td>
                              <td class="text-end">
-    @if($currentUser->isAdmin())
+                                @if($currentUser->isAdmin())
 
-        <button type="button"
-                class="btn btn-sm btn-outline-primary"
-                data-edit-item-id="{{ $item->id }}">
-            <i class="bi bi-pencil"></i>
-        </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            data-edit-item-id="{{ $item->id }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
 
-        <form action="{{ url('/inventory/delete/' . $item->id) }}"
-              method="POST"
-              class="d-inline delete-form">
-            @csrf
-            @method('DELETE')
+                                    <form action="{{ url('/inventory/delete/' . $item->id) }}"
+                                        method="POST"
+                                        class="d-inline delete-form">
+                                        @csrf
+                                        @method('DELETE')
 
-            <button type="button"
-                    class="btn btn-sm btn-outline-danger delete-btn">
-                <i class="bi bi-trash"></i>
-            </button>
-        </form>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger delete-btn">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
 
-    @endif
-</td>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+                                @endif
+                            </td>
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function () {
 
-    document.querySelectorAll('.delete-btn').forEach(button => {
+                                document.querySelectorAll('.delete-btn').forEach(button => {
 
-        button.addEventListener('click', function () {
+                                    button.addEventListener('click', function () {
 
-            const form = this.closest('.delete-form');
+                                        const form = this.closest('.delete-form');
 
-            Swal.fire({
-                title: 'Delete Item?',
-                text: 'Are you sure you want to delete this item?',
-                icon: 'warning',
+                                        Swal.fire({
+                                            title: 'Delete Item?',
+                                            text: 'Are you sure you want to delete this item?',
+                                            icon: 'warning',
 
-                showCancelButton: true,
+                                            showCancelButton: true,
 
-                confirmButtonText: '<i class="bi bi-trash3 me-1"></i> Delete',
-                cancelButtonText: 'Cancel',
+                                            confirmButtonText: '<i class="bi bi-trash3 me-1"></i> Delete',
+                                            cancelButtonText: 'Cancel',
 
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
+                                            confirmButtonColor: '#dc3545',
+                                            cancelButtonColor: '#6c757d',
 
-                reverseButtons: true,
+                                            reverseButtons: true,
 
-                customClass: {
-                    popup: 'stockwise-swal',
-                    confirmButton: 'swal-delete-btn',
-                    cancelButton: 'swal-cancel-btn'
-                }
-            }).then((result) => {
+                                            customClass: {
+                                                popup: 'stockwise-swal',
+                                                confirmButton: 'swal-delete-btn',
+                                                cancelButton: 'swal-cancel-btn'
+                                            }
+                                        }).then((result) => {
 
-                if (result.isConfirmed) {
-                    form.submit();
-                }
+                                            if (result.isConfirmed) {
+                                                form.submit();
+                                            }
 
-            });
+                                        });
 
-        });
+                                    });
 
-    });
+                                });
 
-});
-</script>
-<style>
-.stockwise-swal {
-    border-radius: 14px !important;
-    padding: 22px !important;
-}
+                            });
+                            </script>
+                            <style>
+                            .stockwise-swal {
+                                border-radius: 14px !important;
+                                padding: 22px !important;
+                            }
 
-.stockwise-swal .swal2-title {
-    font-size: 18px !important;
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-}
+                            .stockwise-swal .swal2-title {
+                                font-size: 18px !important;
+                                font-weight: 700 !important;
+                                color: #1f2937 !important;
+                            }
 
-.stockwise-swal .swal2-html-container {
-    font-size: 13px !important;
-    color: #6b7280 !important;
-}
+                            .stockwise-swal .swal2-html-container {
+                                font-size: 13px !important;
+                                color: #6b7280 !important;
+                            }
 
-.swal-delete-btn,
-.swal-cancel-btn {
-    border-radius: 8px !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    padding: 9px 16px !important;
-}
-</style>
+                            .swal-delete-btn,
+                            .swal-cancel-btn {
+                                border-radius: 8px !important;
+                                font-size: 12px !important;
+                                font-weight: 600 !important;
+                                padding: 9px 16px !important;
+                            }
+                            </style>
                             </tr>
                         @empty
                             <tr>

@@ -3196,39 +3196,82 @@ button,
 }
 
 .dashboard-title-badge {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    padding: 12px 22px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #60a5fa 100%);
+
+    padding: 14px 24px;
+    border-radius: 16px;
+
+    background: linear-gradient(
+        135deg,
+        #071d49 0%,
+        #123d8d 45%,
+        #2f6fdd 100%
+    );
+
     color: #fff;
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: .5px;
-    border: 1px solid rgba(255,255,255,.15);
-    position: relative;
+
+    font-family: "Segoe UI", "Inter", "Helvetica Neue", sans-serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: .4px;
+
+    border: 1px solid rgba(255,255,255,.12);
+
+    box-shadow:
+        0 8px 24px rgba(7,29,73,.25);
+
     overflow: hidden;
+    transition: all .3s ease;
 }
 
-.dashboard-title-badge::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -120%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255,255,255,.25),
+/* Blueprint / ruler grid */
+.dashboard-title-badge::before{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,.08) 0px,
+            rgba(255,255,255,.08) 1px,
+            transparent 1px,
+            transparent 26px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,.05) 0px,
+            rgba(255,255,255,.05) 1px,
+            transparent 1px,
+            transparent 26px
+        );
+
+    opacity:.35;
+}
+
+/* Top glossy highlight */
+.dashboard-title-badge::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:50%;
+
+    background:linear-gradient(
+        to bottom,
+        rgba(255,255,255,.18),
         transparent
     );
-    transform: skewX(-25deg);
 }
 
-.dashboard-title-badge:hover::before {
-    left: 150%;
-    transition: left .8s ease;
+.dashboard-title-badge:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 14px 30px rgba(18,61,141,.30);
 }
 
 /* Base Button Style */

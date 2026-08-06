@@ -1,5 +1,4 @@
 @php
-    /** @var \App\Models\User $currentUser */
     $currentUser ??= auth()->user();
 @endphp
 
@@ -78,11 +77,11 @@
         PROPERTY MANAGEMENT
     ====================================================== --}}
 
-    <div class="sidebar-section-divider">
-        <span>PROPERTY MANAGEMENT</span>
-    </div>
+        <div class="sidebar-section-divider">
+            <span>PROPERTY MANAGEMENT</span>
+        </div>
 
-    <ul>
+        <ul>
 
         <li class="{{ (isset($activePageId) && $activePageId === 'property-management') ? 'active' : '' }}"
             data-page-target="property-management">
