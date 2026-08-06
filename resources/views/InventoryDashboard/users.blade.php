@@ -119,5 +119,7 @@
 
     @vite('resources/js/inventory/script.js')
 
+    @include('InventoryDashboard.accountModals')
+
 </body>
 </html>
