@@ -1,10 +1,16 @@
-// Fonts
+/* Bootstrap (precompiled — no preprocessor required) */
+@import 'bootstrap/dist/css/bootstrap.css';
 
-// Variables
-@import 'variables';
+/* Theme overrides */
+:root {
+  /* Body */
+  --bs-body-bg: #f8fafc;
 
-// Bootstrap
-@import 'bootstrap/scss/bootstrap';
+  /* Typography */
+  --bs-body-font-family: 'Nunito', sans-serif;
+  --bs-body-font-size: 0.9rem;
+  --bs-body-line-height: 1.6;
+}
 
 button,
 .btn,
