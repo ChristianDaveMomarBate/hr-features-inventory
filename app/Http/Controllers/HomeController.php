@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\InventoryItem;
-use App\Models\StockTransaction;
 use App\Models\AuditTrail;
+use App\Models\InventoryItem;
 use App\Models\ItemRequest;
-use App\Notifications\LowStockAlert;
+use App\Models\StockTransaction;
+use App\Models\User;
+use App\Services\ReportService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use App\Services\ReportService;
 
 class HomeController extends Controller
 {
@@ -97,7 +97,6 @@ class HomeController extends Controller
 
         $inventoryItems = $query->paginate(25);
 
-
         $inventoryItems = InventoryItem::query()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->string('search');
@@ -152,22 +151,22 @@ class HomeController extends Controller
 
     public function store(Request $request)
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $validated = $request->validate([
-            'code'                  => 'required|unique:inventory_items,code',
-            'name'                  => 'required|string|max:255',
-            'category'              => ['required', 'string', Rule::in(self::CATEGORIES)],
-            'type'                  => ['required', 'string', Rule::in(self::ITEM_TYPES)],
-            'stock_unit'            => ['required', 'string', Rule::in(self::UNITS)],
-            'issue_unit'            => ['required', 'string', Rule::in(self::UNITS)],
-            'units_per_stock_unit'  => 'required|integer|min:1',
-            'stock'                 => 'required|numeric|min:0',
-            'minimum'               => 'required|integer|min:0',
-            'date_registered'       => 'required|date',
-            'description'           => 'nullable|string',
-            'location'              => 'nullable|string|max:255',
+            'code' => 'required|unique:inventory_items,code',
+            'name' => 'required|string|max:255',
+            'category' => ['required', 'string', Rule::in(self::CATEGORIES)],
+            'type' => ['required', 'string', Rule::in(self::ITEM_TYPES)],
+            'stock_unit' => ['required', 'string', Rule::in(self::UNITS)],
+            'issue_unit' => ['required', 'string', Rule::in(self::UNITS)],
+            'units_per_stock_unit' => 'required|integer|min:1',
+            'stock' => 'required|numeric|min:0',
+            'minimum' => 'required|integer|min:0',
+            'date_registered' => 'required|date',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
         ]);
 
         $validated['unit'] = $validated['issue_unit'];
@@ -179,13 +178,13 @@ class HomeController extends Controller
         $item = InventoryItem::create($validated);
 
         AuditTrail::create([
-            'user_id'        => $user->id,
-            'action'         => 'Created Item',
-            'module'         => 'Inventory Registry',
+            'user_id' => $user->id,
+            'action' => 'Created Item',
+            'module' => 'Inventory Registry',
             'item_reference' => $item->code,
-            'old_value'      => null,
-            'new_value'      => "Name: {$item->name}, Stock: {$item->stock}",
-            'remarks'        => 'Item initialized.',
+            'old_value' => null,
+            'new_value' => "Name: {$item->name}, Stock: {$item->stock}",
+            'remarks' => 'Item initialized.',
         ]);
 
         ReportService::generateMonthlyReportJson();
@@ -199,7 +198,7 @@ class HomeController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'code' => 'required|unique:inventory_items,code,' . $id,
+            'code' => 'required|unique:inventory_items,code,'.$id,
             'name' => 'required|string|max:255',
             'category' => ['required', 'string', Rule::in(self::CATEGORIES)],
             'type' => ['required', 'string', Rule::in(self::ITEM_TYPES)],
@@ -210,7 +209,7 @@ class HomeController extends Controller
             'minimum' => 'required|integer|min:0',
             'date_registered' => 'required|date',
             'description' => 'nullable|string',
-            'location' => 'nullable|string|max:255'
+            'location' => 'nullable|string|max:255',
         ]);
 
         $validatedData['unit'] = $validatedData['issue_unit'];
@@ -229,7 +228,7 @@ class HomeController extends Controller
             'item_reference' => $item->code,
             'old_value' => $oldData,
             'new_value' => $item->toJson(),
-            'remarks' => 'Item updated via Inventory Registry.'
+            'remarks' => 'Item updated via Inventory Registry.',
         ]);
 
         ReportService::generateMonthlyReportJson();
@@ -249,9 +248,9 @@ class HomeController extends Controller
             'action' => 'Deleted Item',
             'module' => 'Inventory Registry',
             'item_reference' => $code,
-            'old_value' => 'Name: ' . $name,
+            'old_value' => 'Name: '.$name,
             'new_value' => null,
-            'remarks' => 'Item deleted from Inventory Registry.'
+            'remarks' => 'Item deleted from Inventory Registry.',
         ]);
 
         ReportService::generateMonthlyReportJson();

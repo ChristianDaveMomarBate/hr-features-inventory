@@ -1,10 +1,14 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 class InventoryItem extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'code',
         'name',
@@ -19,11 +23,11 @@ class InventoryItem extends Model
         'condition',
         'description',
         'location',
-        'date_registered'
+        'date_registered',
     ];
 
     protected $casts = [
-        'stock'   => 'integer',
+        'stock' => 'integer',
         'minimum' => 'integer',
         'units_per_stock_unit' => 'integer',
     ];
@@ -41,7 +45,7 @@ class InventoryItem extends Model
 
     public function getDisplayStockAttribute(): string
     {
-        return number_format((int) $this->stock) . ' ' . $this->display_unit;
+        return number_format((int) $this->stock).' '.$this->display_unit;
     }
 
     public function getBulkEquivalentAttribute(): ?string
@@ -57,12 +61,12 @@ class InventoryItem extends Model
         $remainder = ((int) $this->stock) % $unitsPerStockUnit;
 
         if ($bulkQty < 1) {
-            return 'less than 1 ' . $stockUnit;
+            return 'less than 1 '.$stockUnit;
         }
 
-        $text = 'about ' . number_format($bulkQty) . ' ' . $this->pluralizeUnit($stockUnit, $bulkQty);
+        $text = 'about '.number_format($bulkQty).' '.$this->pluralizeUnit($stockUnit, $bulkQty);
         if ($remainder > 0) {
-            $text .= ' + ' . number_format($remainder) . ' ' . $this->display_unit;
+            $text .= ' + '.number_format($remainder).' '.$this->display_unit;
         }
 
         return $text;
@@ -76,7 +80,7 @@ class InventoryItem extends Model
 
         return match ($unit) {
             'box' => 'boxes',
-            default => $unit . 's',
+            default => $unit.'s',
         };
     }
 
@@ -84,5 +88,4 @@ class InventoryItem extends Model
     {
         return $this->hasMany(StockTransaction::class);
     }
-
 }

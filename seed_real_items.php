@@ -16,7 +16,7 @@ $realItems = [
     ['Office Supplies', 'Non-Consumable', 'pcs', 'Stapler with Remover'],
     ['Office Supplies', 'Non-Consumable', 'pcs', 'Hole Puncher (Heavy Duty)'],
     ['Office Supplies', 'Non-Consumable', 'pcs', 'Whiteboard Marker (Black)'],
-    
+
     ['IT Equipment & Devices', 'Asset', 'unit', 'Dell Optiplex Desktop'],
     ['IT Equipment & Devices', 'Asset', 'unit', 'Lenovo ThinkPad Laptop'],
     ['IT Equipment & Devices', 'Asset', 'unit', 'Epson L3110 Printer'],
@@ -51,11 +51,11 @@ $realItems = [
     ['Security & Accountability Items', 'Consumable', 'pcs', 'ID Lace / Lanyard'],
     ['Security & Accountability Items', 'Consumable', 'pcs', 'Plastic ID Holder'],
     ['Security & Accountability Items', 'Asset', 'unit', 'Biometric Scanner'],
-    ['Security & Accountability Items', 'Asset', 'unit', 'CCTV Camera']
+    ['Security & Accountability Items', 'Asset', 'unit', 'CCTV Camera'],
 ];
 
 $count = 1;
-foreach($realItems as $item) {
+foreach ($realItems as $item) {
     InventoryItem::create([
         'code' => 'ITM-'.date('Y').'-'.str_pad($count, 3, '0', STR_PAD_LEFT),
         'name' => $item[3],
@@ -64,9 +64,9 @@ foreach($realItems as $item) {
         'unit' => $item[2],
         'stock' => rand(10, 100),
         'minimum' => rand(5, 20),
-        'date_registered' => now()->subDays(rand(1, 60))
+        'date_registered' => now()->subDays(rand(1, 60)),
     ]);
     $count++;
 }
 
-echo "Created " . count($realItems) . " realistic items!\n";
+echo 'Created '.count($realItems)." realistic items!\n";

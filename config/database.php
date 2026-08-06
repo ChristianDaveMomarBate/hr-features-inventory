@@ -44,18 +44,18 @@ return [
         ],
 
         'hrmps' => [
-        'driver' => 'mysql',
-        'host' => env('HRMPS_DB_HOST', '127.0.0.1'),  // use your HRMPS host
-        'port' => env('HRMPS_DB_PORT', '3306'),       // use your HRMPS port
-        'database' => env('HRMPS_DB_DATABASE', 'hrmps_database_name'),
-        'username' => env('HRMPS_DB_USERNAME', 'your_hrmps_db_user'),
-        'password' => env('HRMPS_DB_PASSWORD', 'your_hrmps_db_password'),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'strict' => true,
-        'engine' => null,
-         ],
+            'driver' => 'mysql',
+            'host' => env('HRMPS_DB_HOST', '127.0.0.1'),  // use your HRMPS host
+            'port' => env('HRMPS_DB_PORT', '3306'),       // use your HRMPS port
+            'database' => env('HRMPS_DB_DATABASE', 'hrmps_database_name'),
+            'username' => env('HRMPS_DB_USERNAME', 'your_hrmps_db_user'),
+            'password' => env('HRMPS_DB_PASSWORD', 'your_hrmps_db_password'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
 
         'mysql' => [
             'driver' => 'mysql',

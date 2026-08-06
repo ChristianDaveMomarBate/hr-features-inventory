@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Notifications\NewItemRequest;
 use App\Models\ItemRequest;
 use App\Models\ItemRequestItem;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use App\Models\StockTransaction;
+use App\Models\User;
+use App\Notifications\NewItemRequest;
 use App\Services\ReportService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class ItemRequestController extends Controller
@@ -17,11 +17,11 @@ class ItemRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'requester_name'             => 'required|string|max:255',
-            'department'                 => 'required|string|max:255',
-            'purpose'                    => 'nullable|string',
-            'items'                      => 'required|array|min:1',
-            'items.*.item_id'            => 'required|exists:inventory_items,id',
+            'requester_name' => 'required|string|max:255',
+            'department' => 'required|string|max:255',
+            'purpose' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.item_id' => 'required|exists:inventory_items,id',
             'items.*.requested_quantity' => 'required|integer|min:1',
         ]);
 
@@ -29,20 +29,20 @@ class ItemRequestController extends Controller
 
             $itemRequest = ItemRequest::create([
                 'requester_name' => $validated['requester_name'],
-                'department'     => $validated['department'],
-                'purpose'        => $validated['purpose'] ?? null,
-                'status'         => 'Pending',
+                'department' => $validated['department'],
+                'purpose' => $validated['purpose'] ?? null,
+                'status' => 'Pending',
             ]);
 
             $requestItems = [];
 
             foreach ($validated['items'] as $item) {
                 $requestItems[] = [
-                    'item_request_id'    => $itemRequest->id,
-                    'inventory_item_id'  => $item['item_id'],
+                    'item_request_id' => $itemRequest->id,
+                    'inventory_item_id' => $item['item_id'],
                     'requested_quantity' => $item['requested_quantity'],
-                    'created_at'          => now(),
-                    'updated_at'          => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             }
 
@@ -71,7 +71,7 @@ class ItemRequestController extends Controller
             $query = ItemRequest::with([
                 'item',
                 'approver',
-                'requestItems.item'
+                'requestItems.item',
             ]);
 
             if (preg_match('/^CN\d{8}-(\d+)$/i', $searchTerm, $matches)) {
@@ -114,24 +114,25 @@ class ItemRequestController extends Controller
         $itemRequest = ItemRequest::findOrFail($id);
 
         $validated = $request->validate([
-            'status'            => 'required|in:Approved,Adjusted,Cancelled',
-            'approve_items'     => 'nullable|array',
-            'item_quantities'   => 'nullable|array',
+            'status' => 'required|in:Approved,Adjusted,Cancelled',
+            'approve_items' => 'nullable|array',
+            'item_quantities' => 'nullable|array',
             'approved_quantity' => 'nullable|integer|min:0',
-            'admin_note'        => 'nullable|string',
-            'item_remarks'      => 'nullable|array',
+            'admin_note' => 'nullable|string',
+            'item_remarks' => 'nullable|array',
         ]);
 
         $status = $validated['status'];
 
         if ($status === 'Cancelled') {
             $itemRequest->update([
-                'status'      => 'Cancelled',
-                'admin_note'  => $validated['admin_note'],
+                'status' => 'Cancelled',
+                'admin_note' => $validated['admin_note'],
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
             ]);
-            return redirect()->back()->with('success', 'Request #' . $id . ' has been cancelled.');
+
+            return redirect()->back()->with('success', 'Request #'.$id.' has been cancelled.');
         }
 
         if (in_array($status, ['Approved', 'Adjusted'])) {
@@ -147,24 +148,28 @@ class ItemRequestController extends Controller
 
                         // Check all stock first
                         foreach ($items as $reqItem) {
-                            if (!in_array($reqItem->id, $approvedItemsIds)) continue;
+                            if (! in_array($reqItem->id, $approvedItemsIds)) {
+                                continue;
+                            }
 
                             $qty = $itemQuantities[$reqItem->id] ?? 0;
                             if ($qty > $reqItem->item->stock) {
-                                throw new \Exception('Cannot approve: Insufficient stock for ' . $reqItem->item->name . ' (Only ' . $reqItem->item->stock . ' available).');
+                                throw new \Exception('Cannot approve: Insufficient stock for '.$reqItem->item->name.' (Only '.$reqItem->item->stock.' available).');
                             }
                         }
 
                         // Deduct stock and log transactions
                         foreach ($items as $reqItem) {
-                            if (!in_array($reqItem->id, $approvedItemsIds)) {
+                            if (! in_array($reqItem->id, $approvedItemsIds)) {
                                 $reqItem->update(['approved_quantity' => 0, 'remarks' => $validated['item_remarks'][$reqItem->id] ?? null]);
+
                                 continue;
                             }
 
                             $qty = $itemQuantities[$reqItem->id] ?? 0;
                             if ($qty <= 0) {
                                 $reqItem->update(['approved_quantity' => 0, 'remarks' => $validated['item_remarks'][$reqItem->id] ?? null]);
+
                                 continue;
                             }
 
@@ -176,22 +181,22 @@ class ItemRequestController extends Controller
 
                             $reqItem->update([
                                 'approved_quantity' => $qty,
-                                'remarks'           => $itemRemarks
+                                'remarks' => $itemRemarks,
                             ]);
 
                             StockTransaction::create([
                                 'inventory_item_id' => $inventoryItem->id,
-                                'user_id'           => auth()->id(),
-                                'type'              => 'out',
-                                'quantity'          => $qty,
-                                'reference'         => 'Item Request #' . $itemRequest->id . ' — approved for ' . $itemRequest->requester_name,
-                                'balance'           => $inventoryItem->stock,
+                                'user_id' => auth()->id(),
+                                'type' => 'out',
+                                'quantity' => $qty,
+                                'reference' => 'Item Request #'.$itemRequest->id.' — approved for '.$itemRequest->requester_name,
+                                'balance' => $inventoryItem->stock,
                             ]);
                         }
 
                         $itemRequest->update([
-                            'status'      => $status,
-                            'admin_note'  => $validated['admin_note'] ?? null,
+                            'status' => $status,
+                            'admin_note' => $validated['admin_note'] ?? null,
                             'approved_by' => auth()->id(),
                             'approved_at' => now(),
                         ]);
@@ -199,13 +204,13 @@ class ItemRequestController extends Controller
 
                     ReportService::generateMonthlyReportJson();
 
-                    return redirect()->back()->with('success', 'Multi-item Request #' . $itemRequest->id . ' has been processed successfully.');
+                    return redirect()->back()->with('success', 'Multi-item Request #'.$itemRequest->id.' has been processed successfully.');
                 } catch (\Exception $e) {
                     return redirect()->back()->with('error', $e->getMessage());
                 }
             } else {
                 $approvedItemsIds = $validated['approve_items'] ?? [];
-                if (!in_array('single', $approvedItemsIds)) {
+                if (! in_array('single', $approvedItemsIds)) {
                     $approvedQty = 0;
                 } else {
                     $approvedQty = $validated['approved_quantity'] ?? $itemRequest->requested_quantity;
@@ -214,7 +219,7 @@ class ItemRequestController extends Controller
                 $inventoryItem = $itemRequest->item;
 
                 if ($approvedQty > $inventoryItem->stock) {
-                    return redirect()->back()->with('error', 'Cannot approve a quantity greater than available stock (' . $inventoryItem->stock . ').');
+                    return redirect()->back()->with('error', 'Cannot approve a quantity greater than available stock ('.$inventoryItem->stock.').');
                 }
 
                 if ($approvedQty > 0) {
@@ -225,11 +230,11 @@ class ItemRequestController extends Controller
                     // Record audit trail
                     StockTransaction::create([
                         'inventory_item_id' => $inventoryItem->id,
-                        'user_id'           => auth()->id(),
-                        'type'              => 'out',
-                        'quantity'          => $approvedQty,
-                        'reference'         => 'Item Request #' . $itemRequest->id . ' — approved for ' . $itemRequest->requester_name,
-                        'balance'           => $inventoryItem->stock,
+                        'user_id' => auth()->id(),
+                        'type' => 'out',
+                        'quantity' => $approvedQty,
+                        'reference' => 'Item Request #'.$itemRequest->id.' — approved for '.$itemRequest->requester_name,
+                        'balance' => $inventoryItem->stock,
                     ]);
                 }
 
@@ -239,17 +244,17 @@ class ItemRequestController extends Controller
                 $singleRemark = $validated['item_remarks']['single'] ?? null;
 
                 $itemRequest->update([
-                    'status'            => $finalStatus,
+                    'status' => $finalStatus,
                     'approved_quantity' => $approvedQty,
-                    'admin_note'        => $validated['admin_note'],
-                    'remarks'           => $singleRemark,
-                    'approved_by'       => auth()->id(),
-                    'approved_at'       => now(),
+                    'admin_note' => $validated['admin_note'],
+                    'remarks' => $singleRemark,
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
                 ]);
 
                 ReportService::generateMonthlyReportJson();
 
-                return redirect()->back()->with('success', 'Request #' . $id . ' has been processed successfully.');
+                return redirect()->back()->with('success', 'Request #'.$id.' has been processed successfully.');
             }
         }
 
@@ -260,7 +265,7 @@ class ItemRequestController extends Controller
     {
         $itemRequest = ItemRequest::findOrFail($id);
 
-        if (!in_array($itemRequest->status, ['Approved', 'Adjusted'])) {
+        if (! in_array($itemRequest->status, ['Approved', 'Adjusted'])) {
             return redirect()->back()->with('error', 'Only Approved or Adjusted requests can be reverted.');
         }
 
@@ -278,11 +283,11 @@ class ItemRequestController extends Controller
                         // Log the reversal in audit trail
                         StockTransaction::create([
                             'inventory_item_id' => $reqItem->item->id,
-                            'user_id'           => auth()->id(),
-                            'type'              => 'in',
-                            'quantity'          => $reqItem->approved_quantity,
-                            'reference'         => 'REVERT: Item Request #' . $itemRequest->id . ' — stock restored for ' . $itemRequest->requester_name,
-                            'balance'           => $reqItem->item->stock,
+                            'user_id' => auth()->id(),
+                            'type' => 'in',
+                            'quantity' => $reqItem->approved_quantity,
+                            'reference' => 'REVERT: Item Request #'.$itemRequest->id.' — stock restored for '.$itemRequest->requester_name,
+                            'balance' => $reqItem->item->stock,
                         ]);
 
                         // Clear the approved quantity
@@ -298,28 +303,28 @@ class ItemRequestController extends Controller
 
                     StockTransaction::create([
                         'inventory_item_id' => $inventoryItem->id,
-                        'user_id'           => auth()->id(),
-                        'type'              => 'in',
-                        'quantity'          => $itemRequest->approved_quantity,
-                        'reference'         => 'REVERT: Item Request #' . $itemRequest->id . ' — stock restored for ' . $itemRequest->requester_name,
-                        'balance'           => $inventoryItem->stock,
+                        'user_id' => auth()->id(),
+                        'type' => 'in',
+                        'quantity' => $itemRequest->approved_quantity,
+                        'reference' => 'REVERT: Item Request #'.$itemRequest->id.' — stock restored for '.$itemRequest->requester_name,
+                        'balance' => $inventoryItem->stock,
                     ]);
                 }
             }
 
             // Reset the request back to Pending
             $itemRequest->update([
-                'status'            => 'Pending',
+                'status' => 'Pending',
                 'approved_quantity' => null,
-                'approved_by'       => null,
-                'approved_at'       => null,
-                'admin_note'        => null,
+                'approved_by' => null,
+                'approved_at' => null,
+                'admin_note' => null,
             ]);
         });
 
         ReportService::generateMonthlyReportJson();
 
-        return redirect()->back()->with('success', 'Request #' . $id . ' has been reverted to Pending. Stock has been restored.');
+        return redirect()->back()->with('success', 'Request #'.$id.' has been reverted to Pending. Stock has been restored.');
     }
 
     public function destroy($id)
@@ -330,7 +335,7 @@ class ItemRequestController extends Controller
 
         return back()->with(
             'success',
-            'Request #' . $itemRequest->id . ' has been deleted successfully.'
+            'Request #'.$itemRequest->id.' has been deleted successfully.'
         );
     }
 }

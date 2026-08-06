@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
+use App\Models\StockTransaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use ZipArchive;
@@ -18,21 +19,21 @@ class ExportController extends Controller
     {
         ini_set('memory_limit', '512M');
         $inventoryItems = InventoryItem::orderBy('code')->get();
-        $stockInTotals = \App\Models\StockTransaction::where('type', 'in')
+        $stockInTotals = StockTransaction::where('type', 'in')
             ->selectRaw('inventory_item_id, SUM(quantity) as total_in')
             ->groupBy('inventory_item_id')
             ->pluck('total_in', 'inventory_item_id');
 
         $pdf = Pdf::loadView('exports.registry-pdf', [
             'inventoryItems' => $inventoryItems,
-            'stockInTotals'  => $stockInTotals,
+            'stockInTotals' => $stockInTotals,
         ])->setPaper('a4', 'landscape')
-          ->setOptions([
-              'isHtml5ParserEnabled' => true,
-              'isRemoteEnabled'      => false,
-              'defaultFont'          => 'Arial',
-              'dpi'                  => 96,
-          ]);
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => false,
+                'defaultFont' => 'Arial',
+                'dpi' => 96,
+            ]);
 
         return $pdf->download('phrmdo-inventory-registry.pdf');
     }
@@ -82,7 +83,7 @@ class ExportController extends Controller
     private function buildXlsx(array $rows): string
     {
         $path = tempnam(storage_path('app'), 'inventory-export-');
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $zip->open($path, ZipArchive::OVERWRITE);
 
         $zip->addFromString('[Content_Types].xml', $this->contentTypesXml());
@@ -101,20 +102,20 @@ class ExportController extends Controller
 
         foreach ($rows as $rowIndex => $row) {
             $excelRow = $rowIndex + 1;
-            $xmlRows .= '<row r="' . $excelRow . '">';
+            $xmlRows .= '<row r="'.$excelRow.'">';
 
             foreach ($row as $columnIndex => $value) {
-                $cell = $this->columnName($columnIndex + 1) . $excelRow;
-                $xmlRows .= '<c r="' . $cell . '" t="inlineStr"><is><t>' . $this->xml($value) . '</t></is></c>';
+                $cell = $this->columnName($columnIndex + 1).$excelRow;
+                $xmlRows .= '<c r="'.$cell.'" t="inlineStr"><is><t>'.$this->xml($value).'</t></is></c>';
             }
 
             $xmlRows .= '</row>';
         }
 
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-            . '<sheetData>' . $xmlRows . '</sheetData>'
-            . '</worksheet>';
+            .'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            .'<sheetData>'.$xmlRows.'</sheetData>'
+            .'</worksheet>';
     }
 
     private function columnName(int $number): string
@@ -123,7 +124,7 @@ class ExportController extends Controller
 
         while ($number > 0) {
             $number--;
-            $name = chr(65 + ($number % 26)) . $name;
+            $name = chr(65 + ($number % 26)).$name;
             $number = intdiv($number, 26);
         }
 
@@ -138,36 +139,36 @@ class ExportController extends Controller
     private function contentTypesXml(): string
     {
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-            . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-            . '<Default Extension="xml" ContentType="application/xml"/>'
-            . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-            . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-            . '</Types>';
+            .'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            .'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            .'<Default Extension="xml" ContentType="application/xml"/>'
+            .'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+            .'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            .'</Types>';
     }
 
     private function rootRelsXml(): string
     {
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-            . '</Relationships>';
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            .'</Relationships>';
     }
 
     private function workbookXml(): string
     {
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-            . 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-            . '<sheets><sheet name="Inventory" sheetId="1" r:id="rId1"/></sheets>'
-            . '</workbook>';
+            .'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+            .'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            .'<sheets><sheet name="Inventory" sheetId="1" r:id="rId1"/></sheets>'
+            .'</workbook>';
     }
 
     private function workbookRelsXml(): string
     {
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-            . '</Relationships>';
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            .'</Relationships>';
     }
 }

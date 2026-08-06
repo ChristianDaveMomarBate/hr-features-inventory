@@ -34,7 +34,7 @@ class NotificationController extends Controller
             ]),
 
             LowStockAlert::class => redirect()->route('dashboard', array_filter([
-                'page'      => 'inventory-registry',
+                'page' => 'inventory-registry',
                 'highlight' => $data['inventory_item_id'] ?? null,
             ])),
 
@@ -64,16 +64,16 @@ class NotificationController extends Controller
             $isRequest = $notification->type === NewItemRequest::class;
 
             return [
-                'id'         => $notification->id,
-                'type'       => $isRequest ? 'request' : 'low_stock',
-                'title'      => $isRequest
-                    ? ($data['requester_name'] ?? 'Someone') . ' submitted a request'
+                'id' => $notification->id,
+                'type' => $isRequest ? 'request' : 'low_stock',
+                'title' => $isRequest
+                    ? ($data['requester_name'] ?? 'Someone').' submitted a request'
                     : ($data['name'] ?? 'Unknown Item'),
-                'sub'        => $isRequest
-                    ? ($data['department'] ?? '') . ' · Qty: ' . ($data['quantity'] ?? 0)
-                    : 'Stock: ' . ($data['current_stock_label'] ?? $data['current_stock'] ?? 0)
-                        . ' — Min: '
-                        . ($data['minimum_stock_label'] ?? $data['minimum_stock'] ?? 0),
+                'sub' => $isRequest
+                    ? ($data['department'] ?? '').' · Qty: '.($data['quantity'] ?? 0)
+                    : 'Stock: '.($data['current_stock_label'] ?? $data['current_stock'] ?? 0)
+                        .' — Min: '
+                        .($data['minimum_stock_label'] ?? $data['minimum_stock'] ?? 0),
                 'created_at' => $notification->created_at->diffForHumans(),
             ];
         });
