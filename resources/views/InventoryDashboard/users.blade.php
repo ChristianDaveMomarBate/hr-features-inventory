@@ -1,5 +1,5 @@
 @php
-    $activePageId = 'users';
+$activePageId = 'users';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -13,10 +13,7 @@
     <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
     @include('style.style')
 </head>
-<body
-    data-dashboard-url="{{ route('dashboard') }}"
-    data-dashboard-base-url="{{ url('/dashboard') }}"
->
+<body data-dashboard-url="{{ route('dashboard') }}" data-dashboard-base-url="{{ url('/dashboard') }}">
     <div class="dashboard-mobile-bar">
         <button type="button" class="dashboard-menu-btn" data-action="toggle-sidebar" aria-label="Open navigation">
             <i class="bi bi-list"></i>
@@ -54,49 +51,49 @@
                         </thead>
                         <tbody>
                             @forelse($users as $user)
-                                <tr>
-                                    <td class="ps-4 py-3">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;font-size:13px;">
-                                                {{ substr($user->name, 0, 1) }}
-                                            </div>
-                                            <span class="fw-semibold text-dark">{{ $user->name }}</span>
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;font-size:13px;">
+                                            {{ substr($user->name, 0, 1) }}
                                         </div>
-                                    </td>
-                                    <td class="py-3 text-secondary">{{ $user->email }}</td>
-                                    <td class="py-3">
-                                        <form id="userForm{{ $user->id }}" method="POST" action="{{ route('users.update', $user) }}" class="d-flex gap-2 align-items-center justify-content-end">
+                                        <span class="fw-semibold text-dark">{{ $user->name }}</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 text-secondary">{{ $user->email }}</td>
+                                <td class="py-3">
+                                    <form id="userForm{{ $user->id }}" method="POST" action="{{ route('users.update', $user) }}" class="d-flex gap-2 align-items-center justify-content-end">
+                                        @csrf
+                                        @method('PUT')
+                                        <span class="badge role-badge role-badge-admin">Admin</span>
+                                        <input type="hidden" name="is_active" value="{{ $user->is_active ? 1 : 0 }}">
+                                    </form>
+                                </td>
+                                <td class="py-3">
+                                    <span class="badge {{ $user->is_active ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $user->is_active ? 'Active' : 'Deactivated' }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4 py-3">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <button type="submit" form="userForm{{ $user->id }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-save me-1"></i>Save
+                                        </button>
+                                        <form method="POST" action="{{ route('users.update', $user) }}">
                                             @csrf
                                             @method('PUT')
-                                            <span class="badge role-badge role-badge-admin">Admin</span>
-                                            <input type="hidden" name="is_active" value="{{ $user->is_active ? 1 : 0 }}">
-                                        </form>
-                                    </td>
-                                    <td class="py-3">
-                                        <span class="badge {{ $user->is_active ? 'bg-success' : 'bg-secondary' }}">
-                                            {{ $user->is_active ? 'Active' : 'Deactivated' }}
-                                        </span>
-                                    </td>
-                                    <td class="text-end pe-4 py-3">
-                                        <div class="d-flex gap-2 justify-content-end">
-                                            <button type="submit" form="userForm{{ $user->id }}" class="btn btn-sm btn-primary">
-                                                <i class="bi bi-save me-1"></i>Save
+                                            <input type="hidden" name="is_active" value="{{ $user->is_active ? 0 : 1 }}">
+                                            <button type="submit" class="btn btn-sm {{ $user->is_active ? 'btn-outline-secondary' : 'btn-outline-success' }}">
+                                                {{ $user->is_active ? 'Deactivate' : 'Activate' }}
                                             </button>
-                                            <form method="POST" action="{{ route('users.update', $user) }}">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="is_active" value="{{ $user->is_active ? 0 : 1 }}">
-                                                <button type="submit" class="btn btn-sm {{ $user->is_active ? 'btn-outline-secondary' : 'btn-outline-success' }}">
-                                                    {{ $user->is_active ? 'Deactivate' : 'Activate' }}
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
                             @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">No registered users found.</td>
-                                </tr>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">No registered users found.</td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -118,6 +115,7 @@
     @endif
 
     @vite('resources/js/inventory/script.js')
+
 
     @include('InventoryDashboard.accountModals')
 

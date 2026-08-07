@@ -1668,7 +1668,7 @@ for (let page = 0; page < totalPages; page++) {
         const sigNotedPos =
             document.getElementById('sigNotedPos')
                 ? document.getElementById('sigNotedPos').value
-                : 'Admin. Officer IV';
+                : 'Administrative Officer IV';
 
         const sigPreparedName =
             document.getElementById('sigPreparedName')

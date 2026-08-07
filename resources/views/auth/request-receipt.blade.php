@@ -308,7 +308,7 @@
                         <div class="sign-label">Noted by:</div>
                         <div class="sign-name-container">
                             <div class="sign-name">MAMARETO B. GESTA JR.</div>
-                            <div class="sign-title">Admin. Officer IV</div>
+                            <div class="sign-title">Administrative Officer IV</div>
                         </div>
                     </div>
                     <div class="sign-block">

@@ -7,31 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class PropertyManage extends Model
 {
-     use HasFactory;
+    use HasFactory;
+
+    protected $table = 'property_manage';
 
     protected $fillable = [
-        'id',
         'property_no',
         'item_description',
-        'date_aqcuired',
-        'unitOf_measurement',
+        'date_acquired',
+        'unit_of_measurement',
         'quantity',
         'unit_value',
+        'total_cost',
+        'PAR_number',
         'remarks',
+        'current_user',
+        'status',
     ];
 
     protected $casts = [
-        'requested_quantity' => 'integer',
-        'approved_quantity' => 'integer',
+        'date_acquired' => 'datetime',
+        'quantity'      => 'integer',
+        'unit_value'    => 'decimal:2',
+        'total_cost'    => 'decimal:2',
     ];
-
-    public function request()
-    {
-        return $this->belongsTo(ItemRequest::class, 'item_request_id');
-    }
-
-    public function item()
-    {
-        return $this->belongsTo(InventoryItem::class, 'inventory_item_id');
-    }
 }
