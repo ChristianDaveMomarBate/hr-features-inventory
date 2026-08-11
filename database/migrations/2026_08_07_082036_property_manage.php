@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->string('current_user');
             $table->string('status');
+            $table->string('attachment')->nullable();
             $table->timestamps();
             
         });

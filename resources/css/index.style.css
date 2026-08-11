@@ -4159,3 +4159,321 @@ textarea.flat-input{
 .btn-flat-light:hover{
     background:#e2e8f0;
 }
+
+/* Modal Footer */
+.flat-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #e9edf3;
+    background: #fff;
+}
+
+/* Scan / Attachment Button */
+.btn-flat-attach {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 38px;
+    padding: 0 15px;
+    border: 1px solid #d9e0e8;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-flat-attach i {
+    font-size: 14px;
+    color: #2563eb;
+}
+
+.btn-flat-attach:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.btn-flat-attach:active {
+    background: #e2e8f0;
+}
+
+/* Cancel */
+.btn-flat-light {
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #d9e0e8;
+    border-radius: 6px;
+    background: #fff;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.btn-flat-light:hover {
+    background: #f8fafc;
+    color: #334155;
+}
+
+/* Save */
+.btn-flat-primary {
+    height: 38px;
+    padding: 0 17px;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.btn-flat-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* =========================================================
+   PROPERTY TABLE
+   ========================================================= */
+
+.property-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+}
+
+.property-table {
+    width: 100%;
+    min-width: 1500px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12.5px;
+    color: #334155;
+}
+
+/* Header */
+.property-table thead th {
+    height: 44px;
+    padding: 0 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .025em;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Body */
+.property-table tbody td {
+    height: 52px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef2f6;
+    background: #fff;
+    vertical-align: middle;
+}
+
+/* Hover */
+.property-table tbody tr {
+    transition: background .12s ease;
+}
+
+.property-table tbody tr:hover td {
+    background: #f8fafc;
+}
+
+/* ID */
+.property-table .col-id {
+    width: 60px;
+    text-align: center;
+}
+
+.property-table tbody td:first-child {
+    color: #94a3b8;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* Text */
+.property-table td {
+    white-space: nowrap;
+}
+
+.property-table td.item-description {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Property number */
+.property-number {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+/* PAR number */
+.par-number {
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Date */
+.property-date {
+    color: #64748b;
+    font-size: 12px;
+}
+
+/* Numbers */
+.property-table .number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.property-table .total-cost {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* Current user */
+.current-user {
+    color: #475569;
+    font-weight: 500;
+}
+
+.property-table .col-actions {
+    width: 120px;
+    min-width: 120px;
+}
+
+.property-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.property-action {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+
+    background: #fff;
+    color: #64748b;
+
+    cursor: pointer;
+    transition: all .12s ease;
+}
+
+.property-action:hover {
+    background: #f8fafc;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+.property-action.attachment:hover {
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+
+.property-loading {
+    height: 180px !important;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.loading-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+}
+
+.loading-content i {
+    color: #2563eb;
+}
+
+
+.property-empty {
+    height: 180px !important;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.property-empty i {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 24px;
+    color: #cbd5e1;
+}
+
+
+.property-pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid #eef2f6;
+    background: #fff;
+}
+
+#pagination {
+    margin: 0 !important;
+}
+
+#pagination .pagination {
+    margin: 0;
+    gap: 3px;
+}
+
+#pagination .page-link {
+    min-width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 9px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 5px !important;
+
+    background: #fff;
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+#pagination .page-link:hover {
+    background: #f8fafc;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+#pagination .active .page-link {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+.property-table td.item-description {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    line-height: 1.4;
+}

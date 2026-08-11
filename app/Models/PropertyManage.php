@@ -23,6 +23,7 @@ class PropertyManage extends Model
         'remarks',
         'current_user',
         'status',
+        'attachment',
     ];
 
     protected $casts = [
