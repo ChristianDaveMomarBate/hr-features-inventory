@@ -257,9 +257,126 @@
             </div>
         </div>
 
+        <div class="modal fade" id="attachmentModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow">
+
+                    <form id="attachmentForm" enctype="multipart/form-data">
+
+                        <div class="modal-header">
+                            <div>
+                                <h5 class="modal-title mb-0">Property Attachment</h5>
+                                <small class="text-muted">Scan or upload the property document.</small>
+                            </div>
+
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <input type="hidden" id="property_id" name="property_id">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" readonly>
+                                    Description
+                                </label>
+
+                                <input type="text" id="property_description" class="form-control" readonly>
+                            </div>
+
+                            <!-- Scan Preview -->
+                            <div class="text-center">
+
+                                <div style="
+                            width:100%;
+                            height:380px;
+                            border:2px dashed #d0d5dd;
+                            border-radius:12px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            background:#fafafa;
+                            overflow:hidden;">
+
+                                    <img id="scanPreview" src="{{ asset('images/no-document.png') }}" alt="Scan Preview" style="max-width:100%;max-height:100%;object-fit:contain;">
+                                </div>
+
+                                <small class="text-muted d-block mt-2">
+                                    No scanned document available.
+                                </small>
+
+                            </div>
+
+                            <input type="file" id="attachment" name="attachment" class="d-none" accept=".pdf,.jpg,.jpeg,.png">
+
+                        </div>
+
+                        <div class="modal-footer justify-content-between">
+
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+
+                            <div>
+
+                                <button type="button" class="btn btn-info me-2" id="scanDocument">
+                                    <i class="fas fa-print me-2"></i>
+                                    Scan
+                                </button>
+
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="document.getElementById('attachment').click();">
+                                    <i class="fas fa-folder-open me-2"></i>
+                                    Browse
+                                </button>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-upload me-2"></i>
+                                    Upload
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
+
     <script>
+        //scan attachment
+        $('#attachment').on('change', function() {
+
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                $('#scanPreview').attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+        //attachment modal 
+        $(document).on('click', '.attachmentBtn', function() {
+
+            $('#property_id').val($(this).data('id'));
+
+            $('#property_description').val(
+                $(this).data('description')
+            );
+
+            $('#attachmentModal').modal('show');
+
+        });
         //pag save sa database
         $('#propertyForm').submit(function(e) {
 
@@ -345,7 +462,15 @@
                     <tr>
                         <td>${response.from + index}</td>
                         <td>${item.property_no}</td>
-                        <td>${item.item_description}</td>
+                        <td>
+                            <a href="javascript:void(0)"
+                            data-id="${item.id}"
+                            data-description="${item.item_description}"
+                            class="attachmentBtn"
+                            style="color:#4382DF; text-decoration:underline; font-weight:600; cursor:pointer;">
+                                ${item.item_description}
+                            </a>
+                        </td>
                         <td>${new Date(item.date_acquired).toLocaleDateString()}</td>
                         <td>${item.unit_of_measurement}</td>
                         <td class="text-end">${item.quantity}</td>
@@ -362,12 +487,12 @@
                         <td class="text-center">
                             <button class="btn btn-sm btn-primary editProperty"
                                     data-id="${item.id}">
-                                <i class="fas fa-edit"></i>
+                               <i class="bi bi-pencil-fill"></i>
                             </button>
 
                             <button class="btn btn-sm btn-danger deleteProperty"
                                     data-id="${item.id}">
-                                <i class="fas fa-trash"></i>
+                               <i class="bi bi-trash3-fill"></i>
                             </button>
                         </td>
                     </tr>`;
