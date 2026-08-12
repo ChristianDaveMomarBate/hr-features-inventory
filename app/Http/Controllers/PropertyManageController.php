@@ -51,25 +51,19 @@ class PropertyManageController extends Controller
             'PAR_number'           => 'required|string|max:255',
             'remarks'              => 'nullable|string',
             'current_user'         => 'required|string|max:255',
-            // PDF attachment
             'attachment' => 'nullable|file|mimetypes:application/pdf|max:10240',
         ]);
-        // Remove commas
         $validated['total_cost'] = str_replace(
             ',',
             '',
             $validated['total_cost']
         );
-        // Upload attachment
         if ($request->hasFile('attachment')) {
-
             $file = $request->file('attachment');
-
             $path = $file->store(
                 'property_attachments',
                 'public'
             );
-
             $validated['attachment'] = $path;
         }
         $validated['status'] = 'Active';
@@ -78,6 +72,62 @@ class PropertyManageController extends Controller
             'success' => true,
             'message' => 'Property added successfully.',
             'data'    => $property
+        ]);
+    }
+    public function delete(Request $request)
+    {
+        $property = PropertyManage::find($request->id);
+        if (!$property) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property not found.'
+            ], 404);
+        }
+        $property->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Record succesfully deleted!'
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $property = PropertyManage::find($request->id);
+        if (!$property) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property not found.'
+            ], 404);
+        }
+        $request->validate([
+            'property_no' => 'required|string|max:255',
+            'item_description' => 'required|string',
+            'date_acquired' => 'required|date',
+            'unit_of_measurement' => 'required|string',
+            'quantity' => 'required|numeric|min:0',
+            'unit_value' => 'required|numeric|min:0',
+            'PAR_number' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string',
+            'current_user' => 'nullable|string|max:255',
+        ]);
+        $quantity = $request->quantity;
+        $unitValue = $request->unit_value;
+        $totalCost = $quantity * $unitValue;
+        $property->property_no = $request->property_no;
+        $property->item_description = $request->item_description;
+        $property->date_acquired = $request->date_acquired;
+        $property->unit_of_measurement = $request->unit_of_measurement;
+        $property->quantity = $quantity;
+        $property->unit_value = $unitValue;
+        $property->total_cost = $totalCost;
+        $property->PAR_number = $request->PAR_number;
+        $property->remarks = $request->remarks;
+        $property->current_user = $request->current_user;
+        $property->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Property updated successfully.',
+            'data' => $property
         ]);
     }
 }

@@ -91,20 +91,20 @@
 
             <li class="{{ (isset($activePageId) && $activePageId === 'property-return') ? 'active' : '' }}"
                 data-page-target="property-return">
-                <i class="bi bi-box-arrow-left"></i>
-                <span>Property Return</span>
+                <i class="bi bi-cash-coin"></i>
+                <span>Budget Management</span>
             </li>
 
         <li class="{{ (isset($activePageId) && $activePageId === 'property-transfer') ? 'active' : '' }}"
             data-page-target="property-transfer">
-            <i class="bi bi-arrow-left-right"></i>
-            <span>Property Transfer</span>
+            <i class="bi bi-recycle"></i>
+            <span>Transfer History</span>
         </li>
 
         <li class="{{ (isset($activePageId) && $activePageId === 'property-reports') ? 'active' : '' }}"
             data-page-target="property-reports">
             <i class="bi bi-file-earmark-text-fill"></i>
-            <span>Property Reports</span>
+            <span>Waste Disposal</span>
         </li>
 
     </ul>

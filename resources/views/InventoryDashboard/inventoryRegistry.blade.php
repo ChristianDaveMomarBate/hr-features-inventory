@@ -211,31 +211,6 @@
 
                             });
                             </script>
-                            <style>
-                            .stockwise-swal {
-                                border-radius: 14px !important;
-                                padding: 22px !important;
-                            }
-
-                            .stockwise-swal .swal2-title {
-                                font-size: 18px !important;
-                                font-weight: 700 !important;
-                                color: #1f2937 !important;
-                            }
-
-                            .stockwise-swal .swal2-html-container {
-                                font-size: 13px !important;
-                                color: #6b7280 !important;
-                            }
-
-                            .swal-delete-btn,
-                            .swal-cancel-btn {
-                                border-radius: 8px !important;
-                                font-size: 12px !important;
-                                font-weight: 600 !important;
-                                padding: 9px 16px !important;
-                            }
-                            </style>
                             </tr>
                         @empty
                             <tr>

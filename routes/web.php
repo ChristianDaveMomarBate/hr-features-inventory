@@ -58,7 +58,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Property Manage Route
     Route::post('/property-management/store', [PropertyManageController::class, 'store'])
         ->name('property.store');
-
     Route::get('/dashboard/property-management/data', [PropertyManageController::class, 'data'])
         ->name('property.data');
+    Route::get('/dashboard/property-management/delete', [PropertyManageController::class, 'delete'])
+        ->name('property.delete');
+    Route::post('/dashboard/property-management/update', [PropertyManageController::class, 'update'])
+        ->name('property.update');
 });

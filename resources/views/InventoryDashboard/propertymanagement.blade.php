@@ -8,108 +8,113 @@
             @include('InventoryDashboard.navbar')
         </div>
         <!-- Property Management Table -->
-        <div class="card shadow-sm border-0" >
-            <div class="card-header bg-white" >
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h5 class="mb-0 fw-semibold">Property Inventory</h5>
-                    </div>
-                    <button type="button" class="btn-flat-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
-                        <i class="fas fa-plus me-2"></i>
-                        Add Property
-                    </button>
-                </div>
-                <div class="row g-2">
-                    <!-- Search -->
-                    <div class="col-lg-3">
-                        <input type="text" class="flat-input" id="searchProperty" placeholder="Search property...">
-                    </div>
-                    <!-- Property Number -->
-                    <div class="col-lg-2">
-                        <input type="text" class="flat-input" id="propertyNoFilter" placeholder="Property No.">
-                    </div>
-                    <!-- Date Acquired -->
-                    <div class="col-lg-2">
-                        <input type="date" class="flat-input" id="dateFilter">
-                    </div>
-                    <!-- Unit -->
-                    <div class="col-lg-2">
-                        <select class="flat-input" id="unitFilter">
-                            <option value="">All Units</option>
-                            <option>Piece (pc)</option>
-                            <option>Set</option>
-                            <option>Unit</option>
-                            <option>Pair</option>
-                            <option>Pack</option>
-                            <option>Box</option>
-                            <option>Carton</option>
-                            <option>Bundle</option>
-                            <option>Roll</option>
-                            <option>Ream</option>
-                            <option>Book</option>
-                            <option>Pad</option>
-                            <option>Gram (g)</option>
-                            <option>Kilogram (kg)</option>
-                            <option>Liter (L)</option>
-                            <option>Meter (m)</option>
-                            <option>Bottle</option>
-                            <option>Can</option>
-                            <option>Jar</option>
-                            <option>Tube</option>
-                            <option>Sack</option>
-                            <option>Dozen</option>
-                        </select>
-                    </div>
-                    <!-- Current User -->
-                    <div class="col-lg-2">
-                        <input type="text" class="flat-input" id="currentUserFilter" placeholder="Current User">
-                    </div>
-                    <!-- Reset -->
-                    <div class="col-lg-1">
-                        <button type="button" class="btn-flat-light w-100" id="resetFilters">
-                            Reset Filter
-                            <i class="fas fa-rotate-left"></i>
+            <div class="card shadow-sm border-0" >
+                <div class="card-header bg-white" >
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="mb-0 fw-semibold">Property Inventory</h5>
+                        </div>
+                        <button type="button" class="btn-add-property" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+                            <span class="btn-add-icon">
+                                <i class="bi bi-folder-plus"></i>
+                            </span>
+                            <span>Add Property</span>
                         </button>
                     </div>
+                    <div class="row g-2">
+                        <!-- Search -->
+                        <div class="col-lg-3">
+                            <input type="text" class="flat-input" id="searchProperty" placeholder="Search property...">
+                        </div>
+                        <!-- Property Number -->
+                        <div class="col-lg-2">
+                            <input type="text" class="flat-input" id="propertyNoFilter" placeholder="Property No.">
+                        </div>
+                        <!-- Date Acquired -->
+                        <div class="col-lg-2">
+                            <input type="date" class="flat-input" id="dateFilter">
+                        </div>
+                        <!-- Unit -->
+                        <div class="col-lg-2">
+                            <select class="flat-input" id="unitFilter">
+                                <option value="">All Units</option>
+                                <option>Piece (pc)</option>
+                                <option>Set</option>
+                                <option>Unit</option>
+                                <option>Pair</option>
+                                <option>Pack</option>
+                                <option>Box</option>
+                                <option>Carton</option>
+                                <option>Bundle</option>
+                                <option>Roll</option>
+                                <option>Ream</option>
+                                <option>Book</option>
+                                <option>Pad</option>
+                                <option>Gram (g)</option>
+                                <option>Kilogram (kg)</option>
+                                <option>Liter (L)</option>
+                                <option>Meter (m)</option>
+                                <option>Bottle</option>
+                                <option>Can</option>
+                                <option>Jar</option>
+                                <option>Tube</option>
+                                <option>Sack</option>
+                                <option>Dozen</option>
+                            </select>
+                        </div>
+                        <!-- Current User -->
+                        <div class="col-lg-2">
+                            <input type="text" class="flat-input" id="currentUserFilter" placeholder="Current User">
+                        </div>
+                        <!-- Reset -->
+                        <div class="col-lg-1">
+                            <button type="button" class="btn-flat-light w-100" id="resetFilters">
+                                Reset Filter
+                                <i class="fas fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                     </br>
+                </div>
+               
+                <div class="card-body p-0">
+                    <div class="property-table-wrapper">
+                        <table class="property-table" id="propertyTable" >
+                            <thead>
+                                <tr>
+                                    <th class="col-id">ID</th>
+                                    <th>Property Number</th>
+                                    <th class="item-description">Item Description</th>
+                                    <th>Date Acquired</th>
+                                    <th>Base Unit</th>
+                                    <th class="text-end">Quantity</th>
+                                    <th class="text-end">Unit Value</th>
+                                    <th class="text-end">Total Cost</th>
+                                    <th>PAR Number</th>
+                                    <th>Remarks</th>
+                                    <th>Current User / Location</th>
+                                    <th class="col-actions text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="propertyTableBody">
+                                <tr>
+                                    <td colspan="12" class="property-loading">
+                                        <div class="loading-content">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <span>Loading properties...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                <!-- Pagination -->
+                <div class="property-pagination">
+                    <div id="pagination"></div>
                 </div>
             </div>
-            <div class="card-body p-0">
-            <div class="property-table-wrapper">
-                <table class="property-table" id="propertyTable" >
-                    <thead>
-                        <tr>
-                            <th class="col-id">ID</th>
-                            <th>Property Number</th>
-                            <th class="item-description">Item Description</th>
-                            <th>Date Acquired</th>
-                            <th>Base Unit</th>
-                            <th class="text-end">Quantity</th>
-                            <th class="text-end">Unit Value</th>
-                            <th class="text-end">Total Cost</th>
-                            <th>PAR Number</th>
-                            <th>Remarks</th>
-                            <th>Current User / Location</th>
-                            <th class="col-actions text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="propertyTableBody">
-                        <tr>
-                            <td colspan="12" class="property-loading">
-                                <div class="loading-content">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                    <span>Loading properties...</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination -->
-            <div class="property-pagination">
-                <div id="pagination"></div>
-            </div>
         </div>
-        </div>
+        {{-- Add property modal --}}
         <div class="modal fade" id="addPropertyModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content flat-modal">
@@ -206,32 +211,190 @@
                             </div>
                         </div>
                         <div class="flat-modal-footer d-flex justify-content-end align-items-center">
-
                             <div class="d-flex align-items-center me-auto gap-2">
-
                                 <label for="attachmentInput" class="btn-flat-attach mb-0">
                                     <i class="fas fa-paperclip me-2"></i>
                                     Upload & Attach PDF (ICS/PAR)
                                 </label>
-
                                 <span id="attachmentFileName" class="attachment-file-name">
                                     No file attached
                                 </span>
-
                             </div>
-
                             <!-- Actual file input -->
                             <input type="file" id="attachmentInput" name="attachment" accept="application/pdf,.pdf" hidden>
-
                             <button type="button" class="btn-flat-light" data-bs-dismiss="modal">
                                 Cancel
                             </button>
-
                             <button type="submit" class="btn-flat-primary ms-2">
                                 <i class="fas fa-save me-2"></i>
                                 Save Property
                             </button>
-
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {{-- Update property modal --}}
+        <div class="modal fade" id="updatePropertyModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content flat-modal">
+                    <form id="updatepropertyForm" action="{{ route('property.update') }}" method="POST"  enctype="multipart/form-data">
+                        @csrf
+                        {{-- Property ID --}}
+                        <input type="hidden" name="id" id="updatePropertyId">
+                        {{-- Header --}}
+                        <div class="flat-modal-header">
+                            <div>
+                                <h5 class="mb-1 fw-semibold">
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                    Update Property
+                                </h5>
+                                <small class="text-muted">
+                                    Update the property information below.
+                                </small>
+                            </div>
+                        </div>
+                        {{-- Body --}}
+                        <div class="flat-modal-body">
+                            <div class="row g-4">
+                                {{-- Property No --}}
+                                <div class="col-md-4">
+                                    <label class="flat-label">
+                                        Property No.
+                                    </label>
+                                    <input type="text" class="flat-input" name="property_no" required>
+                                </div>
+                                {{-- PAR Number --}}
+                                <div class="col-md-4">
+                                    <label class="flat-label">
+                                        PAR Number
+                                    </label>
+                                    <input type="text" class="flat-input" name="PAR_number">
+                                </div>
+                                {{-- Date Acquired --}}
+                                <div class="col-md-4">
+                                    <label class="flat-label">
+                                        Date Acquired
+                                    </label>
+                                    <input type="date" class="flat-input" name="date_acquired" required>
+                                </div>
+                                {{-- Item Description --}}
+                                <div class="col-md-6">
+                                    <label class="flat-label">
+                                        Item Description
+                                    </label>
+                                    <textarea
+                                        class="flat-input"
+                                        rows="3"
+                                        name="item_description"
+                                        required
+                                    ></textarea>
+                                </div>
+                                {{-- Remarks --}}
+                                <div class="col-md-6">
+                                    <label class="flat-label">
+                                        Remarks
+                                    </label>
+                                    <textarea
+                                        class="flat-input"
+                                        rows="3"
+                                        name="remarks"
+                                    ></textarea>
+                                </div>
+                                {{-- Unit --}}
+                                <div class="col-md-3">
+                                    <label class="flat-label">
+                                        U/Measurement
+                                    </label>
+                                    <select class="flat-input" name="unit_of_measurement" required>
+                                        <option value="">Select</option>
+                                        <option value="Piece (pc)">Piece (pc)</option>
+                                        <option value="Set">Set</option>
+                                        <option value="Unit">Unit</option>
+                                        <option value="Pair">Pair</option>
+                                        <option value="Pack">Pack</option>
+                                        <option value="Box">Box</option>
+                                        <option value="Carton">Carton</option>
+                                        <option value="Bundle">Bundle</option>
+                                        <option value="Roll">Roll</option>
+                                        <option value="Ream">Ream</option>
+                                        <option value="Book">Book</option>
+                                        <option value="Pad">Pad</option>
+                                        <option value="Gram (g)">Gram (g)</option>
+                                        <option value="Kilogram (kg)">Kilogram (kg)</option>
+                                        <option value="Metric Ton (MT)">Metric Ton (MT)</option>
+                                        <option value="Milliliter (mL)">Milliliter (mL)</option>
+                                        <option value="Liter (L)">Liter (L)</option>
+                                        <option value="Gallon">Gallon</option>
+                                        <option value="Millimeter (mm)">Millimeter (mm)</option>
+                                        <option value="Centimeter (cm)">Centimeter (cm)</option>
+                                        <option value="Meter (m)">Meter (m)</option>
+                                        <option value="Foot (ft)">Foot (ft)</option>
+                                        <option value="Inch (in)">Inch (in)</option>
+                                        <option value="Square Meter (sq.m)">
+                                            Square Meter (sq.m)
+                                        </option>
+                                        <option value="Bottle">Bottle</option>
+                                        <option value="Can">Can</option>
+                                        <option value="Jar">Jar</option>
+                                        <option value="Tube">Tube</option>
+                                        <option value="Sack">Sack</option>
+                                        <option value="Dozen">Dozen</option>
+                                    </select>
+                                </div>
+                                {{-- Quantity --}}
+                                <div class="col-md-3">
+                                    <label class="flat-label">
+                                        Quantity
+                                    </label>
+                                    <input type="number" min="0" class="flat-input" id="update_quantity" name="quantity" required>
+                                </div>
+                                {{-- Unit Value --}}
+                                <div class="col-md-3">
+                                    <label class="flat-label">
+                                        Unit Value
+                                    </label>
+                                    <input type="number" min="0" step="0.01" class="flat-input" id="update_unit_value" name="unit_value" required >
+                                </div>
+                                {{-- Total Cost --}}
+                                <div class="col-md-3">
+                                    <label class="flat-label">
+                                        Total Cost
+                                    </label>
+                                    <input type="text" class="flat-input" id="update_total_cost" name="total_cost" readonly >
+                                </div>
+                                {{-- Current User --}}
+                                <div class="col-md-4">
+                                    <label class="flat-label">
+                                        Current User
+                                    </label>
+                                    <input type="text" name="current_user"  class="flat-input" placeholder="Enter employee name" >
+                                </div>
+                            </div>
+                        </div>
+                        {{-- Footer --}}
+                        <div class="flat-modal-footer">
+                            {{-- Attachment --}}
+                           <div class="d-flex align-items-center gap-2 me-auto">
+                            <label for="updateAttachmentInput" class="btn-flat-attach mb-0" >
+                                <i class="fas fa-paperclip me-2"></i>
+                                Replace PDF
+                            </label>
+                            <span id="updateAttachmentFileName"  class="attachment-file-name" >
+                                No file attached
+                            </span>
+                        </div>
+                        <input type="file" id="updateAttachmentInput" name="attachment" accept="application/pdf,.pdf" hidden >
+                            <input type="file" id="updateAttachmentInput" name="attachment" accept="application/pdf,.pdf" hidden >
+                            {{-- Cancel --}}
+                            <button type="button" class="btn-flat-light" data-bs-dismiss="modal" >
+                                Cancel
+                            </button>
+                            {{-- Update --}}
+                            <button type="submit" class="btn-flat-primary ms-2" >
+                                <i class="bi bi-floppy2"></i>
+                                Update Record
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -293,7 +456,6 @@
                     .text(file.name)
                     .addClass('attached');
             } else {
-
                 $('#attachmentFileName')
                     .text('No file attached')
                     .removeClass('attached');
@@ -389,7 +551,6 @@
                 }
             });
         });
-
         //Pag load sa table
         function loadProperties(page = 1) {
             $.ajax({
@@ -407,101 +568,198 @@
                 , success: function(response) {
                     let rows = '';
                     if (response.data.length === 0) {
-                        rows = `
-                    <tr>
-                        <td colspan="12" class="text-center text-muted py-4">
-                            No property records found.
-                        </td>
-                    </tr>
-                `;
+                        rows = `<tr> <td colspan="12" class="text-center text-muted py-4"> No property records found. </td> </tr> `;
                     } else {
                         $.each(response.data, function(index, item) {
-
                             rows += `
-                    <tr>
-                        <td>${response.from + index}</td>
-                        <td>${item.property_no}</td>
-                        <td class="item-description">
-                            <a href="javascript:void(0)"
-                            data-id="${item.id}"
-                            data-description="${item.item_description}"
-                            data-path="${item.attachment}"
-                            class="attachmentBtn"
-                            style="color:#4382DF; text-decoration:underline; font-weight:600; cursor:pointer;">
-                                ${item.item_description}
-                            </a>
-                        </td>
-                        <td>${new Date(item.date_acquired).toLocaleDateString()}</td>
-                        <td>${item.unit_of_measurement}</td>
-                        <td class="text-end">${item.quantity}</td>
-                        <td class="text-end">${Number(item.unit_value).toLocaleString('en-US',{
-                            minimumFractionDigits:2
-                        })}</td>
-                        <td class="text-end">${Number(item.total_cost).toLocaleString('en-US',{
-                            minimumFractionDigits:2
-                        })}</td>
-                        <td>${item.PAR_number}</td>
-                        <td>${item.remarks ?? ''}</td>
-                        <td>${item.current_user}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-primary editProperty"
-                                    data-id="${item.id}">
-                               <i class="bi bi-pencil-fill"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger deleteProperty"
-                                    data-id="${item.id}">
-                               <i class="bi bi-trash3-fill"></i>
-                            </button>
-                        </td>
-                    </tr>`;
+                                <tr>
+                                    <td>${response.from + index}</td>
+                                    <td>${item.property_no}</td>
+                                    <td class="item-description">
+                                        <a href="javascript:void(0)" data-id="${item.id}" data-description="${item.item_description}" data-path="${item.attachment}" class="attachmentBtn" style="color:#4382DF; text-decoration:underline; font-weight:600; cursor:pointer;">
+                                            ${item.item_description}
+                                        </a>
+                                    </td>
+                                    <td>${new Date(item.date_acquired).toLocaleDateString()}</td>
+                                    <td>${item.unit_of_measurement}</td>
+                                    <td class="text-end">${item.quantity}</td>
+                                    <td class="text-end">${Number(item.unit_value).toLocaleString('en-US',{ minimumFractionDigits:2 })}</td>
+                                    <td class="text-end">${Number(item.total_cost).toLocaleString('en-US',{ minimumFractionDigits:2 })}</td>
+                                    <td>${item.PAR_number}</td>
+                                    <td>${item.remarks ?? ''}</td>
+                                    <td>
+                                        <i class="bi bi-info-circle-fill me-1 currentUserInfo" data-id="${item.id}" title="View User Information" style="font-size: 22px; color: #0dcaf0; cursor: pointer;"></i>
+                                        ${item.current_user}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-primary editProperty" data-id="${item.id}"  data-property-no="${item.property_no ?? ''}"  data-par-number="${item.PAR_number ?? ''}"  data-date-acquired="${item.date_acquired ?? ''}"   data-item-description="${item.item_description ?? ''}"    data-unit="${item.unit_of_measurement ?? ''}"     data-quantity="${item.quantity ?? ''}"    data-unit-value="${item.unit_value ?? ''}"    data-total-cost="${item.total_cost ?? ''}"    data-current-user="${item.current_user ?? ''}"   data-remarks="${item.remarks ?? ''}"  data-attachment="${item.attachment ?? ''}">
+                                        <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger deleteProperty" data-id="${item.id}">
+                                        <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
                         });
                     }
                     $('#propertyTableBody').html(rows);
                     // Pagination
                     let pagination = '';
                     if (response.last_page > 1) {
-                        pagination += `
-                    <nav>
-                        <ul class="pagination pagination-sm justify-content-end mb-0">
-                `;
+                        pagination += ` <nav> <ul class="pagination pagination-sm justify-content-end mb-0"> `;
                         // Previous
-                        pagination += `
-                    <li class="page-item ${response.current_page == 1 ? 'disabled' : ''}">
-                        <a class="page-link" href="#" data-page="${response.current_page - 1}">
-                            Previous
-                        </a>
-                    </li>
-                `;
+                        pagination += ` <li class="page-item ${response.current_page == 1 ? 'disabled' : ''}"> <a class="page-link" href="#" data-page="${response.current_page - 1}"> Previous </a> </li> `;
                         // Page Numbers
-                        for (let i = 1; i <= response.last_page; i++) {
-
-                            pagination += `
-                        <li class="page-item ${i == response.current_page ? 'active' : ''}">
-                            <a class="page-link" href="#" data-page="${i}">
-                                ${i}
-                            </a>
-                        </li>
-                    `;
-                        }
+                        for (let i = 1; i <= response.last_page; i++) { pagination += ` <li class="page-item ${i == response.current_page ? 'active' : ''}"> <a class="page-link" href="#" data-page="${i}"> ${i} </a> </li> `; }
                         // Next
-                        pagination += `
-                    <li class="page-item ${response.current_page == response.last_page ? 'disabled' : ''}">
-                        <a class="page-link" href="#" data-page="${response.current_page + 1}">
-                            Next
-                        </a>
-                    </li>
-                `;
-                        pagination += `
-                        </ul>
-                    </nav>
-                `;
+                        pagination += ` <li class="page-item ${response.current_page == response.last_page ? 'disabled' : ''}"> <a class="page-link" href="#" data-page="${response.current_page + 1}"> Next </a> </li> `;
+                        pagination += ` </ul> </nav> `;
                     }
                     $('#pagination').html(pagination);
-
                 }
             });
         }
-        $(document).ready(function() {
+        //Track History
+        $(document).on('click', '.currentUserInfo', function () {
+            const id = $(this).data('id');
+            alert(`User ID: ${id}`);
+        });
+        // Delete Button
+        $(document).on('click', '.deleteProperty', function () {
+            const id = $(this).data('id');
+            Swal.fire({
+                title: 'Delete Property Record?',
+                text: 'Note: This cannot be undo once deleted',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-trash3 me-1"></i> Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'stockwise-swal',
+                    confirmButton: 'swal-delete-btn',
+                    cancelButton: 'swal-cancel-btn'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('property.delete') }}",
+                        type: "GET",
+                        data: {
+                            id: id
+                        },
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            loadProperties();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: xhr.responseJSON?.message ?? 'Something went wrong!'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+        //Update table plot to update modal
+        $(document).on('click', '.editProperty', function () {
+            const button = $(this);
+            // Get data from button
+            const id = button.attr('data-id');
+            const propertyNo = button.attr('data-property-no') || '';
+            const parNumber = button.attr('data-par-number') || '';
+            const dateAcquired = button.attr('data-date-acquired') || '';
+            const itemDescription = button.attr('data-item-description') || '';
+            const unit = button.attr('data-unit') || '';
+            const quantity = button.attr('data-quantity') || '';
+            const unitValue = button.attr('data-unit-value') || '';
+            const totalCost = button.attr('data-total-cost') || '';
+            const currentUser = button.attr('data-current-user') || '';
+            const remarks = button.attr('data-remarks') || '';
+            const attachment = button.attr('data-attachment') || '';
+            $('#updatePropertyId').val(id);
+            $('#updatepropertyForm [name="property_no"]').val(propertyNo);
+            $('#updatepropertyForm [name="PAR_number"]').val(parNumber);
+            $('#updatepropertyForm [name="date_acquired"]').val(dateAcquired);
+            $('#updatepropertyForm [name="item_description"]').val(itemDescription);
+            $('#updatepropertyForm [name="remarks"]').val(remarks);
+            $('#updatepropertyForm [name="unit_of_measurement"]').val(unit);
+            $('#update_quantity').val(quantity);
+            $('#update_unit_value').val(unitValue);
+            $('#update_total_cost').val(totalCost);
+            $('#updatepropertyForm [name="current_user"]').val(currentUser);
+            $('#updateAttachmentInput').val('');
+            $('#updateAttachmentFileName').text('No new file selected');
+            //Date ini na format 
+            if (dateAcquired) {
+                $('#updatepropertyForm [name="date_acquired"]')
+                    .val(dateAcquired.substring(0, 10));
+            }
+            // attachment display
+            if (attachment) {
+                const fileName = attachment.split('/').pop();
+                $('#updateAttachmentFileName').text(fileName);
+            } else {
+                $('#updateAttachmentFileName').text('No file attached');
+            }
+            $('#updatePropertyModal').modal('show');
+        });
+        //Update function to database
+        $(document).on('submit', '#updatepropertyForm', function (e) {
+            e.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            // Remove commas from total cost
+            let totalCost = $('#update_total_cost').val()
+                .replace(/,/g, '');
+            formData.set('total_cost', totalCost);
+            $.ajax({
+                url: "{{ route('property.update') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        $('#updatePropertyModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        loadProperties();
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseJSON);
+                    let message = 'Unable to update property.';
+                    if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: message
+                    });
+                }
+            });
+        });
+        //Display Filtered Table
+        $(document).ready(function() 
+        {
             loadProperties();
             $('#searchProperty, #propertyNoFilter, #currentUserFilter').on('keyup', function() {
                 loadProperties();
@@ -529,18 +787,26 @@
         const quantity = document.getElementById('quantity');
         const unitValue = document.getElementById('unit_value');
         const totalCost = document.getElementById('total_cost');
-
-        function calculateTotalCost() {
-            const qty = parseFloat(quantity.value) || 0;
-            const unit = parseFloat(unitValue.value) || 0;
-            const total = qty * unit;
-
-            totalCost.value = total.toLocaleString('en-US', {
-                minimumFractionDigits: 2
-                , maximumFractionDigits: 2
-            });
-        }
+            function calculateTotalCost() {
+                const qty = parseFloat(quantity.value) || 0;
+                const unit = parseFloat(unitValue.value) || 0;
+                const total = qty * unit;
+                totalCost.value = total.toLocaleString('en-US', {
+                    minimumFractionDigits: 2
+                    , maximumFractionDigits: 2
+                });
+            }
         quantity.addEventListener('input', calculateTotalCost);
         unitValue.addEventListener('input', calculateTotalCost);
-
+        $(document).on('input', '#update_quantity, #update_unit_value', function () {
+            const quantity = parseFloat($('#update_quantity').val()) || 0;
+            const unitValue = parseFloat($('#update_unit_value').val()) || 0;
+            const total = quantity * unitValue;
+            $('#update_total_cost').val(
+                total.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+            );
+        });
     </script>
