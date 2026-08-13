@@ -247,7 +247,7 @@
                             <div>
                                 <h5 class="mb-1 fw-semibold">
                                     <i class="bi bi-pencil-square me-2"></i>
-                                    Update Property
+                                    Update Property Record
                                 </h5>
                                 <small class="text-muted">
                                     Update the property information below.
@@ -400,6 +400,7 @@
                 </div>
             </div>
         </div>
+        {{-- View PDF --}}
         <div class="modal fade" id="attachmentModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content border-0 shadow">
@@ -445,8 +446,63 @@
                 </div>
             </div>
         </div>
+        {{-- popover design --}}
+        <div id="userHistoryPopup" class="user-history-popup">
+            <div class="user-history-popup-header">
+                <div>
+                    <div class="user-history-title">
+                        <i class="bi bi-person-badge me-1"></i>
+                        User History
+                    </div>
+                    <small>
+                        Property assignment
+                    </small>
+                </div>
+                <button type="button" class="user-history-close">
+                    &times;
+                </button>
+            </div>
+            <div class="user-history-popup-body">
+                <div class="history-mini-item current">
+                    <div class="history-mini-icon">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                        <div class="history-mini-user">
+                            Juan Dela Cruz
+                        </div>
+                        <div class="history-mini-location">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            ICT Section - PPDO
+                        </div>
+                        <div class="history-mini-date">
+                            August 12, 2026
+                        </div>
+                    </div>
+                    <span class="history-mini-badge">
+                        Current
+                    </span>
+                </div>
+                <div class="history-mini-item">
+                    <div class="history-mini-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div>
+                        <div class="history-mini-user">
+                            Maria Santos
+                        </div>
+                        <div class="history-mini-location">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            Administrative Section - PHRMDO
+                        </div>
+                        <div class="history-mini-date">
+                            March 10, 2026
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
     <script>
         //File picker
         $('#attachmentInput').on('change', function() {
@@ -480,11 +536,9 @@
                 $(this).data('description')
             );
             $('#pdf_path').val(path);
-            // Build storage URL
             const pdfUrl = '/storage/' + path;
-            // Display PDF
             $('#pdfPreview').html(`
-        <iframe src="${pdfUrl}" style="width: 100%;height: 100%;border: none;"></iframe>`);
+                <iframe src="${pdfUrl}" style="width: 100%;height: 100%;border: none;"></iframe>`);
             $('#pdfPreviewText').text(
                 'PDF document'
             );
@@ -495,7 +549,6 @@
             e.preventDefault();
             const form = this;
             const formData = new FormData(form);
-            // Debug - check if file is actually included
             const attachment = formData.get('attachment');
             console.log('Attachment:', attachment);
             if (attachment && attachment instanceof File) {
@@ -587,16 +640,16 @@
                                     <td class="text-end">${Number(item.total_cost).toLocaleString('en-US',{ minimumFractionDigits:2 })}</td>
                                     <td>${item.PAR_number}</td>
                                     <td>${item.remarks ?? ''}</td>
-                                    <td>
-                                        <i class="bi bi-info-circle-fill me-1 currentUserInfo" data-id="${item.id}" title="View User Information" style="font-size: 22px; color: #0dcaf0; cursor: pointer;"></i>
+                                    <td class="position-relative">
+                                        <i class="bi bi-info-circle-fill me-1 currentUserInfo" data-id="${item.id}" title="View User/Location History" style="font-size: 18px; color: #0dcaf0; cursor: pointer;"> </i>
                                         ${item.current_user}
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-primary editProperty" data-id="${item.id}"  data-property-no="${item.property_no ?? ''}"  data-par-number="${item.PAR_number ?? ''}"  data-date-acquired="${item.date_acquired ?? ''}"   data-item-description="${item.item_description ?? ''}"    data-unit="${item.unit_of_measurement ?? ''}"     data-quantity="${item.quantity ?? ''}"    data-unit-value="${item.unit_value ?? ''}"    data-total-cost="${item.total_cost ?? ''}"    data-current-user="${item.current_user ?? ''}"   data-remarks="${item.remarks ?? ''}"  data-attachment="${item.attachment ?? ''}">
-                                        <i class="bi bi-pencil-fill"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger deleteProperty" data-id="${item.id}">
-                                        <i class="bi bi-trash3-fill"></i>
+                                            <i class="bi bi-pencil-fill"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger deleteProperty" data-id="${item.id}">
+                                            <i class="bi bi-trash3-fill"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -620,10 +673,56 @@
                 }
             });
         }
-        //Track History
-        $(document).on('click', '.currentUserInfo', function () {
-            const id = $(this).data('id');
-            alert(`User ID: ${id}`);
+       // Open popup
+        $(document).on('click', '.currentUserInfo', function (e) {
+            e.stopPropagation();
+            const icon = this;
+            const popup = $('#userHistoryPopup');
+            if (popup.is(':visible')) {
+                popup.hide();
+                return;
+            }
+            popup.show();
+            const rect = icon.getBoundingClientRect();
+            const popupWidth = popup.outerWidth();
+            const popupHeight = popup.outerHeight();
+            let left = rect.right + 10;
+            let top = rect.top;
+            if (left + popupWidth > window.innerWidth - 10) {
+                left = rect.left - popupWidth - 10;
+            }
+            if (top + popupHeight > window.innerHeight - 10) {
+                top = window.innerHeight - popupHeight - 10;
+            }
+            if (top < 10) {
+                top = 10;
+            }
+            popup.css({
+                left: left + 'px',
+                top: top + 'px'
+            });
+        });
+        // Close button
+        $(document).on('click', '.user-history-close', function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('#userHistoryPopup').hide();
+
+        });
+
+
+        // Click outside popup
+        $(document).on('click', function (e) {
+
+            if (
+                !$(e.target).closest('#userHistoryPopup').length &&
+                !$(e.target).closest('.currentUserInfo').length
+            ) {
+                $('#userHistoryPopup').hide();
+            }
+
         });
         // Delete Button
         $(document).on('click', '.deleteProperty', function () {

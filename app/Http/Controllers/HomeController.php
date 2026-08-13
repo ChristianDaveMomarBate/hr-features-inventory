@@ -54,7 +54,7 @@ class HomeController extends Controller
     public function index(Request $request, ?string $page = null)
     {
         $user = $request->user();
-        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails', 'reports', 'property-management'];
+        $allowedPages = ['dashboard', 'inventory-registry', 'stock-management', 'item-requests', 'analytics', 'audit-trails', 'reports', 'property-management', 'property-transfer'];
 
         if ($page && ! in_array($page, $allowedPages, true)) {
             abort(403, 'Unauthorized dashboard page.');

@@ -7,7 +7,11 @@ $validDashboardPages = [
 'analytics',
 'audit-trails',
 'reports',
-'property-management'
+'property-management',
+'property-transfer',
+'budget-management',
+'waste-disposal'
+
 ];
 $lastSegment = request()->segment(count(request()->segments()));
 $activePageId = in_array($lastSegment, $validDashboardPages) ? $lastSegment : 'dashboard';
@@ -19,15 +23,15 @@ $activePageId = in_array($lastSegment, $validDashboardPages) ? $lastSegment : 'd
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHRMDO StockWise</title>
     @include('style.style')
-    <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="  {{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="  {{ asset('vendor/bootstrap-icons/font/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('images/logo-hri.png') }}">
-    <link href="{{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendor/tom-select/dist/css/tom-select.bootstrap5.min.css') }}" rel="stylesheet">
-    <script src="{{ asset('vendor/chart.js/dist/chart.umd.js') }}"></script>
-    <link href="{{ asset('design/dashboardstyle/index.css') }}" rel="stylesheet">
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/sweetalert.min.js') }}"></script>
+    <link href="  {{ asset('vendor/@fontsource/inter/index.css') }}" rel="stylesheet">
+    <link href="  {{ asset('vendor/tom-select/dist/css/tom-select.bootstrap5.min.css') }}" rel="stylesheet">
+    <script src=" {{ asset('vendor/chart.js/dist/chart.umd.js') }}"></script>
+    <link href="  {{ asset('design/dashboardstyle/index.css') }}" rel="stylesheet">
+    <script src=" {{ asset('js/jquery.min.js') }}"></script>
+    <script src=" {{ asset('js/sweetalert.min.js') }}"></script>
 </head>
 <body>
     <div class="dashboard-mobile-bar">
@@ -231,7 +235,9 @@ $activePageId = in_array($lastSegment, $validDashboardPages) ? $lastSegment : 'd
             @include('InventoryDashboard.auditTrails')
             @include('InventoryDashboard.reports')
             @include('InventoryDashboard.propertymanagement')
-
+            @include('InventoryDashboard.propertyTransfer')
+            @include('InventoryDashboard.budgetmanagement')
+            @include('InventoryDashboard.wastedisposal')
         </div>
     </div>
 
