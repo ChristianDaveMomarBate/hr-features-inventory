@@ -56,12 +56,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard/{page?}', [HomeController::class, 'index'])->middleware(['auth', 'role:admin'])->name('dashboard');
 
     // Property Manage Route
-    Route::post('/property-management/store', [PropertyManageController::class, 'store'])
-        ->name('property.store');
-    Route::get('/dashboard/property-management/data', [PropertyManageController::class, 'data'])
-        ->name('property.data');
-    Route::get('/dashboard/property-management/delete', [PropertyManageController::class, 'delete'])
-        ->name('property.delete');
-    Route::post('/dashboard/property-management/update', [PropertyManageController::class, 'update'])
-        ->name('property.update');
+    Route::post('/property-management/store', [PropertyManageController::class, 'store'])->name('property.store');
+    Route::get('/dashboard/property-management/data', [PropertyManageController::class, 'data'])->name('property.data');
+    Route::get('/dashboard/property-management/delete', [PropertyManageController::class, 'delete'])->name('property.delete');
+    Route::post('/dashboard/property-management/update', [PropertyManageController::class, 'update'])->name('property.update');
+    // Property Transfer Route
+    Route::post('/property-transfer/fetch', [PropertyManageController::class, 'fetch'])->name('property-transfer.fetch');
+    Route::post('/property-transfer/save', [PropertyManageController::class, 'save']) ->name('property-transfer.save');
+    Route::get('/property-transfer/history', [PropertyManageController::class, 'history'])->name('property-transfer.history');
+    Route::post('/property-transfer/history/action',[PropertyManageController::class,'historyAction'])->name('property-transfer.history.action');
 });

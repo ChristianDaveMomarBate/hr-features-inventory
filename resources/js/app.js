@@ -5,6 +5,7 @@
  */
 
 import './bootstrap';
+import './property/propertyscript.js';
 // import '@fontsource/nunito';
 import { createApp } from 'vue';
 
