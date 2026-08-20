@@ -175,6 +175,7 @@ class PropertyManageController extends Controller
     public function save(Request $request)
     {
         $request->validate([
+            'transfer_no' => ['required', 'string', 'unique:property_transfer,transfer_no'],
             'transfer_date' => ['required', 'date'],
             'current_accountable_officer' => ['required', 'string'],
             'current_accountable_officer_office' => ['required', 'string'],
@@ -196,7 +197,7 @@ class PropertyManageController extends Controller
             'properties.*.unit_value' => ['required', 'numeric', 'min:0'],
             'properties.*.date_acquired' => ['required', 'date'],
             'properties.*.total_cost' => ['required', 'numeric', 'min:0'],
-            'properties.*.condition' => ['required', 'in:Serviceable,Unserviceable,For Repair'],
+            'properties.*.condition' => ['required', 'in:Donation,Reassignment/Recalled,Recolate,Retirement/Resignation,Other'],
             'transfer_documents' => ['nullable', 'array'],
             'transfer_documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx', 'max:10240'],
         ]);
@@ -213,36 +214,12 @@ class PropertyManageController extends Controller
             ], 422);
         }
 
-        foreach ($request->properties as $property) {
-            $existingTransfer = PropertyTransferItem::where('property_no', $property['property_no'])
-                ->whereHas('propertyTransfer', function ($query) {
-                    $query->whereIn('status', ['Pending', 'Acknowledged']);
-                })
-                ->exists();
-
-            if ($existingTransfer) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Property {$property['property_no']} already has an active transfer.",
-                ], 422);
-            }
-        }
-
         DB::beginTransaction();
 
         try {
             $transferUuid = (string) Str::uuid();
-            $year = now()->year;
 
-            $lastTransfer = PropertyTransfer::whereYear('created_at', $year)
-                ->orderByDesc('id')
-                ->first();
-
-            $nextNumber = $lastTransfer
-                ? ((int) Str::afterLast($lastTransfer->transfer_no, '-') + 1)
-                : 1;
-
-            $transferNo = 'PTR-' . $year . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $transferNo = trim($request->transfer_no);
 
             $documents = [];
 
@@ -269,7 +246,7 @@ class PropertyManageController extends Controller
                 'transfer_no' => $transferNo,
                 'transfer_date' => $request->transfer_date,
                 'items' => count($request->properties),
-                'status' => 'Pending',
+                'status' => 'Approved',
                 'property_uuid' => 'PR' . $transferNo,
                 'curent_accountable_officer' => $request->current_accountable_officer,
                 'curent_accountable_officer_office' => $request->current_accountable_officer_office,
@@ -380,6 +357,63 @@ class PropertyManageController extends Controller
             'success'=>true,
             'message'=>'Transfer '.$status[$validated['action']].' successfully.',
             'status'=>$transfer->status,
+        ]);
+    }
+
+    public function historyAttachmentView(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer'
+        ]);
+        // dd(id);
+
+        $transfer = PropertyTransfer::findOrFail($request->id);
+
+        $attachments = [];
+
+        foreach (($transfer->transfer_attachment ?? []) as $attachment) {
+
+            if (is_string($attachment)) {
+                $path = $attachment;
+
+                $attachments[] = [
+                    'name' => basename($path),
+                    'url' => asset('storage/' . $path),
+                    'type' => 'Attachment',
+                ];
+
+                continue;
+            }
+
+            if (is_array($attachment)) {
+
+                $path = $attachment['path']
+                    ?? $attachment['file']
+                    ?? $attachment['url']
+                    ?? null;
+
+                if (!$path) {
+                    continue;
+                }
+
+                $attachments[] = [
+                    'name' => $attachment['name']
+                        ?? basename($path),
+
+                    'url' => str_starts_with($path, 'http')
+                        ? $path
+                        : asset('storage/' . ltrim($path, '/')),
+
+                    'type' => $attachment['type']
+                        ?? 'Attachment',
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'transfer_no' => $transfer->transfer_no,
+            'attachments' => $attachments,
         ]);
     }
 }

@@ -65,4 +65,5 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/property-transfer/save', [PropertyManageController::class, 'save']) ->name('property-transfer.save');
     Route::get('/property-transfer/history', [PropertyManageController::class, 'history'])->name('property-transfer.history');
     Route::post('/property-transfer/history/action',[PropertyManageController::class,'historyAction'])->name('property-transfer.history.action');
+    Route::post('/property-transfer/history/attachmentview',[PropertyManageController::class,'historyAttachmentView'])->name('property-transfer.history.AttachmentView');
 });

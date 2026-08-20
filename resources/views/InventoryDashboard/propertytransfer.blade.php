@@ -118,7 +118,11 @@
                             <div class="col-6 col-md-3">
                                 <div class="border rounded-3 p-2">
                                     <small class="text-muted d-block">Transfer No.</small>
-                                    <strong id="transferNo">—</strong>
+                                    <input type="text"
+                                        id="transferNo"
+                                        name="transfer_no"
+                                        class="form-control form-control-sm border-0 shadow-none p-0 fw-semibold"
+                                        placeholder="Enter transfer no.">
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
@@ -522,6 +526,55 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="transferAttachmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title fw-semibold">
+                        <i class="bi bi-paperclip me-2 text-primary"></i>
+                        Transfer Attachments
+                    </h5>
+                    <small class="text-muted" id="attachmentTransferNo"></small>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="attachmentLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="small text-muted mt-2">
+                        Loading attachments...
+                    </div>
+                </div>
+
+                <div id="attachmentEmpty"
+                     class="text-center py-5 d-none">
+                    <i class="bi bi-paperclip fs-1 text-muted"></i>
+                    <div class="fw-semibold mt-2">
+                        No attachments found
+                    </div>
+                    <small class="text-muted">
+                        This transfer has no attached documents.
+                    </small>
+                </div>
+
+                <div id="attachmentList"
+                     class="list-group d-none">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
     // History with filter table
     let transferHistoryPage = 1;
@@ -632,7 +685,16 @@
             html += `
                 <tr>
                     <td class="px-3">${startIndex + index + 1}</td>
-                    <td class="fw-semibold">${escapeHtml(transfer.transfer_no)}</td>
+                    <td class="fw-semibold">
+                        ${escapeHtml(transfer.transfer_no)}
+
+                        <button type="button"
+                                class="transfer-help-btn"
+                                onclick="viewTransferAttachments(${transfer.id})"
+                                title="View attachments">
+                            <i class="bi bi-question-circle-fill"></i>
+                        </button>
+                    </td>
                     <td>${transferDate}</td>
                     <td>
                         <div class="fw-semibold">
@@ -663,8 +725,7 @@
                                     ? 'bg-danger text-white'
                                     : transfer.status==='Cancelled'
                                         ? 'bg-secondary text-white'
-                                        : 'bg-warning text-white'
-                        }">
+                                        : 'bg-warning text-white'}">
                             ${escapeHtml(transfer.status)}
                         </span>
                     </td>
@@ -683,7 +744,124 @@
         // I-display ang nahimo nga rows sa table.
         tbody.html(html);
     }
+    
+    function viewTransferAttachments(transferId) {
 
+        const modalElement = document.getElementById('transferAttachmentModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        $('#attachmentLoading').removeClass('d-none');
+        $('#attachmentEmpty').addClass('d-none');
+        $('#attachmentList').addClass('d-none').empty();
+        $('#attachmentTransferNo').text('');
+
+        modal.show();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('property-transfer.history.AttachmentView') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: transferId
+            },
+            success: function(response) {
+
+                $('#attachmentLoading').addClass('d-none');
+
+                if (!response.success || !response.attachments || response.attachments.length === 0) {
+                    $('#attachmentEmpty').removeClass('d-none');
+                    return;
+                }
+
+                if (response.transfer_no) {
+                    $('#attachmentTransferNo').text(
+                        'Transfer No. ' + response.transfer_no
+                    );
+                }
+
+                let html = '';
+
+                response.attachments.forEach(function(file) {
+
+                    const fileName = escapeHtml(file.name);
+                    const fileUrl = escapeHtml(file.url);
+
+                    html += `
+                        <div class="list-group-item d-flex align-items-center justify-content-between py-3">
+
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="text-primary fs-4">
+                                    <i class="${getAttachmentIcon(file.name)}"></i>
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        ${fileName}
+                                    </div>
+                                    <small class="text-muted">
+                                        ${file.type ?? 'Attachment'}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="${fileUrl}"
+                                target="_blank"
+                                class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+                                </a>
+                            </div>
+
+                        </div>
+                    `;
+                });
+
+                $('#attachmentList')
+                    .html(html)
+                    .removeClass('d-none');
+            },
+
+            error: function(xhr) {
+
+                $('#attachmentLoading').addClass('d-none');
+
+                $('#attachmentList')
+                    .html(`
+                        <div class="alert alert-danger mb-0">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            Unable to load the attachments.
+                        </div>
+                    `)
+                    .removeClass('d-none');
+
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    function getAttachmentIcon(fileName) {
+
+    const extension = fileName.split('.').pop().toLowerCase();
+
+    if (extension === 'pdf') {
+        return 'bi bi-file-earmark-pdf-fill';
+    }
+
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
+        return 'bi bi-file-earmark-image-fill';
+    }
+
+    if (['doc', 'docx'].includes(extension)) {
+        return 'bi bi-file-earmark-word-fill';
+    }
+
+    if (['xls', 'xlsx'].includes(extension)) {
+        return 'bi bi-file-earmark-excel-fill';
+    }
+
+    return 'bi bi-file-earmark-fill';
+}
 
     // Kuhaa ang ID sa transfer nga gi-click ug ipakita ang action popover.
     $(document).on('click','.transfer-history-action',function(e){
@@ -942,9 +1120,7 @@
             emptyState.show();
             return;
         }
-
         emptyState.hide();
-
         transferDocuments.forEach(function(file,index){
             const extension=file.name.split('.').pop().toLowerCase();
             let icon='bi-file-earmark';
@@ -1010,50 +1186,68 @@
     }
     initTransferDocuments();
 
-    //Ajax sa pag save sa database
     $('#acknowledgeTransferBtn').on('click',function(){
         const button=$(this);
         const form=document.getElementById('propertyTransferForm');
         const properties=[];
+        const transferReason=$('#transferReason').val();
 
-// Kolektahon ang tanang property nga naa sa transfer table
-$('#transferPropertyTableBody tr[data-property-id]').each(function(){
-    const row=$(this);
+        // Siguraduhon nga valid ang napiling reason
+        const validReasons=[
+            'Donation',
+            'Reassignment/Recalled',
+            'Recolate',
+            'Retirement/Resignation',
+            'Other'
+        ];
 
-    const quantityText=row.find('td:eq(5)').text().trim();
-    const quantityMatch=quantityText.match(/^([\d,.]+)\s*(.*)$/);
+        if(!validReasons.includes(transferReason)){
+            Swal.fire({
+                icon:'warning',
+                title:'Reason for Transfer Required',
+                text:'Please select a valid reason for the transfer.'
+            });
+            return;
+        }
 
-    properties.push({
-        property_id:row.data('property-id'),
-        property_no:row.find('td:eq(1)').text().trim(),
-        item_description:row.find('td:eq(2)').text().trim(),
-        par_ics:row.find('td:eq(3)').text().trim(),
+        // Kolektahon ang tanang property nga naa sa transfer table
+        $('#transferPropertyTableBody tr[data-property-id]').each(function(){
+            const row=$(this);
+            const quantityText=row.find('td:eq(5)').text().trim();
+            const quantityMatch=quantityText.match(/^([\d,.]+)\s*(.*)$/);
 
-        // Kuhaon ang date acquired gikan sa row
-        date_acquired:row.attr('data-date-acquired'),
+            properties.push({
+                property_id:row.data('property-id'),
+                property_no:row.find('td:eq(1)').text().trim(),
+                item_description:row.find('td:eq(2)').text().trim(),
+                par_ics:row.find('td:eq(3)').text().trim(),
 
-        quantity:quantityMatch
-            ?parseFloat(quantityMatch[1].replace(/,/g,''))
-            :null,
+                // Kuhaon ang date acquired gikan sa row
+                date_acquired:row.attr('data-date-acquired'),
 
-        unit_of_measurement:quantityMatch
-            ?quantityMatch[2].trim()
-            :'',
+                quantity:quantityMatch
+                    ?parseFloat(quantityMatch[1].replace(/,/g,''))
+                    :null,
 
-        unit_value:parseFloat(
-            row.find('td:eq(6)').text().replace(/,/g,'').trim()
-        ),
+                unit_of_measurement:quantityMatch
+                    ?quantityMatch[2].trim()
+                    :'',
 
-        // Kuhaon ang total cost gikan sa row
-        total_cost:parseFloat(
-            row.attr('data-total-cost')
-        )||0,
+                unit_value:parseFloat(
+                    row.find('td:eq(6)').text().replace(/,/g,'').trim()
+                )||0,
 
-        condition:row.find('.transfer-condition').val()
-    });
-});
+                // Kuhaon ang total cost gikan sa row
+                total_cost:parseFloat(
+                    row.attr('data-total-cost')
+                )||0,
 
-        //Dili pwede mag save kung walay property
+                // Gamiton ang reason sa transfer isip condition
+                condition:transferReason
+            });
+        });
+
+        // Dili pwede mag-save kung walay property
         if(!properties.length){
             Swal.fire({
                 icon:'warning',
@@ -1063,46 +1257,72 @@ $('#transferPropertyTableBody tr[data-property-id]').each(function(){
             return;
         }
 
-        //Dili pwede mag save kung walay condition ang property
-        if(properties.some(property=>!property.condition)){
+        // Siguraduhon nga valid ang reason sa tanang property
+        if(properties.some(property=>!validReasons.includes(property.condition))){
             Swal.fire({
                 icon:'warning',
-                title:'Property Condition Required',
-                text:'Please select a condition for every property.'
+                title:'Invalid Transfer Reason',
+                text:'Please select a valid reason for the transfer.'
             });
             return;
         }
 
+        // Kuhaon ang tanang field gikan sa form
         const formData=new FormData(form);
 
-        //Tangtangon ang existing attachment entries aron dili mag duplicate
+        // Tangtangon ang existing attachment aron dili magdoble
         formData.delete('transfer_documents[]');
 
-        //Ibutang ang property data sa FormData
+        // Ibutang ang tanang property data sa FormData
         properties.forEach((property,index)=>{
             Object.entries(property).forEach(([key,value])=>{
-                formData.append(`properties[${index}][${key}]`,value);
+                formData.append(
+                    `properties[${index}][${key}]`,
+                    value??''
+                );
             });
         });
 
-        //Ibutang ang tanang selected attachment files
-        transferDocuments.forEach(file=>{
-            formData.append('transfer_documents[]',file);
+        // I-check ang tanang gipiling attachment
+        transferDocuments.forEach(function(file,index){
+            console.log('Attachment '+(index+1)+':',{
+                name:file.name,
+                size:file.size,
+                sizeMB:(file.size/1024/1024).toFixed(2),
+                type:file.type
+            });
+
+            if(file instanceof File){
+                if(file.size>10*1024*1024){
+                    console.warn(
+                        'File sobra sa 10MB:',
+                        file.name,
+                        (file.size/1024/1024).toFixed(2)+' MB'
+                    );
+                    return;
+                }
+
+                formData.append(
+                    'transfer_documents[]',
+                    file,
+                    file.name
+                );
+            }
         });
 
-        //Console log para ma-check ang actual data nga ipadala sa AJAX
+        // Ipakita sa console ang data nga ipadala
         console.log('Transfer Data:');
 
         for(const [key,value] of formData.entries()){
             console.log(
                 key,
                 value instanceof File
-                    ? {
+                    ?{
                         name:value.name,
                         size:value.size,
                         type:value.type
                     }
-                    : value
+                    :value
             );
         }
 
@@ -1118,12 +1338,12 @@ $('#transferPropertyTableBody tr[data-property-id]').each(function(){
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             },
 
-            //Kung successful ang pag save sa database
+            // Kung malampuson ang pag-save sa database
             success:function(response){
                 console.log('TRANSFER SAVE RESPONSE:',response);
 
                 if(response.success){
-                    $('#transferNo').text(response.transfer_no);
+                    //Nasaya ini $('#transferNo').text(response.transfer_no);
                     $('#transferStatus').text(response.status);
 
                     Swal.fire({
@@ -1136,27 +1356,79 @@ $('#transferPropertyTableBody tr[data-property-id]').each(function(){
                 }
             },
 
-            //Kung adunay validation error o custom error gikan sa controller
+            // Kung adunay validation error o error gikan sa controller
             error:function(xhr){
                 console.error('TRANSFER SAVE ERROR:',xhr);
 
                 const response=xhr.responseJSON||{};
                 const errors=response.errors||{};
 
-                //Kuhaon ang Laravel validation errors kung naa
+                // Kuhaon ang tanang validation errors gikan sa Laravel
                 const validationMessages=Object.values(errors).flat();
 
-                //Kung custom message gikan sa controller, gamiton diretso
+                // Gamiton ang custom message kung walay validation error
                 const message=validationMessages.length
-                    ? validationMessages.join('<br>')
-                    : response.message||'Unable to save the transfer.';
+                    ?validationMessages.join('<br>')
+                    :response.message||'Unable to save the transfer.';
 
-                if(xhr.status===422){
+                if(xhr.status===422 && response.type==='pending_transfer'){
                     Swal.fire({
                         icon:'warning',
-                        title:'Validation Error',
-                        html:message
+                        title:'Pending Transfer Request',
+                        html:`
+                            <div class="text-start">
+                                <div class="border rounded-3 p-3 mb-3 bg-light">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="text-warning fs-3">
+                                            <i class="bi bi-hourglass-split"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">
+                                                This property already has a pending transfer.
+                                            </div>
+                                            <small class="text-muted">
+                                                A new transfer request cannot be created until the existing request is addressed.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-2 text-start">
+                                    <div class="col-6">
+                                        <div class="border rounded-3 p-2">
+                                            <small class="text-muted d-block">
+                                                Property No.
+                                            </small>
+                                            <span class="fw-semibold">
+                                                ${escapeHtml(response.property_no)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="border rounded-3 p-2">
+                                            <small class="text-muted d-block">
+                                                Transfer No.
+                                            </small>
+                                            <span class="fw-semibold text-primary">
+                                                ${escapeHtml(response.transfer_no || '—')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning mt-3 mb-0 py-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Please review and address the pending transfer before submitting another request for this property.
+                                </div>
+                            </div>
+                        `,
+                        confirmButtonText:'Understood',
+                        confirmButtonColor:'#0d6efd',
+                        width:'520px'
                     });
+
+                    return;
                 }else{
                     Swal.fire({
                         icon:'error',
@@ -1165,14 +1437,12 @@ $('#transferPropertyTableBody tr[data-property-id]').each(function(){
                     });
                 }
             },
-
-            //I-enable balik ang button human sa request
+            // I-enable balik ang button pagkahuman sa request
             complete:function(){
                 button.prop('disabled',false);
             }
         });
     });
-
     // Lista sa mga government offices nga gamiton sa current ug receiving office dropdown
     const governmentOffices = [
         { code: '001', name: "Provincial Governor's Office", acronym: 'PGO' },
